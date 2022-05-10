@@ -701,7 +701,7 @@ class _MovieState extends State<Movie> {
                                                               Navigator.push(
                                                                 context,
                                                                 PageRouteBuilder(
-                                                                  pageBuilder: (context, animation1, animation2) => VideoPlayer(subtitles: availableSubtitles,selected_subtitle: _focused_source,sourcesList: widget.movie!.sources,selected_source:0,focused_source: 0,poster: widget.movie),
+                                                                  pageBuilder: (context, animation1, animation2) => VideoPlayer(subtitles: availableSubtitles,selected_subtitle: _focused_source,sourcesList: widget.movie!.sources,selected_source:_focused_source,focused_source: _focused_source,poster: widget.movie),
                                                                   transitionDuration: Duration(seconds: 0),
                                                                 ),
                                                               );
@@ -1277,7 +1277,7 @@ class _MovieState extends State<Movie> {
       Navigator.push(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => VideoPlayer(subtitles:availableSubtitles,selected_subtitle: _focused_source,sourcesList: _sources,selected_source:_new_selected_source,focused_source: _new_selected_source,poster: widget.movie),
+          pageBuilder: (context, animation1, animation2) => VideoPlayer(subtitles:availableSubtitles,selected_subtitle: _focused_source,sourcesList: _sources,selected_source:0,focused_source: _focused_source,poster: widget.movie),
           transitionDuration: Duration(seconds: 0),
         ),
       );

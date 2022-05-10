@@ -45,6 +45,9 @@ class apiRest{
 
     try{
       String castLink = "https://sflix-edc5e.uc.r.appspot.com/subtitle?tmdbid=$imdb";
+
+
+      print(castLink);
       var responseCast = await http.get(Uri.parse(castLink), );
 
 
@@ -60,9 +63,10 @@ class apiRest{
      // print(subtitleAvailableList[0]["file_name"]);
 
       if(subtitleAvailableList.length>0){
-
+        Subtitle? subtitle =new Subtitle(id: -1, type: "", language: "", url: "", image: "");
+        subtitleAvailableListModel.insert(0, subtitle);
         for(int i = 0 ; i < subtitleAvailableList.length ; i++){
-          subtitleAvailableListModel.add(Subtitle(file_id:subtitleAvailableList[i]["file_id"] ,type: "",id: i,language:subtitleAvailableList[i]["lang"],url: "",image: "https://cdn.britannica.com/44/344-004-494CC2E8/Flag-England.jpg" ));
+          subtitleAvailableListModel.add(Subtitle(file_name:subtitleAvailableList[i]["file_name"] ,file_id:subtitleAvailableList[i]["file_id"] ,type: "",id: i,language:subtitleAvailableList[i]["lang"],url: "",image: "https://cdn.britannica.com/44/344-004-494CC2E8/Flag-England.jpg" ));
         }
 
       }
@@ -73,6 +77,19 @@ class apiRest{
       print(e);
       print("Empty subtitle");
       return subtitleAvailableListModel;
+    }
+  }
+
+  static downloadubtitles ({required String fileName,required String fileId,required String lang}) async {
+    try{
+      String castLink = "https://sflix-edc5e.uc.r.appspot.com/download?file_id=$fileId&lang=$lang&file_name=$fileName";
+      print(castLink);
+      var responseCast = await http.get(Uri.parse(castLink), );
+      return responseCast.body;
+    }catch(e){
+      print(e);
+      print("Empty subtitle");
+      return "";
     }
   }
 

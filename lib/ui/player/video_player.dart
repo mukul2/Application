@@ -8,6 +8,7 @@ import 'dart:async';
 
 import 'package:better_player/better_player.dart';
 import 'package:chewie/chewie.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' as fire;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -141,19 +142,68 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
   bool? logged =false;
   String? subscribed = "FALSE";
 
+  String? nowWorkingSubtitle = "";
+
    @override
   void initState() {
 
-     print("selected subtitle index "+_selected_subtitle.toString());
-     print("selected subtitle  "+widget.subtitles![_selected_subtitle].language);
+
+
+    // print("selected subtitle index "+widget.selected_subtitle!.toString());
+
 
     Future.delayed(Duration.zero, () {
-     widget.next =  (widget.episode != null)? true:false;
-     widget.live =  (widget.channel!= null)? true:false;
-      FocusScope.of(context).requestFocus(video_player_focus_node);
-      _prepareNext();
-      _getSubtitlesList();
-     _checkLogged();
+
+      String initFileName = "";
+
+      if(widget.selected_subtitle!>0){
+        initFileName =  (widget.subtitles![ widget.selected_subtitle!].file_id).toString() ;
+
+        fire.FirebaseFirestore.instance.collection("subtitlesByFileId").doc(initFileName).get().then((value) async {
+          if(value.exists){
+
+            print("subtitle was previously available");
+
+            String linkStorage = value.get("storage");
+
+            nowWorkingSubtitle = linkStorage;
+
+
+          }else{
+
+            print("need to download and cache subtitle ");
+            //search and get subtitle from opensubtitles and cache and use
+
+          String link = await  apiRest.downloadubtitles(fileName: widget.subtitles![ widget.selected_subtitle!].file_name!, fileId: widget.subtitles![ widget.selected_subtitle!].file_id.toString(), lang: widget.subtitles![ widget.selected_subtitle!].language);
+
+
+          nowWorkingSubtitle = link;
+
+          print("just downloaded subtitle "+nowWorkingSubtitle!);
+
+          }
+        });
+      }else{
+        //run no subtitle
+        print("running with no subtitle");
+        widget.next =  (widget.episode != null)? true:false;
+        widget.live =  (widget.channel!= null)? true:false;
+        FocusScope.of(context).requestFocus(video_player_focus_node);
+        _prepareNext();
+        _getSubtitlesList();
+        _checkLogged();
+
+      }
+
+
+
+
+      print("selected subtitle  "+widget.subtitles![widget.selected_subtitle!].file_id.toString());
+
+
+
+
+
     });
 
     initSettings();
@@ -206,8 +256,8 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
     setState(() {
       _visibile_subtitles_loading=true;
     });
-   // model.Subtitle? subtitle =new model.Subtitle(id: -1, type: "", language: "", url: "", image: "");
-   // _subtitlesList.add(subtitle);
+  //  model.Subtitle? subtitle =new model.Subtitle(id: -1, type: "", language: "", url: "", image: "");
+   // widget.subtitles!.insert(0, subtitle);
     var response;
    // if((widget.episode  == null))
      //response =await apiRest.getSubtitlesByMovie(widget.poster!.id);
@@ -236,6 +286,8 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
     setState(() {
       _visibile_subtitles_loading=false;
     });
+
+     _applySubtitle();
   }
   void _setupDataSource(int index) async {
 
@@ -454,11 +506,26 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
       });
   }
 
-  void selectSubtitle(int selected_subtitle_pick){
-      setState(() {
-        _focused_subtitle = selected_subtitle_pick;
-        _applySubtitle();
-      });
+  Future<void> selectSubtitle(int selected_subtitle_pick) async {
+
+     print("just subtitlle selected at "+selected_subtitle_pick.toString());
+     print(widget.subtitles![ selected_subtitle_pick]);
+
+
+     // String link = await  apiRest.downloadubtitles(fileName: widget.subtitles![ selected_subtitle_pick].file_id.toString()+".srt", fileId: widget.subtitles![ selected_subtitle_pick].file_id.toString(), lang: widget.subtitles![selected_subtitle_pick].language);
+     //
+     //
+     // nowWorkingSubtitle = link;
+     //
+     // print("just downloaded subtitle "+nowWorkingSubtitle!);
+     //
+     //
+     //
+     //
+     //  setState(() {
+     //    _focused_subtitle = selected_subtitle_pick;
+     //    _applySubtitle();
+     //  });
   }
   void closeSourceDialog(){
     setState(() {
@@ -583,10 +650,18 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
      });
    }
 
-   void _applySubtitle() {
+   Future<void> _applySubtitle() async {
+
     _visibile_subtitles_dialog = false;
     _visibile_controllers = false;
     _selected_subtitle = _focused_subtitle;
+
+    print("at setting subtitle done "+_selected_subtitle.toString());
+
+    print(widget.subtitles!.length);
+    print(widget.subtitles![_selected_subtitle].file_id);
+    print(widget.subtitles![_selected_subtitle].language);
+
     BetterPlayerSubtitlesSource subtitlesSource;
 
     if(_selected_subtitle == 0){
@@ -594,20 +669,70 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
           type: BetterPlayerSubtitlesSourceType.none
       );
     }else {
-      print(widget.subtitles![_selected_subtitle].url);
-      print(widget.subtitles![_selected_subtitle].language);
-      print(widget.subtitles![_selected_subtitle].type);
-      print(widget.subtitles![_selected_subtitle].image);
+
+
+    String  initFileName =  (widget.subtitles![ _selected_subtitle].file_id).toString() ;
+
+     var  value = await  fire.FirebaseFirestore.instance.collection("subtitlesByFileId").doc(initFileName).get();
+
+    if(value.exists){
+
+      print("subtitle was previously available");
+
+      String linkStorage = value.get("storage");
+
+      nowWorkingSubtitle = linkStorage;
+
+
+    }else{
+
+      print("need to download and cache subtitle ");
+      //search and get subtitle from opensubtitles and cache and use
+
+      String link = await  apiRest.downloadubtitles(fileName: widget.subtitles![_selected_subtitle].file_id.toString(), fileId: widget.subtitles![_selected_subtitle].file_id.toString(), lang: widget.subtitles![_selected_subtitle].language);
+
+
+      nowWorkingSubtitle = link;
+
+      print("just downloaded subtitle "+nowWorkingSubtitle!);
+
+    }
+
+
+
+
+
+
+
+
+     // print(widget.subtitles![_selected_subtitle].url);
+     // print(widget.subtitles![_selected_subtitle].language);
+    //  print(widget.subtitles![_selected_subtitle].type);
+     // print(widget.subtitles![_selected_subtitle].image);
+      print("setting subtitle");
       subtitlesSource = BetterPlayerSubtitlesSource(
         type: BetterPlayerSubtitlesSourceType.network,
         name: widget.subtitles![_selected_subtitle].language,
         urls: [
-          widget.subtitles![_selected_subtitle].url
+        //  widget.subtitles![_selected_subtitle].url,
+          nowWorkingSubtitle
         ],
       );
 
+
     }
-    _betterPlayerController?.setupSubtitleSource(subtitlesSource);
+
+
+    try{
+      _betterPlayerController?.setupSubtitleSource(subtitlesSource).then((value) {
+        print("setting subtitle done "+_betterPlayerController!.betterPlayerSubtitlesSource!.urls!.first!);
+      });
+    }catch(e){
+      print("subtitle set error");
+      print(e);
+    }
+
+
 
    }
 

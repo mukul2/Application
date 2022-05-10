@@ -4,10 +4,11 @@ class Subtitle{
   String language;
   String url;
   String image;
+  String? file_name;
   int? file_id;
 
 
-  Subtitle({required this.id,required this.type,required  this.language,required this.url,required this.image,this.file_id});
+  Subtitle({required this.id,required this.type,required  this.language,required this.url,required this.image,this.file_id,this.file_name});
 
 
 
