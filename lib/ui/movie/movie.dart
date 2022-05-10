@@ -36,6 +36,8 @@ import 'package:transparent_image/transparent_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert' as convert;
 
+import '../../model/subtitle.dart';
+
 
 class Movie extends StatefulWidget {
 
@@ -65,6 +67,8 @@ class _MovieState extends State<Movie> {
   String TMDB ="";
   bool isAdded = false;
 
+  List<Subtitle> availableSubtitles = [];
+
   int postx = 0;
   int posty = 0;
   FocusNode movie_focus_node = FocusNode();
@@ -80,6 +84,7 @@ class _MovieState extends State<Movie> {
   bool _visibile_cast_loading= false;
   bool _visibile_related_loading= true;
   int _selected_source= 0;
+  int _selected_subtitle_source = 0;
   int _focused_source= 0;
 
   List<Actor> actorsList  = [];
@@ -124,6 +129,12 @@ class _MovieState extends State<Movie> {
     actorsList.clear();
     actorsList =await apiRest.getMovieCastAndCrew(imdb:  r["tmdb_id"]);
     TMDB =  r["tmdb_id"];
+
+    print("now getting subtitles");
+    availableSubtitles =  await apiRest.getSubtitles(imdb:  TMDB);
+
+    print(availableSubtitles);
+
 
     setState(() {
 
@@ -448,7 +459,7 @@ class _MovieState extends State<Movie> {
                   break;
                 case KEY_DOWN:
                   if(visibileSourcesDialog){
-                    (_focused_source  == widget.movie!.sources.length -1 )? print("play sound") : _focused_source++;
+                    (_focused_source  == availableSubtitles.length -1 )? print("play sound") : _focused_source++;
                     break;
                   }
                   postx = 0;
@@ -690,7 +701,7 @@ class _MovieState extends State<Movie> {
                                                               Navigator.push(
                                                                 context,
                                                                 PageRouteBuilder(
-                                                                  pageBuilder: (context, animation1, animation2) => VideoPlayer(sourcesList: widget.movie!.sources,selected_source:0,focused_source: 0,poster: widget.movie),
+                                                                  pageBuilder: (context, animation1, animation2) => VideoPlayer(subtitles: availableSubtitles,selected_subtitle: _focused_source,sourcesList: widget.movie!.sources,selected_source:0,focused_source: 0,poster: widget.movie),
                                                                   transitionDuration: Duration(seconds: 0),
                                                                 ),
                                                               );
@@ -1124,7 +1135,8 @@ class _MovieState extends State<Movie> {
                           }),
                     )
                 ),
-                SourcesDialog(sourcesScrollController2: _sourcesScrollController2,tmdb_id: TMDB,visibileSourcesDialog: visibileSourcesDialog,focused_source: _focused_source,selected_source: _selected_source,sourcesList: widget.movie!.sources,sourcesScrollController: _sourcesScrollController,close: closeSourceDialog,select: selectSource),
+               // SourcesDialog(sourcesScrollController2: _sourcesScrollController2,tmdb_id: TMDB,visibileSourcesDialog: visibileSourcesDialog,focused_source: _focused_source,selected_source: _selected_source,sourcesList: widget.movie!.sources,sourcesScrollController: _sourcesScrollController,close: closeSourceDialog,select: selectSource),
+                SourcesDialog(subtitleSelect: selectSubtitleSource,subtitleList: availableSubtitles,sourcesScrollController2: _sourcesScrollController2,tmdb_id: TMDB,visibileSourcesDialog: visibileSourcesDialog,focused_source: _focused_source,selected_source: _selected_source,sourcesList:availableSubtitles,sourcesScrollController: _sourcesScrollController,close: closeSourceDialog,select: selectSource),
                 SubscribeDialog(visible:visible_subscribe_dialog ,close:(){
                   setState(() {
                     visible_subscribe_dialog= false;
@@ -1217,25 +1229,29 @@ class _MovieState extends State<Movie> {
   void _openSource() async{
     if(visibileSourcesDialog) {
       visibileSourcesDialog = false;
-      _selected_source = _focused_source;
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      if(widget.movie!.sources[_selected_source].premium == "2" || widget.movie!.sources[_selected_source].premium == "3"){
-        if(subscribed == "TRUE"){
-          _playSource();
-        }else{
-          setState(() {
-            visible_subscribe_dialog = true;
-          });
-        }
-      }else{
-        _playSource();
-      }
+      _selected_source = 0;
+      _selected_subtitle_source = _focused_source;
+     // SharedPreferences prefs = await SharedPreferences.getInstance();
+
+      _playSource();
+      // if(widget.movie!.sources[_selected_source].premium == "2" || widget.movie!.sources[_selected_source].premium == "3"){
+      //   if(subscribed == "TRUE"){
+      //     _playSource();
+      //   }else{
+      //     setState(() {
+      //       visible_subscribe_dialog = true;
+      //     });
+      //   }
+      // }else{
+      //   _playSource();
+      // }
       setState(() {
 
       });
     }
   }
   void _playSource() async {
+    print("focused node at "+_focused_source.toString());
     if (widget.movie!.sources[_selected_source].type == "youtube" || widget.movie!.sources[_selected_source].type == "embed" ) {
       String url = widget.movie!.sources[_selected_source].url;
       if (await canLaunch(url)) {
@@ -1261,7 +1277,7 @@ class _MovieState extends State<Movie> {
       Navigator.push(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => VideoPlayer(sourcesList: _sources,selected_source:_new_selected_source,focused_source: _new_selected_source,poster: widget.movie),
+          pageBuilder: (context, animation1, animation2) => VideoPlayer(subtitles:availableSubtitles,selected_subtitle: _focused_source,sourcesList: _sources,selected_source:_new_selected_source,focused_source: _new_selected_source,poster: widget.movie),
           transitionDuration: Duration(seconds: 0),
         ),
       );
@@ -1305,8 +1321,18 @@ class _MovieState extends State<Movie> {
   void selectSource(int selected_source_pick){
     setState(() {
       _focused_source =  selected_source_pick;
+      _selected_subtitle_source = selected_source_pick;
       Future.delayed(Duration(milliseconds: 200),(){
-        _openSource();
+       // _openSource();
+      });
+    });
+  }
+  void selectSubtitleSource(int selected_subtitle){
+    setState(() {
+      _focused_source =  selected_subtitle;
+      _selected_subtitle_source = selected_subtitle;
+      Future.delayed(Duration(milliseconds: 200),(){
+       // _openSource();
       });
     });
   }

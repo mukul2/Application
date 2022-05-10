@@ -60,7 +60,10 @@ class VideoPlayer extends StatefulWidget {
   bool? live = false ;
   bool? _play_next_episode = true ;
 
-  VideoPlayer({ this.sourcesList,  this.selected_source,required this.focused_source, this.poster,this.episode,this.seasons,this.season,this.channel});
+  List<model.Subtitle>? subtitles ;
+  int? selected_subtitle ;
+
+  VideoPlayer({this.subtitles ,this.selected_subtitle,this.sourcesList,  this.selected_source,required this.focused_source, this.poster,this.episode,this.seasons,this.season,this.channel});
 
   @override
   _VideoPlayerState createState() => _VideoPlayerState();
@@ -121,7 +124,7 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
    int  _video_controller_settings_position = 2;
   bool visible_subscribe_dialog = false;
 
-   List<model.Subtitle> _subtitlesList = [];
+  // List<model.Subtitle> _subtitlesList = [];
 
    int post_x= 0;
    int post_y= 0;
@@ -140,6 +143,10 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
 
    @override
   void initState() {
+
+     print("selected subtitle index "+_selected_subtitle.toString());
+     print("selected subtitle  "+widget.subtitles![_selected_subtitle].language);
+
     Future.delayed(Duration.zero, () {
      widget.next =  (widget.episode != null)? true:false;
      widget.live =  (widget.channel!= null)? true:false;
@@ -195,37 +202,37 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
   void _getSubtitlesList()  async{
      if(widget.channel != null)
        return;
-    _subtitlesList.clear();
+   // _subtitlesList.clear();
     setState(() {
       _visibile_subtitles_loading=true;
     });
-    model.Subtitle? subtitle =new model.Subtitle(id: -1, type: "", language: "", url: "", image: "");
-    _subtitlesList.add(subtitle);
+   // model.Subtitle? subtitle =new model.Subtitle(id: -1, type: "", language: "", url: "", image: "");
+   // _subtitlesList.add(subtitle);
     var response;
-    if((widget.episode  == null))
-     response =await apiRest.getSubtitlesByMovie(widget.poster!.id);
-    else
-     response =await apiRest.getSubtitlesByEpisode(widget.seasons![widget.season!].episodes[widget.episode!].id);
+   // if((widget.episode  == null))
+     //response =await apiRest.getSubtitlesByMovie(widget.poster!.id);
+   // else
+     //response =await apiRest.getSubtitlesByEpisode(widget.seasons![widget.season!].episodes[widget.episode!].id);
 
-    if(response != null){
-      if (response.statusCode == 200) {
-        var jsonData =  convert.jsonDecode(response.body);
-        for(Map language in jsonData){
-            int count = 1;
-            for(Map subtitle in language["subtitles"] ){
-                  print(subtitle["url"]);
-                  model.Subtitle _subtitle = model.Subtitle(id: subtitle["id"],type: subtitle["type"],url: subtitle["url"],image: language["image"],language: language["language"] +" ("+(count).toString()+")");
-                  _subtitlesList.add(_subtitle);
-                  count++;
-            }
-        }
-      }
-    }
-     model.Subtitle _subtitle = model.Subtitle(id: 1,type: "",url: "https://storage.googleapis.com/sflix-edc5e.appspot.com/subtitles/263229_The%20Last%20Detail.English.srt",image:"https://cdn.britannica.com/44/344-004-494CC2E8/Flag-England.jpg",language:"es" +" ("+(1).toString()+")");
-     _subtitlesList.add(_subtitle);
+    // if(response != null){
+    //   if (response.statusCode == 200) {
+    //     var jsonData =  convert.jsonDecode(response.body);
+    //     for(Map language in jsonData){
+    //         int count = 1;
+    //         for(Map subtitle in language["subtitles"] ){
+    //               print(subtitle["url"]);
+    //               model.Subtitle _subtitle = model.Subtitle(id: subtitle["id"],type: subtitle["type"],url: subtitle["url"],image: language["image"],language: language["language"] +" ("+(count).toString()+")");
+    //               _subtitlesList.add(_subtitle);
+    //               count++;
+    //         }
+    //     }
+    //   }
+    // }
+    // model.Subtitle _subtitle = model.Subtitle(id: 1,type: "",url: "https://storage.googleapis.com/sflix-edc5e.appspot.com/subtitles/263229_The%20Last%20Detail.English.srt",image:"https://cdn.britannica.com/44/344-004-494CC2E8/Flag-England.jpg",language:"es" +" ("+(1).toString()+")");
+     //_subtitlesList.add(_subtitle);
 
-     model.Subtitle _subtitle2 = model.Subtitle(id: 2,type: "",url: "https://storage.googleapis.com/sflix-edc5e.appspot.com/subtitles/264214_The.Last.Detail.1973.720p.WEB-DL.AAC2.0.H.264-CtrlHD.srt",image:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Flag_of_Portugal.svg/255px-Flag_of_Portugal.svg.png",language:"Por" +" ("+(2).toString()+")");
-     _subtitlesList.add(_subtitle2);
+    // model.Subtitle _subtitle2 = model.Subtitle(id: 2,type: "",url: "https://storage.googleapis.com/sflix-edc5e.appspot.com/subtitles/264214_The.Last.Detail.1973.720p.WEB-DL.AAC2.0.H.264-CtrlHD.srt",image:"https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Flag_of_Portugal.svg/255px-Flag_of_Portugal.svg.png",language:"Por" +" ("+(2).toString()+")");
+    // _subtitlesList.add(_subtitle2);
     setState(() {
       _visibile_subtitles_loading=false;
     });
@@ -307,7 +314,7 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
                         FastRewind();
                         FastForward();
                         _showSubtitlesDialog();
-                        _showSourcesDialog();
+                        //_showSourcesDialog();
 
                         _goToNextEpisode();
                     }
@@ -328,7 +335,7 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
                     break;
                   case KEY_DOWN:
                     if(_visibile_subtitles_dialog){
-                      (_focused_subtitle  == _subtitlesList.length -1 )? print("play sound") : _focused_subtitle++;;
+                      (_focused_subtitle  == widget.subtitles!.length -1 )? print("play sound") : _focused_subtitle++;;
                     } else if(visibileSourcesDialog){
                       ( widget.focused_source  == widget.sourcesListDialog!.length -1 )? print("play sound") : widget.focused_source++;;
                     }else{
@@ -405,14 +412,14 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
                 fastRewind:FastRewindButton,
                 fastForward:FastForwardButton,
                 playnext: PlayNextButton,
-                sources: SourcesButton,
+               // sources: SourcesButton,
                 subtitles :SubtitlesButton,
                 pauseplay: PausePlayButton,
                 tostart: ToStartButton,
 
             ),
-            ui.SubtitlesDialog(subtitlesList: _subtitlesList,selected_subtitle: _selected_subtitle,focused_subtitle: _focused_subtitle,subtitlesScrollController: _subtitlesScrollController,visibile: _visibile_subtitles_dialog,close: closeSubtitleDialog,select:selectSubtitle ),
-            ui.SourcesDialog(sourcesScrollController2: _sourcesScrollController,sourcesList: widget.sourcesListDialog!,selected_source: widget.selected_source!,focused_source: widget.focused_source,sourcesScrollController: _sourcesScrollController,visibileSourcesDialog: visibileSourcesDialog,close: closeSourceDialog,select:selectSource ),
+            ui.SubtitlesDialog(subtitlesList: widget.subtitles!,selected_subtitle: _selected_subtitle,focused_subtitle: _focused_subtitle,subtitlesScrollController: _subtitlesScrollController,visibile: _visibile_subtitles_dialog,close: closeSubtitleDialog,select:selectSubtitle ),
+            //ui.SourcesDialog(sourcesScrollController2: _sourcesScrollController,sourcesList: widget.sourcesListDialog!,selected_source: widget.selected_source!,focused_source: widget.focused_source,sourcesScrollController: _sourcesScrollController,visibileSourcesDialog: visibileSourcesDialog,close: closeSourceDialog,select:selectSource ),
             SubscribeDialog(visible:visible_subscribe_dialog ,close:(){
               setState(() {
                 visible_subscribe_dialog= false;
@@ -587,15 +594,15 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
           type: BetterPlayerSubtitlesSourceType.none
       );
     }else {
-      print(_subtitlesList[_selected_subtitle].url);
-      print(_subtitlesList[_selected_subtitle].language);
-      print(_subtitlesList[_selected_subtitle].type);
-      print(_subtitlesList[_selected_subtitle].image);
+      print(widget.subtitles![_selected_subtitle].url);
+      print(widget.subtitles![_selected_subtitle].language);
+      print(widget.subtitles![_selected_subtitle].type);
+      print(widget.subtitles![_selected_subtitle].image);
       subtitlesSource = BetterPlayerSubtitlesSource(
         type: BetterPlayerSubtitlesSourceType.network,
-        name: _subtitlesList[_selected_subtitle].language,
+        name: widget.subtitles![_selected_subtitle].language,
         urls: [
-          _subtitlesList[_selected_subtitle].url
+          widget.subtitles![_selected_subtitle].url
         ],
       );
 

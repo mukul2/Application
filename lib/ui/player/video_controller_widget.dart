@@ -282,7 +282,7 @@ class VideoControllerWidget extends StatelessWidget {
                                   ),
                                   SizedBox(width: 25),
 
-                                  GestureDetector(
+                              if(false)    GestureDetector(
                                     onTap: (){
                                       sources!();
                                     },

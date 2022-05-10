@@ -6,6 +6,7 @@ import 'dart:convert';
 
 import 'package:flutter_app_tv/api/api_config.dart';
 import 'package:flutter_app_tv/model/actor.dart';
+import 'package:flutter_app_tv/model/subtitle.dart';
 import 'package:http/http.dart' as http;
 
 class apiRest{
@@ -34,6 +35,44 @@ class apiRest{
     }catch(e){
       print("Empty actor");
       return actors;
+    }
+  }
+
+
+  static getSubtitles ({required String imdb}) async {
+    List subtitleAvailableList = [];
+    List<Subtitle> subtitleAvailableListModel = [];
+
+    try{
+      String castLink = "https://sflix-edc5e.uc.r.appspot.com/subtitle?tmdbid=$imdb";
+      var responseCast = await http.get(Uri.parse(castLink), );
+
+
+      print("subtitle response");
+      print(responseCast.body);
+
+
+
+
+      subtitleAvailableList = jsonDecode(responseCast.body);
+
+    //  print(subtitleAvailableList[0]["lang"]);
+     // print(subtitleAvailableList[0]["file_name"]);
+
+      if(subtitleAvailableList.length>0){
+
+        for(int i = 0 ; i < subtitleAvailableList.length ; i++){
+          subtitleAvailableListModel.add(Subtitle(file_id:subtitleAvailableList[i]["file_id"] ,type: "",id: i,language:subtitleAvailableList[i]["lang"],url: "",image: "https://cdn.britannica.com/44/344-004-494CC2E8/Flag-England.jpg" ));
+        }
+
+      }
+
+      return subtitleAvailableListModel;
+      // _visibile_cast_loading=false;
+    }catch(e){
+      print(e);
+      print("Empty subtitle");
+      return subtitleAvailableListModel;
     }
   }
 

@@ -4,8 +4,12 @@ class Subtitle{
   String language;
   String url;
   String image;
+  int? file_id;
 
-  Subtitle({required this.id,required this.type,required  this.language,required this.url,required this.image});
+
+  Subtitle({required this.id,required this.type,required  this.language,required this.url,required this.image,this.file_id});
+
+
 
   factory Subtitle.fromJson(Map<String, dynamic> parsedJson){
     print(parsedJson);

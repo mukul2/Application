@@ -7,9 +7,12 @@ import 'package:flutter_app_tv/ui/player/source_widget.dart';
 import 'package:flutter_app_tv/ui/player/subtitle_widget.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
+import '../../model/subtitle.dart';
+import '../player/subtitle_tile_source_widget.dart';
+
 class SourcesDialog extends StatefulWidget {
 
-  List<Source> sourcesList = [];
+  List?  sourcesList = [];
   bool visibileSourcesDialog;
   int focused_source;
   int selected_source;
@@ -17,10 +20,13 @@ class SourcesDialog extends StatefulWidget {
   ItemScrollController sourcesScrollController2 = ItemScrollController();
   Function close;
   Function select;
+  Function? subtitleSelect;
 
   String? tmdb_id;
 
-  SourcesDialog({this.tmdb_id,required this.sourcesList,required this.sourcesScrollController,required this.sourcesScrollController2,required this.focused_source,required this.selected_source,required this.visibileSourcesDialog,required this.close,required this.select});
+  List<Subtitle>? subtitleList = [];
+
+  SourcesDialog({this.subtitleSelect,this.subtitleList,this.tmdb_id,required this.sourcesList,required this.sourcesScrollController,required this.sourcesScrollController2,required this.focused_source,required this.selected_source,required this.visibileSourcesDialog,required this.close,required this.select});
 
   @override
   _SourcesDialogState createState() => _SourcesDialogState();
@@ -114,7 +120,7 @@ class _SourcesDialogState extends State<SourcesDialog> {
                                     Icon(Icons.high_quality_sharp,color: Colors.white70,size: 35),
                                     SizedBox(width: 10),
                                     Text(
-                                      "Select your source",
+                                      "Select subtile",
                                       style: TextStyle(
                                           fontSize: MediaQuery.of(context).size.longestSide*0.025,
                                           fontWeight: FontWeight.w800,
@@ -127,46 +133,69 @@ class _SourcesDialogState extends State<SourcesDialog> {
                             ),
 
                             Expanded(child:
-                            Container(
+                            // Container(
+                            //   color: Colors.black.withOpacity(0.7),
+                            //   child:  ScrollConfiguration(
+                            //     behavior: MyBehavior(),   // From this behaviour you can change the behaviour
+                            //     child: ScrollablePositionedList.builder(
+                            //       itemCount: widget.sourcesList.length,
+                            //       itemScrollController: widget.sourcesScrollController2,
+                            //       scrollDirection: Axis.vertical,
+                            //       itemBuilder: (context, index) {
+                            //         return  GestureDetector(
+                            //             onTap: (){
+                            //               widget.select(index);
+                            //             },
+                            //             child: SourceWidget(isFocused: (index == widget.focused_source),source:widget.sourcesList[index])
+                            //         );
+                            //       },
+                            //     ),
+                            //   ),
+                            // ) ,
+                                Container(
                               color: Colors.black.withOpacity(0.7),
                               child:  ScrollConfiguration(
                                 behavior: MyBehavior(),   // From this behaviour you can change the behaviour
                                 child: ScrollablePositionedList.builder(
-                                  itemCount: widget.sourcesList.length,
-                                  itemScrollController: widget.sourcesScrollController2,
-                                  scrollDirection: Axis.vertical,
-                                  itemBuilder: (context, index) {
-                                    return  GestureDetector(
-                                        onTap: (){
-                                          widget.select(index);
-                                        },
-                                        child: SourceWidget(isFocused: (index == widget.focused_source),source:widget.sourcesList[index])
-                                    );
-                                  },
-                                ),
-                              ),
-                            )),
-
-                           Expanded(child:
-                            Container(
-                              color: Colors.black.withOpacity(0.7),
-                              child:  ScrollConfiguration(
-                                behavior: MyBehavior(),   // From this behaviour you can change the behaviour
-                                child: ScrollablePositionedList.builder(
-                                  itemCount: widget.sourcesList.length,
+                                  itemCount: widget.subtitleList!.length,
                                   itemScrollController: widget.sourcesScrollController,
                                   scrollDirection: Axis.vertical,
                                   itemBuilder: (context, index) {
                                     return  GestureDetector(
                                         onTap: (){
-                                            widget.select(index);
+                                          print("setting subtitles");
+                                          widget.subtitleSelect!(index);
                                         },
-                                        child: SourceWidget(isFocused: (index == widget.focused_source),source:widget.sourcesList[index])
+                                        child:false?Text(widget.subtitleList![index].toString()): SubtitleTileSourceWidget(isFocused: (index == widget.focused_source),subtitleSource:widget.subtitleList![index])
                                     );
                                   },
                                 ),
                               ),
-                            ))
+                            )
+
+
+                            ),
+
+                        // if(false)   Expanded(child:
+                        //     Container(
+                        //       color: Colors.black.withOpacity(0.7),
+                        //       child:  ScrollConfiguration(
+                        //         behavior: MyBehavior(),   // From this behaviour you can change the behaviour
+                        //         child: ScrollablePositionedList.builder(
+                        //           itemCount: widget.sourcesList.length,
+                        //           itemScrollController: widget.sourcesScrollController,
+                        //           scrollDirection: Axis.vertical,
+                        //           itemBuilder: (context, index) {
+                        //             return  GestureDetector(
+                        //                 onTap: (){
+                        //                     widget.select(index);
+                        //                 },
+                        //                 child: SourceWidget(isFocused: (index == widget.focused_source),source:widget.sourcesList[index])
+                        //             );
+                        //           },
+                        //         ),
+                        //       ),
+                        //     ))
                           ],
                         ),
                       )
