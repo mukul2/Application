@@ -11,6 +11,7 @@ import 'package:flutter_app_tv/ui/serie/serie.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+
 class MovieShortDetailMiniWidget extends StatelessWidget {
   Poster? movie;
   String genres ="";

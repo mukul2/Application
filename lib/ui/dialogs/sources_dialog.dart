@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/ui/home/home.dart';
 import 'package:flutter_app_tv/model/source.dart';
 import 'package:flutter_app_tv/ui/player/source_widget.dart';
@@ -13,18 +14,51 @@ class SourcesDialog extends StatefulWidget {
   int focused_source;
   int selected_source;
   ItemScrollController sourcesScrollController = ItemScrollController();
+  ItemScrollController sourcesScrollController2 = ItemScrollController();
   Function close;
   Function select;
 
-  SourcesDialog({required this.sourcesList,required this.sourcesScrollController,required this.focused_source,required this.selected_source,required this.visibileSourcesDialog,required this.close,required this.select});
+  String? tmdb_id;
+
+  SourcesDialog({this.tmdb_id,required this.sourcesList,required this.sourcesScrollController,required this.sourcesScrollController2,required this.focused_source,required this.selected_source,required this.visibileSourcesDialog,required this.close,required this.select});
 
   @override
   _SourcesDialogState createState() => _SourcesDialogState();
+
+
 }
 
+
 class _SourcesDialogState extends State<SourcesDialog> {
+
+  List<String>sTitles = ["English","Bengali"];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+  }
   @override
   Widget build(BuildContext context) {
+     Shortcuts(shortcuts: <LogicalKeySet, Intent>{
+      LogicalKeySet(LogicalKeyboardKey.select): ActivateIntent(),
+    }, child: MaterialApp(
+      title: 'SFlix',debugShowCheckedModeBanner: false,
+      home: Scaffold(body: Stack(
+        children: [
+          Align(alignment: Alignment.centerRight,child: Container(width: MediaQuery.of(context).size.width/3,height: MediaQuery.of(context).size.height ,child:ListView.builder(shrinkWrap: true,
+            itemCount: sTitles.length,
+            itemBuilder: (context, index) {
+              return InkWell(focusColor: Colors.red.withOpacity(0.5),onTap: (){
+
+              },child: Text(sTitles[index]),);
+            },
+          ) ,),)
+        ],
+      ),),
+    ));
+
     return Positioned(
       left: 0,
       right: 0,
@@ -66,7 +100,7 @@ class _SourcesDialogState extends State<SourcesDialog> {
                             ),
                           ],
                         ),
-                        child: Column(
+                        child:  Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           mainAxisSize: MainAxisSize.max,
@@ -82,7 +116,7 @@ class _SourcesDialogState extends State<SourcesDialog> {
                                     Text(
                                       "Select your source",
                                       style: TextStyle(
-                                          fontSize: 18,
+                                          fontSize: MediaQuery.of(context).size.longestSide*0.025,
                                           fontWeight: FontWeight.w800,
                                           color: Colors.white70
                                       ),
@@ -91,7 +125,29 @@ class _SourcesDialogState extends State<SourcesDialog> {
                                 ),
                               ),
                             ),
+
                             Expanded(child:
+                            Container(
+                              color: Colors.black.withOpacity(0.7),
+                              child:  ScrollConfiguration(
+                                behavior: MyBehavior(),   // From this behaviour you can change the behaviour
+                                child: ScrollablePositionedList.builder(
+                                  itemCount: widget.sourcesList.length,
+                                  itemScrollController: widget.sourcesScrollController2,
+                                  scrollDirection: Axis.vertical,
+                                  itemBuilder: (context, index) {
+                                    return  GestureDetector(
+                                        onTap: (){
+                                          widget.select(index);
+                                        },
+                                        child: SourceWidget(isFocused: (index == widget.focused_source),source:widget.sourcesList[index])
+                                    );
+                                  },
+                                ),
+                              ),
+                            )),
+
+                           Expanded(child:
                             Container(
                               color: Colors.black.withOpacity(0.7),
                               child:  ScrollConfiguration(

@@ -11,6 +11,7 @@ import 'package:flutter_app_tv/ui/movie/movie.dart';
 import 'package:flutter_app_tv/ui/serie/serie.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:http/http.dart' as http;
+
 class MovieShortDetailWidget extends StatefulWidget {
 
   Poster? poster;

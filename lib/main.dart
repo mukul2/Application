@@ -60,9 +60,11 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+    List<String>sTitles = ["English","Bengali"];
     ThemeData td =  ThemeData(fontFamily: "Poppins",primaryColor: Colors.redAccent,  primarySwatch: Colors.red,
       visualDensity: VisualDensity.adaptivePlatformDensity,
       scaffoldBackgroundColor: Colors.black,);
+
     return
            MaterialApp(theme: td,
              debugShowCheckedModeBanner: false,

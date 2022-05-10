@@ -1390,7 +1390,7 @@ class _SerieState extends State<Serie> {
                           }),
                     )
                 ),
-                SourcesDialog(visibileSourcesDialog: visibileSourcesDialog,focused_source: _focused_source,selected_source: _selected_source,sourcesList: sources,sourcesScrollController: _sourcesScrollController,select: selectSource,close: closeSourceDialog),
+                SourcesDialog(sourcesScrollController2: _sourcesScrollController,visibileSourcesDialog: visibileSourcesDialog,focused_source: _focused_source,selected_source: _selected_source,sourcesList: sources,sourcesScrollController: _sourcesScrollController,select: selectSource,close: closeSourceDialog),
                 SubscribeDialog(visible:visible_subscribe_dialog ,close:(){
                   setState(() {
                     visible_subscribe_dialog= false;

@@ -412,7 +412,7 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
 
             ),
             ui.SubtitlesDialog(subtitlesList: _subtitlesList,selected_subtitle: _selected_subtitle,focused_subtitle: _focused_subtitle,subtitlesScrollController: _subtitlesScrollController,visibile: _visibile_subtitles_dialog,close: closeSubtitleDialog,select:selectSubtitle ),
-            ui.SourcesDialog(sourcesList: widget.sourcesListDialog!,selected_source: widget.selected_source!,focused_source: widget.focused_source,sourcesScrollController: _sourcesScrollController,visibileSourcesDialog: visibileSourcesDialog,close: closeSourceDialog,select:selectSource ),
+            ui.SourcesDialog(sourcesScrollController2: _sourcesScrollController,sourcesList: widget.sourcesListDialog!,selected_source: widget.selected_source!,focused_source: widget.focused_source,sourcesScrollController: _sourcesScrollController,visibileSourcesDialog: visibileSourcesDialog,close: closeSourceDialog,select:selectSource ),
             SubscribeDialog(visible:visible_subscribe_dialog ,close:(){
               setState(() {
                 visible_subscribe_dialog= false;

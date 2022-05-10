@@ -36,7 +36,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 
-
 /// A [StatelessWidget] which demonstrates
 /// how to consume and interact with a [CounterBloc].
 class Movies extends StatefulWidget {
@@ -313,7 +312,7 @@ for(int i = 0 ; i < movieContents[genres[_selected_genre].id].length ; i++){
             if (event is RawKeyDownEvent && event.data is RawKeyEventDataAndroid) {
               RawKeyDownEvent rawKeyDownEvent = event;
               RawKeyEventDataAndroid rawKeyEventDataAndroid = rawKeyDownEvent.data as RawKeyEventDataAndroid;
-              print(rawKeyEventDataAndroid.toString());
+
               switch (rawKeyEventDataAndroid.keyCode) {
                 case KEY_CENTER:
                   _selectFilter();

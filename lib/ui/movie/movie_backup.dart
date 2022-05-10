@@ -72,7 +72,6 @@ class _MovieState extends State<Movie> {
   ItemScrollController _castScrollController = ItemScrollController();
   ItemScrollController _moviesScrollController = ItemScrollController();
   ItemScrollController _sourcesScrollController = ItemScrollController();
-  ItemScrollController _sourcesScrollController2 = ItemScrollController();
 
   bool visible_subscribe_dialog = false;
 
@@ -94,20 +93,17 @@ class _MovieState extends State<Movie> {
   fire.DocumentReference? documentReference;
 
   dynamic? MovieDetails;
-  List<Source>  ss = [];
+
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
-
-
     Future.delayed(Duration.zero, () {
       FocusScope.of(context).requestFocus(movie_focus_node);
 
-      //_checkLogged();
-      //_getCastList();
-     // _getRelatedList();
+      _checkLogged();
+      _getCastList();
+      _getRelatedList();
 
       _getMovieDetails();
       // _checkLogged();
@@ -118,13 +114,110 @@ class _MovieState extends State<Movie> {
 
   _getMovieDetails() async {
 
-    var r  = await apiRest.searchMovieInTMDB(name: widget.movie!.title);
+    List alls = widget.movie!.title.split("-");
+    String second = alls.last;
 
-    MovieDetails =  r["movie"];
-    actorsList.clear();
-    actorsList =await apiRest.getMovieCastAndCrew(imdb:  r["tmdb_id"]);
-    TMDB =  r["tmdb_id"];
+    List qq = second.split("(");
 
+    List kk = qq.first.toString().split(" ");
+    String key ="" ;
+    for(int i = 0 ; i < kk.length ; i++){
+
+      if(kk[i].toString().trim()!="4K"){
+        if(i==1){
+          if(kk[i].toString().length>0) key = kk[i];
+        }else{
+          if(kk[i].toString().length>0) key = key+"+"+kk[i];
+        }
+
+      }
+
+
+
+
+    }
+
+    key = key.replaceAll("++", "+");
+    key = key.replaceAll(":", "");
+    key = key.replaceAll("(", "");
+    key = key.replaceAll(")", "");
+
+    print(key);
+
+
+
+
+    String tvSHowTMDB = "https://api.themoviedb.org/3/search/movie?api_key=103096910bbe8842c151f7cce00ab218&query="+key;
+    print(tvSHowTMDB);
+
+    var responseTMDB = await http.get(Uri.parse(tvSHowTMDB) );
+
+    dynamic jsonTMDB = jsonDecode(responseTMDB.body);
+    String tmdbId="";
+    if(jsonTMDB["total_results"]>0){
+
+      tmdbId = jsonTMDB["results"][0]["id"].toString();
+      String tvSHowTMDBFull = "https://api.themoviedb.org/3/movie/$tmdbId?api_key=103096910bbe8842c151f7cce00ab218";
+      print(tvSHowTMDBFull);
+      TMDB = tmdbId;
+      var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
+      print(responseTMDFF.body);
+
+      try{
+        String castLink = "https://api.themoviedb.org/3/movie/$TMDB/credits?api_key=103096910bbe8842c151f7cce00ab218";
+        print(castLink);
+        var responseCast = await http.get(Uri.parse(castLink), );
+        print(responseCast.body);
+        dynamic jRespon = jsonDecode(responseCast.body);
+        List castOnlyArray = jRespon["cast"];
+        actorsList.clear();
+        for(int a = 0 ; a < castOnlyArray.length ; a++){
+          print("actor "+castOnlyArray[a]["name"]);
+          // actorsList.add(Actor(id: castOnlyArray[a]["id"]??a, name: castOnlyArray[a]["name"]??"--", type: "", role: castOnlyArray[a]["character"]??"--", image: "https://image.tmdb.org/t/p/w500/"+castOnlyArray[a]["profile_path"]??"--", born: "1994", height: "", bio: "Bio Here"));
+        }
+        // _visibile_cast_loading=false;
+      }catch(e){
+        print("error on actors "+e.toString());
+      }
+
+
+
+
+
+
+      //  await FirebaseFirestore.instance.collection("moreInfoSeries").doc(seriedID).set({"fullSeries":responseTMDFF.body});
+
+      MovieDetails =  jsonDecode(responseTMDFF.body);
+    }else{
+      String tvSHowTMDBFull = "https://api.themoviedb.org/3/movie/414906?api_key=103096910bbe8842c151f7cce00ab218";
+      print(tvSHowTMDBFull);
+      TMDB = tmdbId;
+      var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
+      print(responseTMDFF.body);
+
+      try{
+        //  await FirebaseFirestore.instance.collection("moreInfoSeries").doc(seriedID).set({"fullSeries":responseTMDFF.body});
+        String castLink = "https://api.themoviedb.org/3/movie/$TMDB/credits?api_key=103096910bbe8842c151f7cce00ab218";
+        actorsList.clear();
+        print(castLink);
+        var responseCast = await http.get(Uri.parse(castLink), );
+        dynamic jRespon = jsonDecode(responseCast.body);
+        List castOnlyArray = jRespon["cast"];
+        for(int a = 0 ; a < castOnlyArray.length ; a++){
+          // actorsList.add(Actor(id: castOnlyArray[a]["id"]??a, name: castOnlyArray[a]["name"]??"--", type: "", role: castOnlyArray[a]["character"]??"--", image: "https://image.tmdb.org/t/p/w500/"+castOnlyArray[a]["profile_path"]??"--", born: "1994", height: "", bio: "Bio Here"));
+        }
+        // _visibile_cast_loading=false;
+      }catch(e){
+        print("error on actors "+e.toString());
+        print(e);
+      }
+      MovieDetails =  jsonDecode(responseTMDFF.body);
+    }
+
+    for(int i = 0 ; i < MovieDetails["genres"].length; i++){
+      widget.genres =   widget.genres+ " • "+MovieDetails["genres"][i]["name"];
+      // genres = genres + " • "+g.title;
+    }
     setState(() {
 
     });
@@ -520,7 +613,7 @@ class _MovieState extends State<Movie> {
               }
             }
           },
-          child:MovieDetails!=null? Container(
+          child: Container(
 
             child: Stack(
               children: [
@@ -668,24 +761,13 @@ class _MovieState extends State<Movie> {
                                                     children: [
                                                       GestureDetector(
                                                         onTap: (){
-
-
-                                                          // Navigator.push(
-                                                          //   context,
-                                                          //   PageRouteBuilder(
-                                                          //     pageBuilder: (context, animation1, animation2) => VideoPlayer(sourcesList: widget.movie!.sources,selected_source:0,focused_source: 0,poster: widget.movie),
-                                                          //     transitionDuration: Duration(seconds: 0),
-                                                          //   ),
-                                                          // );
-                                                      //    _playSource();
-
                                                           setState(() {
                                                             posty = 0;
                                                             postx =0;
                                                             Future.delayed(Duration(milliseconds: 100),(){
                                                               // _goToPlayer();
 
-                                                              _playSource();
+
 
                                                               Navigator.push(
                                                                 context,
@@ -1124,7 +1206,7 @@ class _MovieState extends State<Movie> {
                           }),
                     )
                 ),
-                SourcesDialog(sourcesScrollController2: _sourcesScrollController2,tmdb_id: TMDB,visibileSourcesDialog: visibileSourcesDialog,focused_source: _focused_source,selected_source: _selected_source,sourcesList: widget.movie!.sources,sourcesScrollController: _sourcesScrollController,close: closeSourceDialog,select: selectSource),
+                SourcesDialog(sourcesScrollController2: _sourcesScrollController,visibileSourcesDialog: visibileSourcesDialog,focused_source: _focused_source,selected_source: _selected_source,sourcesList: widget.movie!.sources,sourcesScrollController: _sourcesScrollController,close: closeSourceDialog,select: selectSource),
                 SubscribeDialog(visible:visible_subscribe_dialog ,close:(){
                   setState(() {
                     visible_subscribe_dialog= false;
@@ -1132,7 +1214,7 @@ class _MovieState extends State<Movie> {
                 }),
               ],
             ),
-          ):Container(height: 0,width: 0,),
+          ),
         ),
       ),
     );

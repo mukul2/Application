@@ -406,7 +406,7 @@ class _HomeState extends ResumableState<Home> {
 
         if(true){
 
-          fire.QuerySnapshot qS = await  fire.FirebaseFirestore.instance.collection("movies").get();
+          fire.QuerySnapshot qS = await  fire.FirebaseFirestore.instance.collection("movies").limit(1).get();
 
 
 
@@ -428,6 +428,10 @@ class _HomeState extends ResumableState<Home> {
                 String PASSWORD = "2016";
 
                 String link =SERVER+":$PORT"+"/"+li[k]["stream_type"]+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+li[k]["stream_id"].toString()+"."+li[k]["container_extension"];
+
+                modelS.Source sss = Source(size: "",id: 1, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
+                modelS.Source sss2 = Source(size: "",id: 2, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
+                modelS.Source sss3 = Source(size: "",id: 3, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
                 Poster poster1 = Poster(id:li[k]["stream_id"],
                     title:li[k]["name"],
                     type: "type",
@@ -448,7 +452,7 @@ class _HomeState extends ResumableState<Home> {
                     cover:li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
                     trailer: null,
                     genres: [Genre(id: k, title: qS.docs[i].get("name"))],
-                    sources:[Source(size: "",id: 1, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link)] );
+                    sources:[sss,sss2,sss3] );
 
                 posters.add(poster1);
 
