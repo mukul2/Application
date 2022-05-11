@@ -16,6 +16,9 @@ import 'dart:convert' as convert;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transparent_image/transparent_image.dart';
 
+import '../../SettingFolder/LoginSettings.dart';
+import '../home/home.dart';
+
 class Login extends StatefulWidget {
   @override
   _LoginState createState() => _LoginState();
@@ -33,6 +36,7 @@ class _LoginState extends State<Login> {
   String _message_error = "";
   bool _visibile_error =false;
   int pos_y = 0;
+  int pos_x = 0;
 
   @override
   void initState() {
@@ -43,6 +47,16 @@ class _LoginState extends State<Login> {
   });
 }
   _login(String email,String password) async{
+
+    Navigator.pushReplacement(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation1, animation2) => Home(),
+        transitionDuration: Duration(seconds: 0),
+      ),
+    );
+
+   /*
     setState(() {
       loading = true;
       _visibile_error = false;
@@ -160,6 +174,8 @@ class _LoginState extends State<Login> {
     setState(() {
       loading = false;
     });
+
+    */
   }
   @override
   Widget build(BuildContext context) {
@@ -176,6 +192,13 @@ class _LoginState extends State<Login> {
               case KEY_CENTER:
                 if(!loading)
                   _goToValidate();
+
+                if(pos_y == 2 && pos_x == 0){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const MacAddress()),
+                  );
+                }
                 break;
               case KEY_UP:
                 if(pos_y  ==  0){
@@ -188,6 +211,7 @@ class _LoginState extends State<Login> {
                   FocusScope.of(context).requestFocus(username_focus_node);
                 }
                 break;
+
               case KEY_DOWN:
                 if(pos_y  ==  2){
                   print("play sound");
@@ -196,10 +220,17 @@ class _LoginState extends State<Login> {
                 }
                 break;
               case KEY_LEFT:
+
+                if(pos_y == 2 && pos_x == 1){
+                  pos_x --;
+                }
                 print("play sound");
 
                 break;
               case KEY_RIGHT:
+                if(pos_y == 2 && pos_x == 0){
+                  pos_x ++;
+                }
                 print("play sound");
                 break;
               default:
@@ -462,8 +493,33 @@ class _LoginState extends State<Login> {
                       SizedBox(height: 20),
 
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
+                          InkWell(focusColor: Colors.red,onTap: (){
+                            //MacAddress
+
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const MacAddress()),
+                            );
+
+
+
+                          },
+                            child: Container(
+                                margin: EdgeInsets.only(top: 10),
+                                padding:  EdgeInsets.symmetric(vertical: 5),
+                                child: Text(
+                                  "Settings",
+                                  style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color:(pos_y == 2 && pos_x ==0)? Colors.redAccent:Colors.white60
+                                  ),
+                                )
+                            ),
+                          ),
                           Container(
                               margin: EdgeInsets.only(top: 10),
                             padding:  EdgeInsets.symmetric(vertical: 5),
@@ -472,7 +528,7 @@ class _LoginState extends State<Login> {
                               style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
-                                  color:(pos_y == 2)? Colors.white:Colors.white60
+                                  color:(pos_y == 2&& pos_x ==1)? Colors.redAccent:Colors.white60
                               ),
                             )
                           ),
@@ -509,7 +565,7 @@ class _LoginState extends State<Login> {
 
       });
 
-      if(passwordvalide && emailvalide){
+      if(true ||   passwordvalide && emailvalide){
         _login(usernameController.text.toString(), passwordController.text.toString());
       }
     }

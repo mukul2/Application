@@ -61,7 +61,7 @@ class _SlideWidgetState extends State<SlideWidget> {
                 ),
               ),
             ),
-            AnimatedOpacity(
+         if(false)   AnimatedOpacity(
               opacity: (widget.posty! < 0)? 1 : 0,
               duration: Duration(milliseconds: 200),
               child: Container(
@@ -85,7 +85,7 @@ class _SlideWidgetState extends State<SlideWidget> {
                 ),
               ),
             ),
-            AnimatedOpacity(
+            if(false)    AnimatedOpacity(
               opacity: (widget.posty! < 0)? 0 : 1,
               duration: Duration(milliseconds: 200),
               child: Container(

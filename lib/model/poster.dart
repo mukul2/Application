@@ -21,6 +21,8 @@ class Poster{
      String cover ;
      Source? trailer ;
 
+     bool? fromIsWaching;
+
 
       List<Genre> genres;
 
@@ -46,7 +48,7 @@ class Poster{
        required this.cover,
        required this.trailer,
        required  this.genres,
-       required this.sources
+       required this.sources,this.fromIsWaching
      });
 
   factory Poster.fromJson(Map<String, dynamic> parsedJson){

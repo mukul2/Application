@@ -35,6 +35,8 @@ import 'dart:convert' as convert;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transparent_image/transparent_image.dart';
 
+import '../../series_like_home/home.dart';
+
 
 
 /// A [StatelessWidget] which demonstrates
@@ -983,7 +985,7 @@ for(int i = 0 ; i < movieContents[genres[_selected_genre].id].length ; i++){
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => Series(),
+          pageBuilder: (context, animation1, animation2) => SeriesAsHome(),
           transitionDuration: Duration(seconds: 0),
         ),
       );
@@ -1103,7 +1105,7 @@ for(int i = 0 ; i < movieContents[genres[_selected_genre].id].length ; i++){
 
   Widget _moviesLineGridWidget( jndex, int itemCount) {
     return Container(
-      height: 150,
+      height: MediaQuery.of(context).size.width*0.18,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1111,7 +1113,7 @@ for(int i = 0 ; i < movieContents[genres[_selected_genre].id].length ; i++){
         children: [
           Container(
             padding: EdgeInsets.symmetric(horizontal: 40),
-            height: 150,
+            height: MediaQuery.of(context).size.width*0.18,
             width: double.infinity,
             child: ScrollablePositionedList.builder(
               itemCount: itemCount,
@@ -1127,8 +1129,8 @@ for(int i = 0 ; i < movieContents[genres[_selected_genre].id].length ; i++){
                           Navigator.push(
                             context,
                             PageRouteBuilder(
-                              pageBuilder: (context, animation1, animation2) => Movie(movie: movies[(jndex*8)+index]),
                               transitionDuration: Duration(seconds: 0),
+                              pageBuilder: (context, animation1, animation2) => Movie(movie: movies[(jndex*8)+index]),
                             ),
                           );
                         });

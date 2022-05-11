@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_app_tv/series_like_home/home.dart';
 import 'package:flutter_app_tv/ui/auth/auth.dart';
 import 'package:flutter_app_tv/ui/channel/channel_detail.dart';
 import 'package:flutter_app_tv/ui/channel/channels.dart';
@@ -69,7 +70,7 @@ class _MyAppState extends State<MyApp> {
            MaterialApp(theme: td,
              debugShowCheckedModeBanner: false,
 
-             home: Splash(),
+             home: Home(),
             routes: {
               "/splash": (context) => Splash(),
               "/home": (context) => Home(),
@@ -78,7 +79,7 @@ class _MyAppState extends State<MyApp> {
               "/channel_detail": (context) => ChannelDetail(),
               "/channels": (context) => Channels(),
               "/movies": (context) => Movies(),
-              "/series": (context) => Series(),
+              "/series": (context) => SeriesAsHome(),
               "/reviews": (context) => Reviews(id: 1, image: "image", title: 'title', type: "type"),
               "/review_add": (context) => ReviewAdd(type: "", id: 1, image: 'image'),
               "/comments": (context) => Comments(),

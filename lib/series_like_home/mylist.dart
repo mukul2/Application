@@ -39,7 +39,7 @@ import 'dart:convert' as convert;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transparent_image/transparent_image.dart';
 
-import '../../series_like_home/home.dart';
+import 'home.dart';
 
 /// A [StatelessWidget] which demonstrates
 /// how to consume and interact with a [CounterBloc].

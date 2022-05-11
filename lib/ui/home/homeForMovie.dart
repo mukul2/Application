@@ -43,6 +43,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../model/channel.dart';
 import '../../model/country.dart';
 import '../../model/source.dart';
+import '../../series_like_home/home.dart';
 
 /// A [StatelessWidget] which demonstrates
 /// how to consume and interact with a [CounterBloc].
@@ -819,7 +820,7 @@ class _HomeState extends ResumableState<HomeForMovie> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => Series(),
+          pageBuilder: (context, animation1, animation2) => SeriesAsHome(),
           transitionDuration: Duration(seconds: 0),
         ),
       );

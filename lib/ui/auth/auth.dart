@@ -39,10 +39,17 @@ class _AuthState extends ResumableState<Auth> {
   void initState() {
     // TODO: implement initState
     super.initState();
+
+    pos_y = 0;
+    // setState(() {
+    //
+    // });
+
     Future.delayed(Duration.zero, () {
       FocusScope.of(context).requestFocus(main_focus_node);
-       GoogleSignIn().signOut();
+       //GoogleSignIn().signOut();
 
+      _goToLogin();
     });
 
   }
@@ -257,9 +264,9 @@ class _AuthState extends ResumableState<Auth> {
 
               case KEY_CENTER:
                 _goToLogin();
-                _goToRegister();
-                _goToGoogle();
-                _goToFacebook();
+              //  _goToRegister();
+              //  _goToGoogle();
+               // _goToFacebook();
                 break;
               case KEY_UP:
                 if(pos_y  ==  0){
@@ -382,7 +389,7 @@ class _AuthState extends ResumableState<Auth> {
                           ),
                         ),
                       ),
-                      GestureDetector(
+                  if(false)    GestureDetector(
                         onTap: (){
                           pos_y = 1;
                           setState(() {
@@ -449,7 +456,7 @@ class _AuthState extends ResumableState<Auth> {
                           ),
                         ),
                       ),
-                      GestureDetector(
+                      if(false)     GestureDetector(
                         onTap: (){
                           pos_y = 2;
                           setState(() {
@@ -519,7 +526,7 @@ class _AuthState extends ResumableState<Auth> {
                             )
                         ),
                       ),
-                      GestureDetector(
+                      if(false)     GestureDetector(
                         onTap: (){
                           pos_y = 3;
                           setState(() {

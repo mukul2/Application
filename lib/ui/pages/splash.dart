@@ -11,6 +11,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert' as convert;
 
+import '../auth/login.dart';
+
 class Splash extends StatefulWidget  {
   @override
   _SplashState createState() => _SplashState();
@@ -101,7 +103,16 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
       });
     });
     Future.delayed(Duration(milliseconds: 5000),(){
-      redirect();
+      //redirect();
+
+
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation1, animation2) => Login(),
+          transitionDuration: Duration(seconds: 0),
+        ),
+      );
     });
   }
   Future<String>  _check() async{

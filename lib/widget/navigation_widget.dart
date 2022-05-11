@@ -14,6 +14,8 @@ import 'package:flutter_app_tv/ui/setting/settings.dart';
 import 'package:need_resume/need_resume.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../series_like_home/home.dart';
+
 class NavigationWidget extends StatefulWidget {
 
   int? posty;
@@ -220,7 +222,7 @@ class _NavigationWidgetState extends ResumableState<NavigationWidget> {
                                   Navigator.pushReplacement(
                                     context,
                                     PageRouteBuilder(
-                                      pageBuilder: (context, animation1, animation2) => Series(),
+                                      pageBuilder: (context, animation1, animation2) => SeriesAsHome(),
                                       transitionDuration: Duration(seconds: 0),
                                     ),
                                   );

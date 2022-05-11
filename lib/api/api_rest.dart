@@ -4,15 +4,36 @@
 
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_app_tv/api/api_config.dart';
 import 'package:flutter_app_tv/model/actor.dart';
 import 'package:flutter_app_tv/model/subtitle.dart';
 import 'package:http/http.dart' as http;
 
 class apiRest{
+  static String EMAIL = "4fe8679c08";
 
   static String no_image = "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg?20200913095930";
+  static pushWatch({required int durationSeconds,dynamic data}) async {
+    FirebaseFirestore  firestore =  FirebaseFirestore.instance;
 
+    firestore.collection("watchHistory"+EMAIL).where("stream_id",isEqualTo: data["stream_id"]).get().then((value) {
+      print("fff1");
+      if(value.docs.length>0){
+        print("fff222");
+        value.docs.first.reference.update({"time":DateTime.now().millisecondsSinceEpoch,"duration":durationSeconds}).then((value) {
+          print("fff333");
+        });
+      }else{
+        firestore.collection("watchHistory"+EMAIL).add({"stream_id":data["stream_id"],"time":DateTime.now().millisecondsSinceEpoch,"type":"movie","duration":durationSeconds,"data":data}).then((value) => print("firebase note added"));
+
+      }
+
+    });
+
+
+
+  }
   static getMovieCastAndCrew ({required String imdb}) async {
     List<Actor>actors = [];
 

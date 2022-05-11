@@ -43,11 +43,11 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../model/channel.dart';
 import '../../model/country.dart';
 import '../../model/source.dart';
-import '../../series_like_home/home.dart';
+import 'home.dart';
 
 /// A [StatelessWidget] which demonstrates
 /// how to consume and interact with a [CounterBloc].
-class Home extends StatefulWidget {
+class HomeForMovie extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
 }
@@ -55,7 +55,7 @@ class Home extends StatefulWidget {
 
 
 
-class _HomeState extends ResumableState<Home> {
+class _HomeState extends ResumableState<HomeForMovie> {
 
 
   List<Genre> genres = [];
@@ -130,13 +130,9 @@ class _HomeState extends ResumableState<Home> {
     }else{
       if (response.statusCode == 200) {
 
+        fire.QuerySnapshot recentMovies = await  fire.FirebaseFirestore.instance.collection("recentMovies").get();
 
-        bool showSlide = true;
-
-        if(showSlide){
-          fire.QuerySnapshot recentMovies = await  fire.FirebaseFirestore.instance.collection("recentMovies").get();
-
-          fire.QueryDocumentSnapshot qsS = recentMovies.docs.first;
+       fire.QueryDocumentSnapshot qsS = recentMovies.docs.first;
 
 
           try {
@@ -273,213 +269,198 @@ class _HomeState extends ResumableState<Home> {
               slides.add(slide);
             }
 
-            // Genre gg = Genre(id: 1, title: "Recently added", posters: posters);
+           // Genre gg = Genre(id: 1, title: "Recently added", posters: posters);
 
-            //  genres.add(gg);
-
-
-
-            Genre gg = Genre(id: 1, title: "Recently added",posters:posters );
-
-            genres.add(gg);
-        //    ItemScrollController controller = new ItemScrollController();
-         //   _scrollControllers.add(controller);
-          //  _position_x_line_saver.add(0);
-          //  _counts_x_line_saver.add(gg.posters!.length);
-
-
-
+          //  genres.add(gg);
             ItemScrollController controller = new ItemScrollController();
-            _scrollControllers.add(controller);
-            _position_x_line_saver.add(0);
-            _counts_x_line_saver.add(slides.length);
+             _scrollControllers.add(controller);
+              _position_x_line_saver.add(0);
+             _counts_x_line_saver.add(slides.length);
           } catch (e) {
             print(e);
             print("cach recent");
           }
-        }
-
-
-        if(true ){
-          //continue watching
-
-
-          fire.QuerySnapshot recentWatch = await  fire.FirebaseFirestore.instance.collection("watchHistory4fe8679c08").where("type",isEqualTo: "movie").get();
-
-
-          List<fire.QueryDocumentSnapshot> allData = recentWatch.docs;
-
-          allData.sort((a, b) => a.get("time").compareTo(b.get("time")));
-
-          allData = allData.reversed.toList();
-
-
-          List<Poster> posters = [];
-          for(int i = 0 ; i < recentWatch.docs.length ; i++){
-
-            try{
-              Map<String, dynamic> dataMap = allData[i].data() as Map<String, dynamic>;
-
-             // String listStr = recentWatch.docs[i].get("data");
-             // dynamic li = convert.jsonDecode(listStr);
 
 
 
-
-
-
-                String SERVER = "http://connect.proxytx.cloud";
-                String PORT = "80";
-                String EMAIL = "4fe8679c08";
-                String PASSWORD = "2016";
-
-                String link =SERVER+":$PORT"+"/"+dataMap["data"]["stream_type"]+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+dataMap["data"]["stream_id"].toString()+"."+dataMap["data"]["container_extension"];
-                Poster poster1 = Poster(id:dataMap["data"]["stream_id"],
-                    title:dataMap["data"]["name"],
-                    type: "type",
-                    label: null,fromIsWaching: true,
-                    sublabel: null,
-                    imdb: 0.0,
-                    // imdb: double.parse(movieContents[_selected_genre][i]["rating"]),
-                    downloadas: "1",
-                    comment: false,
-                    playas: "1",
-                    description: link,
-                    classification: "--",
-                    year: 000,
-                    duration: "--:--",
-                    // rating: double.parse(movieContents[_selected_genre][i]["rating"]),
-                    rating:0.0,
-                    image: dataMap["data"]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
-                    cover:dataMap["data"]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
-                    trailer: null,
-                    genres: [Genre(id: i, title: "Recently watched")],
-                    sources:[Source(size: "",id: 1, type: dataMap["data"]["container_extension"], title:dataMap["data"]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link)] );
-
-                posters.add(poster1);
-
-
-
-
-
-
-
-
-            }catch(e){
-
-              print(e);
-              print("cach recent");
-
+        var jsonData =  convert.jsonDecode(response.body);
+          if(jsonData["slides"] != null){
+            for(Map<String,dynamic> slide_map  in jsonData["slides"]){
+              Slide slide = Slide.fromJson(slide_map);
+              //slides.add(slide);
             }
-
+          }
+        if(jsonData["channels"] != null){
+          if(false){
 
           }
 
 
-          Genre gg = Genre(id: 99, title: "Contiue watching",posters:posters );
-
-          genres.add(gg);
-          ItemScrollController controller = new ItemScrollController();
-          _scrollControllers.add(controller);
-          _position_x_line_saver.add(0);
-          _counts_x_line_saver.add(gg.posters!.length);
-
-
-
-
-
-
-
-
-
-
-          // for(Map<String,dynamic> genre_map  in jsonData["genres"]){
-          //   Genre genre = Genre.fromJson(genre_map);
-          //   if(genre.posters!.length >0) {
-          //     genres.add(genre);
-          //     ItemScrollController controller = new ItemScrollController();
-          //     _scrollControllers.add(controller);
-          //     _position_x_line_saver.add(0);
-          //     _counts_x_line_saver.add(genre.posters!.length);
-          //   }
-          // }
         }
-
-        if(true){
-
-          fire.QuerySnapshot qS = await  fire.FirebaseFirestore.instance.collection("movies").limit(1).get();
+          if(true || jsonData["genres"] != null){
 
 
-
-
-          for(int i = 0 ; i < qS.docs.length ; i++){
-
-            try{
-              String listStr = qS.docs[i].get("list");
-              List li = convert.jsonDecode(listStr);
-
-              List<Poster> posters = [];
-
-              for(int k = 0 ;k < li.length ;k++ ){
-
-
-                String SERVER = "http://connect.proxytx.cloud";
-                String PORT = "80";
-                String EMAIL = "4fe8679c08";
-                String PASSWORD = "2016";
-
-                String link =SERVER+":$PORT"+"/"+li[k]["stream_type"]+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+li[k]["stream_id"].toString()+"."+li[k]["container_extension"];
-
-                modelS.Source sss = Source(size: "",id: 1, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
-                modelS.Source sss2 = Source(size: "",id: 2, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
-                modelS.Source sss3 = Source(size: "",id: 3, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
-                Poster poster1 = Poster(id:li[k]["stream_id"],
-                    title:li[k]["name"],
-                    type: "type",
-                    label: null,
-                    sublabel: null,
-                    imdb: 0.0,
-                    // imdb: double.parse(movieContents[_selected_genre][i]["rating"]),
-                    downloadas: "1",
-                    comment: false,
-                    playas: "1",
-                    description: link,
-                    classification: "--",
-                    year: 000,
-                    duration: "--:--",
-                    // rating: double.parse(movieContents[_selected_genre][i]["rating"]),
-                    rating:0.0,
-                    image: li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
-                    cover:li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
-                    trailer: null,
-                    genres: [Genre(id: k, title: qS.docs[i].get("name"))],
-                    sources:[sss,sss2,sss3] );
-
-                posters.add(poster1);
+            fire.QuerySnapshot recentMovies = await  fire.FirebaseFirestore.instance.collection("recentMovies").get();
 
 
 
 
+
+
+            for(int i = 0 ; i < recentMovies.docs.length ; i++){
+
+              try{
+                String listStr = recentMovies.docs[i].get("data");
+                List li = convert.jsonDecode(listStr);
+
+                List<Poster> posters = [];
+
+                for(int k = 0 ;k < li.length ;k++ ){
+
+
+                  String SERVER = "http://connect.proxytx.cloud";
+                  String PORT = "80";
+                  String EMAIL = "4fe8679c08";
+                  String PASSWORD = "2016";
+
+                  String link =SERVER+":$PORT"+"/"+li[k]["stream_type"]+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+li[k]["stream_id"].toString()+"."+li[k]["container_extension"];
+                  Poster poster1 = Poster(id:li[k]["stream_id"],
+                      title:li[k]["name"],
+                      type: "type",
+                      label: null,
+                      sublabel: null,
+                      imdb: 0.0,
+                      // imdb: double.parse(movieContents[_selected_genre][i]["rating"]),
+                      downloadas: "1",
+                      comment: false,
+                      playas: "1",
+                      description: link,
+                      classification: "--",
+                      year: 000,
+                      duration: "--:--",
+                      // rating: double.parse(movieContents[_selected_genre][i]["rating"]),
+                      rating:0.0,
+                      image: li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+                      cover:li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+                      trailer: null,
+                      genres: [Genre(id: k, title: "Recently added")],
+                      sources:[Source(size: "",id: 1, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link)] );
+
+                  posters.add(poster1);
+
+
+
+
+
+                }
+
+                Genre gg = Genre(id: i, title: "Recently added",posters:posters );
+
+                genres.add(gg);
+               ItemScrollController controller = new ItemScrollController();
+             _scrollControllers.add(controller);
+               _position_x_line_saver.add(0);
+               _counts_x_line_saver.add(gg.posters!.length);
+              }catch(e){
+
+                print(e);
+                print("cach recent");
 
               }
 
-              Genre gg = Genre(id: i, title: qS.docs[i].get("name"),posters:posters );
-
-              genres.add(gg);
-              ItemScrollController controller = new ItemScrollController();
-              _scrollControllers.add(controller);
-              _position_x_line_saver.add(0);
-              _counts_x_line_saver.add(gg.posters!.length);
-            }catch(e){
 
             }
 
 
+            if(true){
+
+              fire.QuerySnapshot qS = await  fire.FirebaseFirestore.instance.collection("movies").limit(5).get();
+
+
+
+
+              for(int i = 0 ; i < qS.docs.length ; i++){
+
+                try{
+                  String listStr = qS.docs[i].get("list");
+                  List li = convert.jsonDecode(listStr);
+
+                  List<Poster> posters = [];
+
+                  for(int k = 0 ;k < li.length ;k++ ){
+
+
+                    String SERVER = "http://connect.proxytx.cloud";
+                    String PORT = "80";
+                    String EMAIL = "4fe8679c08";
+                    String PASSWORD = "2016";
+
+                    String link =SERVER+":$PORT"+"/"+li[k]["stream_type"]+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+li[k]["stream_id"].toString()+"."+li[k]["container_extension"];
+                    Poster poster1 = Poster(id:li[k]["stream_id"],
+                        title:li[k]["name"],
+                        type: "type",
+                        label: null,
+                        sublabel: null,
+                        imdb: 0.0,
+                        // imdb: double.parse(movieContents[_selected_genre][i]["rating"]),
+                        downloadas: "1",
+                        comment: false,
+                        playas: "1",
+                        description: link,
+                        classification: "--",
+                        year: 000,
+                        duration: "--:--",
+                        // rating: double.parse(movieContents[_selected_genre][i]["rating"]),
+                        rating:0.0,
+                        image: li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+                        cover:li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+                        trailer: null,
+                        genres: [Genre(id: k, title: qS.docs[i].get("name"))],
+                        sources:[Source(size: "",id: 1, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link)] );
+
+                    posters.add(poster1);
+
+
+
+
+
+                  }
+
+                  Genre gg = Genre(id: i, title: qS.docs[i].get("name"),posters:posters );
+
+                  genres.add(gg);
+                  ItemScrollController controller = new ItemScrollController();
+                  _scrollControllers.add(controller);
+                  _position_x_line_saver.add(0);
+                  _counts_x_line_saver.add(gg.posters!.length);
+                }catch(e){
+
+                }
+
+
+              }
+            }
+
+
+
+
+
+
+
+
+
+
+            // for(Map<String,dynamic> genre_map  in jsonData["genres"]){
+            //   Genre genre = Genre.fromJson(genre_map);
+            //   if(genre.posters!.length >0) {
+            //     genres.add(genre);
+            //     ItemScrollController controller = new ItemScrollController();
+            //     _scrollControllers.add(controller);
+            //     _position_x_line_saver.add(0);
+            //     _counts_x_line_saver.add(genre.posters!.length);
+            //   }
+            // }
           }
-        }
-
-        //<---------Recently Added starts  ----------->
-
 
         _showData();
 
@@ -652,8 +633,7 @@ class _HomeState extends ResumableState<Home> {
                 right: 0,
                 top: 0,
                 left: MediaQuery.of(context).size.width/4,
-               // bottom: MediaQuery.of(context).size.height/4,
-                bottom: MediaQuery.of(context).size.height/8,
+                bottom: MediaQuery.of(context).size.height/4,
                 child:AnimatedSwitcher(
                   child: getBackgroundImage(),
                   duration: Duration(seconds: 1),
@@ -671,7 +651,6 @@ class _HomeState extends ResumableState<Home> {
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                         colors: [Colors.black,Colors.black,Colors.black54,Colors.black54,Colors.black54],
-                       // colors: [Colors.black,Colors.black.withOpacity(0.4),Colors.black.withOpacity(0.2),Colors.black.withOpacity(0.1),Colors.transparent],
                       )
                   )
               ),
@@ -687,8 +666,6 @@ class _HomeState extends ResumableState<Home> {
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,
                         colors: [Colors.black,Colors.black, Colors.transparent, Colors.transparent],
-                       // colors: [Colors.black,Colors.black.withOpacity(0.4),Colors.black.withOpacity(0.2),Colors.black.withOpacity(0.1),Colors.transparent],
-
                       )
                   )
               ),
@@ -732,9 +709,9 @@ class _HomeState extends ResumableState<Home> {
               left: 0,
               right: 0,
               duration: Duration(milliseconds: 200),
-              height: (posty < 0)?(MediaQuery.of(context).size.height/2)  -50:(MediaQuery.of(context).size.height/2)+200,
+              height: (posty < 0)?(MediaQuery.of(context).size.height/2)  -70:(MediaQuery.of(context).size.height/2),
               child: Container(
-                height: (posty < 0)?(MediaQuery.of(context).size.height/2) -50:(MediaQuery.of(context).size.height/2)+200,
+                height: (posty < 0)?(MediaQuery.of(context).size.height/2) -70:(MediaQuery.of(context).size.height/2),
                 child: ScrollConfiguration(
                   behavior: MyBehavior(),   // From this behaviour you can change the behaviour
                   child: ScrollablePositionedList.builder(
@@ -753,7 +730,7 @@ class _HomeState extends ResumableState<Home> {
                 ),
               ),
             ),
-            NavigationWidget(postx:postx,posty:posty,selectedItem : 1,image : image, logged : logged),
+            NavigationWidget(postx:postx,posty:posty,selectedItem : 2,image : image, logged : logged),
           ],
         ),
       ),
@@ -761,10 +738,18 @@ class _HomeState extends ResumableState<Home> {
   }
   void  _goToMovies(){
     if(posty == -2 && postx == 2){
+      // Navigator.pushReplacement(
+      //   context,
+      //   PageRouteBuilder(
+      //     pageBuilder: (context, animation1, animation2) => mmm.Movies(),
+      //     transitionDuration: Duration(seconds: 0),
+      //   ),
+      // );
+      //
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => mmm.Movies(),
+          pageBuilder: (context, animation1, animation2) => HomeForMovie(),
           transitionDuration: Duration(seconds: 0),
         ),
       );

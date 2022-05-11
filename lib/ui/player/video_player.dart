@@ -337,6 +337,15 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
           _hideControllersDialog();
           return false;
         }
+
+        if(widget.poster!=null){
+
+          dynamic data =   {"num":0,"name":widget.poster!.title,"stream_type":"movie","stream_id":widget.poster!.id,"stream_icon":widget.poster!.cover,"rating":widget.poster!.rating.toString(),"rating_5based":(widget.poster!.rating/2).roundToDouble(),"added":"1650236100","category_id":"1242","container_extension":widget.poster!.sources[0].type,"custom_sid":null,"direct_source":widget.poster!.sources[0].url};
+          apiRest.pushWatch(durationSeconds:_betterPlayerController!.videoPlayerController!.value.position.inSeconds,data: data);
+
+        }
+
+
         return true;
       },
       child: Scaffold(
@@ -348,6 +357,9 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
               RawKeyDownEvent rawKeyDownEvent = event;
               RawKeyEventDataAndroid rawKeyEventDataAndroid = rawKeyDownEvent.data as RawKeyEventDataAndroid;
               print("Focus Node 0 ${rawKeyEventDataAndroid.keyCode}");
+
+
+
               if(!_visibile_controllers && rawKeyEventDataAndroid.keyCode != 4) {
                 _hideControllers();
                 return;

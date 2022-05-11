@@ -43,11 +43,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../model/channel.dart';
 import '../../model/country.dart';
 import '../../model/source.dart';
-import '../../series_like_home/home.dart';
 
 /// A [StatelessWidget] which demonstrates
 /// how to consume and interact with a [CounterBloc].
-class Home extends StatefulWidget {
+class SeriesAsHome extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
 }
@@ -55,7 +54,7 @@ class Home extends StatefulWidget {
 
 
 
-class _HomeState extends ResumableState<Home> {
+class _HomeState extends ResumableState<SeriesAsHome> {
 
 
   List<Genre> genres = [];
@@ -131,7 +130,7 @@ class _HomeState extends ResumableState<Home> {
       if (response.statusCode == 200) {
 
 
-        bool showSlide = true;
+        bool showSlide = false;
 
         if(showSlide){
           fire.QuerySnapshot recentMovies = await  fire.FirebaseFirestore.instance.collection("recentMovies").get();
@@ -300,7 +299,7 @@ class _HomeState extends ResumableState<Home> {
         }
 
 
-        if(true ){
+        if(false ){
           //continue watching
 
 
@@ -406,8 +405,9 @@ class _HomeState extends ResumableState<Home> {
         }
 
         if(true){
+          print("Now get series");
 
-          fire.QuerySnapshot qS = await  fire.FirebaseFirestore.instance.collection("movies").limit(1).get();
+          fire.QuerySnapshot qS = await  fire.FirebaseFirestore.instance.collection("series").get();
 
 
 
@@ -428,14 +428,15 @@ class _HomeState extends ResumableState<Home> {
                 String EMAIL = "4fe8679c08";
                 String PASSWORD = "2016";
 
-                String link =SERVER+":$PORT"+"/"+li[k]["stream_type"]+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+li[k]["stream_id"].toString()+"."+li[k]["container_extension"];
+               // String link =SERVER+":$PORT"+"/"+li[k]["stream_type"]+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+li[k]["stream_id"].toString()+"."+li[k]["container_extension"];
 
-                modelS.Source sss = Source(size: "",id: 1, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
-                modelS.Source sss2 = Source(size: "",id: 2, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
-                modelS.Source sss3 = Source(size: "",id: 3, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
-                Poster poster1 = Poster(id:li[k]["stream_id"],
-                    title:li[k]["name"],
-                    type: "type",
+              //  modelS.Source sss = Source(size: "",id: 1, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
+              //  modelS.Source sss2 = Source(size: "",id: 2, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
+              //  modelS.Source sss3 = Source(size: "",id: 3, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
+
+                Poster poster1 = Poster(id:li[k]["series_id"],
+                    title: li[k]["name"],
+                    type: "serie",
                     label: null,
                     sublabel: null,
                     imdb: 0.0,
@@ -443,17 +444,41 @@ class _HomeState extends ResumableState<Home> {
                     downloadas: "1",
                     comment: false,
                     playas: "1",
-                    description: link,
+                    description: "--",
                     classification: "--",
                     year: 000,
                     duration: "--:--",
                     // rating: double.parse(movieContents[_selected_genre][i]["rating"]),
                     rating:0.0,
-                    image: li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
-                    cover:li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+                    image: li[k]["cover"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+                    cover: li[k]["cover"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
                     trailer: null,
-                    genres: [Genre(id: k, title: qS.docs[i].get("name"))],
-                    sources:[sss,sss2,sss3] );
+                    genres: [Genre(id: i+1, title:  qS.docs[i].get("name"))],
+                    sources:[] );
+
+
+                //
+                // Poster poster1 = Poster(id:li[k]["stream_id"],
+                //     title:li[k]["name"],
+                //     type: "serie",
+                //     label: null,
+                //     sublabel: null,
+                //     imdb: 0.0,
+                //     // imdb: double.parse(movieContents[_selected_genre][i]["rating"]),
+                //     downloadas: "1",
+                //     comment: false,
+                //     playas: "1",
+                //     description: link,
+                //     classification: "--",
+                //     year: 000,
+                //     duration: "--:--",
+                //     // rating: double.parse(movieContents[_selected_genre][i]["rating"]),
+                //     rating:0.0,
+                //     image: li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+                //     cover:li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+                //     trailer: null,
+                //     genres: [Genre(id: k, title: qS.docs[i].get("name"))],
+                //     sources:[sss,sss2,sss3] );
 
                 posters.add(poster1);
 
@@ -471,6 +496,8 @@ class _HomeState extends ResumableState<Home> {
               _position_x_line_saver.add(0);
               _counts_x_line_saver.add(gg.posters!.length);
             }catch(e){
+              print(e);
+              print("Error on adding genre series");
 
             }
 
@@ -646,7 +673,7 @@ class _HomeState extends ResumableState<Home> {
             });
           }
         },
-        child: Stack(
+        child:false?Center(child: Text(genres.length.toString()),): Stack(
           children: [
             Positioned(
                 right: 0,
@@ -742,7 +769,11 @@ class _HomeState extends ResumableState<Home> {
                     scrollDirection: Axis.vertical,
                     itemScrollController: _scrollController,
                     itemBuilder: (context, jndex) {
-                      if(genres[jndex].id == -3){
+
+
+
+
+                      if(  genres[jndex].id == -3){
 
                         return ChannelsWidget(jndex:jndex,postx: postx,posty: posty,scrollController: _scrollControllers[jndex],size: MediaQuery.of(context).size.longestSide*0.01,title: "TV Channels",channels: channels);
                       }else{
