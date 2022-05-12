@@ -34,6 +34,7 @@ import 'package:flutter_app_tv/ui/movie/movies_widget.dart';
 import 'package:flutter_app_tv/widget/navigation_widget.dart';
 import 'package:flutter_app_tv/widget/slide_widget.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 import 'package:need_resume/need_resume.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'dart:convert' as convert;
@@ -62,7 +63,7 @@ class _HomeState extends ResumableState<SeriesAsHome> {
   List<model.Channel> channels = [];
 
 
-  int postx = 1;
+  int postx = 3;
   int posty = -2;
   int side_current = 0;
   CarouselController _carouselController = CarouselController();
@@ -406,6 +407,175 @@ class _HomeState extends ResumableState<SeriesAsHome> {
 
         if(true){
           print("Now get series");
+
+          fire.QuerySnapshot recentMovies = await  fire.FirebaseFirestore.instance.collection("recentSeries").get();
+
+          fire.QueryDocumentSnapshot qsS = recentMovies.docs.first;
+
+
+          String listStr = qsS.get("data");
+
+          listStr.replaceAll("'", '"');
+
+          List li = convert.jsonDecode(listStr);
+
+          List<Poster> posters = [];
+
+          for (int k = 0; k < li.length; k++) {
+            String SERVER = "http://connect.proxytx.cloud";
+            String PORT = "80";
+            String EMAIL = "4fe8679c08";
+            String PASSWORD = "2016";
+
+            // String link = SERVER + ":$PORT" + "/" + li[k]["stream_type"] +
+            //     "/" + EMAIL + "/" + PASSWORD.toString() + "/" +
+            //     li[k]["stream_id"].toString() + "." +
+            //     li[k]["container_extension"];
+
+
+
+            String titleForSearch =  li[k]["name"];
+
+            // List alls = title.split("-");
+            // String second = alls.last;
+            //
+            // List qq = second.split("(");
+            //
+            // List kk = qq.first.toString().split(" ");
+            // String key ="" ;
+            // for(int i = 0 ; i < kk.length ; i++){
+            //
+            //   if(kk[i].toString().trim()!="4K"){
+            //     if(i==1){
+            //       if(kk[i].toString().length>0) key = kk[i];
+            //     }else{
+            //       if(kk[i].toString().length>0) key = key+"+"+kk[i];
+            //     }
+            //
+            //   }
+            //
+            //
+            //
+            //
+            // }
+            //
+            // key = key.replaceAll("++", "+");
+            // key = key.replaceAll(":", "");
+            // key = key.replaceAll("(", "");
+            // key = key.replaceAll(")", "");
+            //
+            // print(key);
+            //
+            //
+            //
+            //
+            // String tvSHowTMDB = "https://api.themoviedb.org/3/search/movie?api_key=103096910bbe8842c151f7cce00ab218&query="+key;
+            // print(tvSHowTMDB);
+            //
+            // var responseTMDB = await http.get(Uri.parse(tvSHowTMDB) );
+            //
+            // dynamic jsonTMDB = jsonDecode(responseTMDB.body);
+            // String tmdbId="";
+            // if(jsonTMDB["total_results"]>0){
+            //
+            //   tmdbId = jsonTMDB["results"][0]["id"].toString();
+            //   String tvSHowTMDBFull = "https://api.themoviedb.org/3/movie/$tmdbId?api_key=103096910bbe8842c151f7cce00ab218";
+            //   print(tvSHowTMDBFull);
+            //   TMDB = tmdbId;
+            //   var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
+            //   print(responseTMDFF.body);
+            //
+            //   //  await FirebaseFirestore.instance.collection("moreInfoSeries").doc(seriedID).set({"fullSeries":responseTMDFF.body});
+            //
+            //   return jsonDecode(responseTMDFF.body);
+            // }else{
+            //   String tvSHowTMDBFull = "https://api.themoviedb.org/3/movie/414906?api_key=103096910bbe8842c151f7cce00ab218";
+            //   print(tvSHowTMDBFull);
+            //   TMDB = tmdbId;
+            //   var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
+            //   print(responseTMDFF.body);
+            //
+            //   //  await FirebaseFirestore.instance.collection("moreInfoSeries").doc(seriedID).set({"fullSeries":responseTMDFF.body});
+            //
+            //   return jsonDecode(responseTMDFF.body);
+            // }
+
+
+
+
+
+
+
+           List<Genre>gnnn = [];
+            if(li[k]["plot"]!=null){
+              String g = li[k]["plot"];
+              List ggg = g.split(",");
+              for(int i = 0 ; i <ggg.length; i++ ){
+                gnnn.add(Genre(id: k, title: ggg[i]));
+              }
+
+            }
+
+            String covv = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png";
+
+            try{
+              covv = li[k]["backdrop_path"][0];
+
+            }catch(e){
+              try{
+                covv =  li[k]["cover"] ;
+
+              }catch(e){
+
+
+
+              }
+            }
+
+
+            Poster poster1 = Poster(id: li[k]["series_id"],
+                title: li[k]["name"],
+                type: "serie",
+                label: null,
+                sublabel: null,
+                imdb: li[k]["rating_5based"!]!=null?li[k]["rating_5based"!].toDouble() : 0.0,
+                // imdb: double.parse(movieContents[_selected_genre][i]["rating"]),
+                downloadas: "1",
+                comment: false,
+                playas: "1",
+                description: li[k]["plot"] ??"--",
+                classification: "--",
+                year: li[k]["releaseDate"]!=null?(int.parse(DateFormat("yyyy").format(DateTime.parse("2019-09-30")))): 000 ,
+                duration: "--:--",
+                // rating: double.parse(movieContents[_selected_genre][i]["rating"]),
+                rating: 0.0,
+                image: li[k]["cover"] ??
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+                cover: covv,
+                trailer: null,
+                genres: gnnn,
+                sources: [
+                ]);
+
+            posters.add(poster1);
+
+            // modelS.Source source = modelS.Source(size: "",id: 1, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
+            // Channel channel = model.Channel(id: k, title: li[k]["name"], type: "", label: "", sublabel: "", downloadas: "", comment: false, playas: "", description: "Description", classification: "", duration: "02:02:02", rating: 9.9, image: li[k]["stream_icon"] ??
+            //     "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png", website: "", countries: [], categories: [], sources: [source]);
+
+            // Slide slide = Slide(id: k, title: li[k]["name"], type: "", image: li[k]["stream_icon"] ??
+            //     "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png", url: "", category: null, genre: Genre(id: k, title: "Recently added",posters: [poster1]), channel: null);
+            // slides.add(slide);
+          }
+
+          Genre gg = Genre(id: 0, title: "Recently added",posters:posters );
+
+          genres.add(gg);
+          ItemScrollController controller = new ItemScrollController();
+          _scrollControllers.add(controller);
+          _position_x_line_saver.add(0);
+          _counts_x_line_saver.add(gg.posters!.length);
+
 
           fire.QuerySnapshot qS = await  fire.FirebaseFirestore.instance.collection("series").get();
 
@@ -784,7 +954,7 @@ class _HomeState extends ResumableState<SeriesAsHome> {
                 ),
               ),
             ),
-            NavigationWidget(postx:postx,posty:posty,selectedItem : 1,image : image, logged : logged),
+            NavigationWidget(postx:postx,posty:posty,selectedItem : 3,image : image, logged : logged),
           ],
         ),
       ),

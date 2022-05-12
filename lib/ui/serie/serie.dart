@@ -306,11 +306,44 @@ class _SerieState extends State<Serie> {
 
 
     fire.DocumentSnapshot moreInfo = await  fire.FirebaseFirestore.instance.collection("moreInfoSeries").doc(id).get();
-    if( moreInfo.exists){
-      print("No need to get More Info");
-      TMDB = moreInfo.get("tmdbId");
+
+    Map<String, dynamic> ddddd = {};
+   try{
+     ddddd = moreInfo.data()! as Map<String, dynamic>;
+   }catch(e){
+
+   }
+
+    if( moreInfo.exists &&  ddddd.containsKey("xtrInfo")){
+
+     
+
+      dynamic tmdbInfo = ddddd["tmdbInfo"];
+      dynamic xtrInfo = ddddd["xtrInfo"];
+
+
+      dynamic data = xtrInfo;
+
+      data["episodes"].forEach((key, value) {
+        List<Episode>allEpisodes = [];
+        for(int i = 0 ; i < value.length; i++){
+          String  old= SERVER+":$PORT"+"/"+"series"+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+value[i]["id"].toString()+"."+value[i]["container_extension"];
+
+          Source source = Source(id:  value[i]["episode_num"], type: value[i]["container_extension"], title: value[i]["container_extension"], quality: "HQ", size: "", kind: "", premium: "1", external: true, url: old);
+          allEpisodes.add(Episode(id:int.parse(value[i]["id"]), title: value[i]["title"]??"----", downloadas: "", playas: "", description: "", duration:  value[i]["info"]["duration"], image: value[i]["info"]["movie_image"], sources: [source]));
+        }
+        seasons.add(Season(id: int.parse(key), title: "Season "+key.toString(), episodes: allEpisodes));
+
+      });
+
+
 
     }else{
+
+
+
+
+
 
       String title =  widget.serie!.title;
       List alls = title.split("-");
@@ -361,11 +394,34 @@ class _SerieState extends State<Serie> {
         TMDB = tmdbId;
         var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
 
-        await  fire.FirebaseFirestore.instance.collection("moreInfoSeries").doc(id).set({"fullSeries":responseTMDFF.body});
+        await  fire.FirebaseFirestore.instance.collection("moreInfoSeries").doc(id).set({"tmdbInfo":responseTMDFF.body});
 
 
       }
 
+
+      String link = "$SERVER/player_api.php?username=$EMAIL&password=$PASSWORD&action=get_series_info&series_id=$id";
+      print(link);
+      var url = Uri.parse(link);
+      var responseSeries = await http.get(url, );
+      print(responseSeries.body);
+      dynamic data = jsonDecode(responseSeries.body);
+
+      data["episodes"].forEach((key, value) {
+        List<Episode>allEpisodes = [];
+        for(int i = 0 ; i < value.length; i++){
+          String  old= SERVER+":$PORT"+"/"+"series"+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+value[i]["id"].toString()+"."+value[i]["container_extension"];
+
+          Source source = Source(id:  value[i]["episode_num"], type: value[i]["container_extension"], title: value[i]["container_extension"], quality: "HQ", size: "", kind: "", premium: "1", external: true, url: old);
+          allEpisodes.add(Episode(id:int.parse(value[i]["id"]), title: value[i]["title"]??"----", downloadas: "", playas: "", description: "", duration:  value[i]["info"]["duration"], image: value[i]["info"]["movie_image"], sources: [source]));
+        }
+        seasons.add(Season(id: int.parse(key), title: "Season "+key.toString(), episodes: allEpisodes));
+
+      });
+
+
+//xtrInfo
+      await  fire.FirebaseFirestore.instance.collection("moreInfoSeries").doc(id).update({"xtrInfo":data});
 
       // String link = "https://api.themoviedb.org/3/tv/$tmdbId/season/$season/episode/$e?api_key=103096910bbe8842c151f7cce00ab218";
       // print(link);
@@ -390,27 +446,6 @@ class _SerieState extends State<Serie> {
 
 
 
-
-
-
-
-    String link = "$SERVER/player_api.php?username=$EMAIL&password=$PASSWORD&action=get_series_info&series_id=$id";
-    print(link);
-    var url = Uri.parse(link);
-    var responseSeries = await http.get(url, );
-    dynamic data = jsonDecode(responseSeries.body);
-
-    data["episodes"].forEach((key, value) {
-      List<Episode>allEpisodes = [];
-      for(int i = 0 ; i < value.length; i++){
-        String  old= SERVER+":$PORT"+"/"+"series"+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+value[i]["id"].toString()+"."+value[i]["container_extension"];
-
-        Source source = Source(id:  value[i]["episode_num"], type: value[i]["container_extension"], title: value[i]["container_extension"], quality: "HQ", size: "", kind: "", premium: "1", external: true, url: old);
-        allEpisodes.add(Episode(id:int.parse(value[i]["id"]), title: value[i]["title"]??"----", downloadas: "", playas: "", description: "", duration:  value[i]["info"]["duration"], image: value[i]["info"]["movie_image"], sources: [source]));
-      }
-      seasons.add(Season(id: int.parse(key), title: "Season "+key.toString(), episodes: allEpisodes));
-
-    });
 
 
 
@@ -819,8 +854,17 @@ class _SerieState extends State<Serie> {
                                                                             size: 18,
                                                                           ),
                                                                         ),
+                                                                        // Text(
+                                                                        //     seasons[0].title + " | "+ seasons[0].episodes[0].title ,
+                                                                        //     style: TextStyle(
+                                                                        //         color: (postx == 0 && posty == 0)? Colors.black:Colors.white,
+                                                                        //         fontSize: 11,
+                                                                        //         fontWeight: FontWeight.w500
+                                                                        //     )
+                                                                        // ),
+
                                                                         Text(
-                                                                            seasons[0].title + " | "+ seasons[0].episodes[0].title ,
+                                                                            seasons[0].title  ,
                                                                             style: TextStyle(
                                                                                 color: (postx == 0 && posty == 0)? Colors.black:Colors.white,
                                                                                 fontSize: 11,
@@ -1543,7 +1587,7 @@ class _SerieState extends State<Serie> {
       Navigator.push(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => VideoPlayer(sourcesList: _sources,selected_source:_new_selected_source,focused_source: _new_selected_source,poster: widget.serie,episode:selected_episode!,season: selected_season,seasons:seasons ),
+          pageBuilder: (context, animation1, animation2) => VideoPlayer(subtitles: [],sourcesList: _sources,selected_source:_new_selected_source,focused_source: _new_selected_source,poster: widget.serie,episode:selected_episode!,season: selected_season,seasons:seasons ),
           transitionDuration: Duration(seconds: 0),
         ),
       );

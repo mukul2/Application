@@ -141,6 +141,9 @@ class _HomeState extends ResumableState<Home> {
 
           try {
             String listStr = qsS.get("data");
+
+            listStr.replaceAll("'", '"');
+
             List li = convert.jsonDecode(listStr);
 
             List<Poster> posters = [];

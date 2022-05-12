@@ -137,6 +137,7 @@ class _HomeState extends ResumableState<HomeForMovie> {
 
           try {
             String listStr = qsS.get("data");
+            listStr.replaceAll("'", '"');
             List li = convert.jsonDecode(listStr);
 
             List<Poster> posters = [];
@@ -311,6 +312,7 @@ class _HomeState extends ResumableState<HomeForMovie> {
 
               try{
                 String listStr = recentMovies.docs[i].get("data");
+                listStr.replaceAll("'", '"');
                 List li = convert.jsonDecode(listStr);
 
                 List<Poster> posters = [];

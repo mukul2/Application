@@ -8,9 +8,13 @@ import 'package:flutter_app_tv/ui/movie/movies.dart' as isss;
 import 'package:flutter_app_tv/ui/serie/serie.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
-class MoviesWidget extends StatefulWidget {
+import '../../model/channel.dart';
+import 'channel_detail.dart';
+import 'channel_widget.dart';
+
+class M_C_Widget extends StatefulWidget {
   String? title;
-  List<Poster>? posters =[];
+  List<Channel>? posters =[];
   int? size;
   int? posty;
   int? postx;
@@ -18,13 +22,13 @@ class MoviesWidget extends StatefulWidget {
   ItemScrollController? scrollController;
 
 
-  MoviesWidget({this.posty, this.postx, this.jndex, this.scrollController,this.title,this.posters, this.size});
+  M_C_Widget({this.posty, this.postx, this.jndex, this.scrollController,this.title,this.posters, this.size});
 
   @override
   _MoviesWidgetState createState() => _MoviesWidgetState();
 }
 
-class _MoviesWidgetState extends State<MoviesWidget> {
+class _MoviesWidgetState extends State<M_C_Widget> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -65,20 +69,28 @@ class _MoviesWidgetState extends State<MoviesWidget> {
                                 widget.postx =index;
                                 Future.delayed(Duration(milliseconds: 250),(){
 
+                                  Future.delayed(Duration(milliseconds: 250),(){
+                                    Navigator.push(
+                                      context,
+                                      PageRouteBuilder(
+                                        pageBuilder: (context, animation1, animation2) => ChannelDetail(channel: widget.posters![index]),
+                                        transitionDuration: Duration(seconds: 0),
+                                      ),
+                                    );
+                                  });
 
-
-
-                                  Navigator.push(
-                                    context,
-                                    PageRouteBuilder(
-                                      pageBuilder: (context, animation1, animation2) => ( widget.posters![index].type == "serie")? Serie(serie: widget.posters![index]):Movie(movie: widget.posters![index]),
-                                      transitionDuration: Duration(seconds: 0),
-                                    ),
-                                  );
+                                  //
+                                  // Navigator.push(
+                                  //   context,
+                                  //   PageRouteBuilder(
+                                  //     pageBuilder: (context, animation1, animation2) => ( widget.posters![index].type == "serie")? Serie(serie: widget.posters![index]):Movie(movie: widget.posters![index]),
+                                  //     transitionDuration: Duration(seconds: 0),
+                                  //   ),
+                                  // );
                                 });
                               });
                         },
-                        child: MovieWidget(isFocus:  ((widget.posty == widget.jndex && widget.postx == index)),movie: widget.posters![index])
+                        child: ChannelWidget(isFocus: ((widget.posty == widget.jndex && widget.postx == index)),channel: widget.posters![index])
                     ),
                   );
                 },

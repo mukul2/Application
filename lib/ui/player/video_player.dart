@@ -146,33 +146,43 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
 
    @override
   void initState() {
+     try{
+       print(widget.poster!.sources.first.url);
+     }catch(e){
 
+     }
 
+     try{
+
+     }catch(e){
+
+     }
 
     // print("selected subtitle index "+widget.selected_subtitle!.toString());
 
 
-    Future.delayed(Duration.zero, () {
+    Future.delayed(Duration.zero, () async {
 
       String initFileName = "";
 
-      if(widget.selected_subtitle!>0){
+      if(widget.subtitles!.length>0 && widget.selected_subtitle!>0){
         initFileName =  (widget.subtitles![ widget.selected_subtitle!].file_id).toString() ;
 
-        fire.FirebaseFirestore.instance.collection("subtitlesByFileId").doc(initFileName).get().then((value) async {
-          if(value.exists){
+       var value = await  fire.FirebaseFirestore.instance.collection("subtitlesByFileId").doc(initFileName).get();
 
-            print("subtitle was previously available");
+        if(value.exists){
 
-            String linkStorage = value.get("storage");
+          print("subtitle was previously available");
 
-            nowWorkingSubtitle = linkStorage;
+          String linkStorage = value.get("storage");
+
+          nowWorkingSubtitle = linkStorage;
 
 
-          }else{
+        }else{
 
-            print("need to download and cache subtitle ");
-            //search and get subtitle from opensubtitles and cache and use
+          print("need to download and cache subtitle ");
+          //search and get subtitle from opensubtitles and cache and use
 
           String link = await  apiRest.downloadubtitles(fileName: widget.subtitles![ widget.selected_subtitle!].file_name!, fileId: widget.subtitles![ widget.selected_subtitle!].file_id.toString(), lang: widget.subtitles![ widget.selected_subtitle!].language);
 
@@ -181,24 +191,26 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
 
           print("just downloaded subtitle "+nowWorkingSubtitle!);
 
-          }
-        });
+        }
+
       }else{
         //run no subtitle
-        print("running with no subtitle");
-        widget.next =  (widget.episode != null)? true:false;
-        widget.live =  (widget.channel!= null)? true:false;
-        FocusScope.of(context).requestFocus(video_player_focus_node);
-        _prepareNext();
-        _getSubtitlesList();
-        _checkLogged();
+
 
       }
 
 
+      print("running with no subtitle");
+      print(widget.episode);
+      print("running with no subtitle");
+      widget.next =  (widget.episode != null)? true:false;
+      widget.live =  (widget.channel!= null)? true:false;
+      FocusScope.of(context).requestFocus(video_player_focus_node);
+      _prepareNext();
+      _getSubtitlesList();
+      _checkLogged();
 
-
-      print("selected subtitle  "+widget.subtitles![widget.selected_subtitle!].file_id.toString());
+     // print("selected subtitle  "+widget.subtitles![widget.selected_subtitle!].file_id.toString());
 
 
 
@@ -245,7 +257,7 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
           }
         }
       setState(() {
-
+      //  widget.next = true;//fake
       });
     }
   }
@@ -318,6 +330,14 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async{
+        if(widget.poster!=null && widget.episode!=null && widget.season!=null){
+
+          dynamic data =   {"num":0,"name":widget.poster!.title,"stream_type":"movie","stream_id":widget.poster!.id,"stream_icon":widget.poster!.cover,"rating":widget.poster!.rating.toString(),"rating_5based":(widget.poster!.rating/2).roundToDouble(),"added":"1650236100","category_id":"1242","container_extension":widget.poster!.sources[0].type,"custom_sid":null,"direct_source":widget.poster!.sources[0].url};
+          apiRest.pushWatch(durationSeconds:_betterPlayerController!.videoPlayerController!.value.position.inSeconds,data: data);
+
+        }
+
+        return true;
         if(visible_subscribe_dialog){
           setState(() {
             visible_subscribe_dialog = false;
@@ -329,21 +349,16 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
           _hideSubtitlesDialog();
           return false;
         }
-        if(visibileSourcesDialog){
-          _hideSourcesDialog();
-          return false;
-        }
+        // if(visibileSourcesDialog){
+        //   _hideSourcesDialog();
+        //   return false;
+        // }
         if(_visibile_controllers){
           _hideControllersDialog();
           return false;
         }
 
-        if(widget.poster!=null){
 
-          dynamic data =   {"num":0,"name":widget.poster!.title,"stream_type":"movie","stream_id":widget.poster!.id,"stream_icon":widget.poster!.cover,"rating":widget.poster!.rating.toString(),"rating_5based":(widget.poster!.rating/2).roundToDouble(),"added":"1650236100","category_id":"1242","container_extension":widget.poster!.sources[0].type,"custom_sid":null,"direct_source":widget.poster!.sources[0].url};
-          apiRest.pushWatch(durationSeconds:_betterPlayerController!.videoPlayerController!.value.position.inSeconds,data: data);
-
-        }
 
 
         return true;
@@ -357,6 +372,10 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
               RawKeyDownEvent rawKeyDownEvent = event;
               RawKeyEventDataAndroid rawKeyEventDataAndroid = rawKeyDownEvent.data as RawKeyEventDataAndroid;
               print("Focus Node 0 ${rawKeyEventDataAndroid.keyCode}");
+
+              if(rawKeyEventDataAndroid.keyCode == 4){
+                Navigator.pop(context);
+              }
 
 
 
@@ -471,7 +490,7 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
                 post_x: post_x,
                 betterPlayerController: _betterPlayerController,
                 slider_video_value: _slider_video_value,
-                next_title: widget.next_title,
+                next_title:  widget.next_title,
                 autohide:_hideControllers,
                 fastRewind:FastRewindButton,
                 fastForward:FastForwardButton,
@@ -671,8 +690,8 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
     print("at setting subtitle done "+_selected_subtitle.toString());
 
     print(widget.subtitles!.length);
-    print(widget.subtitles![_selected_subtitle].file_id);
-    print(widget.subtitles![_selected_subtitle].language);
+   // print(widget.subtitles![_selected_subtitle].file_id);
+   // print(widget.subtitles![_selected_subtitle].language);
 
     BetterPlayerSubtitlesSource subtitlesSource;
 
@@ -733,6 +752,9 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
 
 
     }
+
+
+    if(widget.subtitles!.length>0 && widget.selected_subtitle!>0)
 
 
     try{
@@ -816,24 +838,41 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
           j++;
         }
       }
+
+      // Navigator.push(
+      //   context,
+      //   PageRouteBuilder(
+      //     pageBuilder: (context, animation1, animation2) => VideoPlayer(subtitles: [],sourcesList: _sources,selected_source:_new_selected_source,focused_source: _new_selected_source,poster: widget.serie,episode:selected_episode!,season: selected_season,seasons:seasons ),
+      //     transitionDuration: Duration(seconds: 0),
+      //   ),
+      // );
+
+
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => VideoPlayer(sourcesList: _sources,selected_source:_new_selected_source,focused_source: _new_selected_source,poster: widget.poster,episode:widget.next_episode,season: widget.next_season,seasons:widget.seasons ),
+          pageBuilder: (context, animation1, animation2) => VideoPlayer(subtitles: [],selected_subtitle: 0,sourcesList: _sources,selected_source:_new_selected_source,focused_source: _new_selected_source,poster: widget.poster,episode:widget.next_episode,season: widget.next_season,seasons:widget.seasons ),
           transitionDuration: Duration(seconds: 0),
         ),
       );
     }
   }
    void initSettings() async{
-     _animated_controller = AnimationController(vsync: this, duration: Duration(milliseconds: 450));
-     _animated_controller!.forward();
+     try{
+       _animated_controller = AnimationController(vsync: this, duration: Duration(milliseconds: 450));
+       _animated_controller!.forward();
 
-     prefs = await SharedPreferences.getInstance();
-     _subtitle_enabled  =  prefs?.getBool("subtitle_enabled");
-     _subtitle_size =  prefs?.getInt("subtitle_size")!;
-     _subtitle_color =  prefs?.getInt("subtitle_color")!;
-     _subtitle_background =  prefs?.getInt("subtitle_background")!;
+       prefs = await SharedPreferences.getInstance();
+     //  _subtitle_enabled  =  prefs?.getBool("subtitle_enabled");
+       _subtitle_enabled  =  true;
+       //  _subtitle_size =  prefs?.getInt("subtitle_size")!;
+       _subtitle_size =  (MediaQuery.of(context).size.longestSide*0.02).toInt();
+       _subtitle_color =  prefs?.getInt("subtitle_color")!;
+       _subtitle_background =  prefs?.getInt("subtitle_background")!;
+     }catch(e){
+       _subtitle_color = 1;
+       _subtitle_background = 2;
+     }
 
 
      BetterPlayerConfiguration betterPlayerConfiguration =
@@ -856,7 +895,7 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
 
      _setupDataSource(widget.selected_source!);
      _hideControllers();
-     if(_subtitle_enabled! == true){
+     if(_subtitle_enabled! == true && widget.subtitles!.length>0 && widget.selected_subtitle!>0){
        _applySubtitle();
      }
 
@@ -872,6 +911,8 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
   }
   void _goToNextEpisode() {
 
+     print("PLay Next Episode");
+
     if(post_y == _video_controller_play_position  && post_x == 4){
       widget.selected_source =0;
       widget.focused_source =0;
@@ -880,6 +921,8 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
       setState(() {
         visibileSourcesDialog =  true;
       });
+
+      _openSourcePlayer();
     }
   }
 
