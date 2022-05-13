@@ -1634,7 +1634,7 @@ class _SerieState extends State<Serie> {
         Navigator.push(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation1, animation2) => ActorDetail(actor:actorsList[postx]),
+            pageBuilder: (context, animation1, animation2) => ActorDetail(data: {},actor:actorsList[postx]),
             transitionDuration: Duration(seconds: 0),
           ),
         );

@@ -325,12 +325,6 @@ class _HomeState extends ResumableState<Home> {
 
              // String listStr = recentWatch.docs[i].get("data");
              // dynamic li = convert.jsonDecode(listStr);
-
-
-
-
-
-
                 String SERVER = "http://connect.proxytx.cloud";
                 String PORT = "80";
                 String EMAIL = "4fe8679c08";

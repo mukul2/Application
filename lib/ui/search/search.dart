@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart' as fire;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +8,7 @@ import 'package:flutter_app_tv/key_code.dart';
 import 'package:flutter_app_tv/model/channel.dart';
 import 'package:flutter_app_tv/model/genre.dart';
 import 'package:flutter_app_tv/model/poster.dart';
+import 'package:flutter_app_tv/model/source.dart';
 import 'package:flutter_app_tv/ui/channel/channel_detail.dart';
 import 'package:flutter_app_tv/ui/channel/channels.dart';
 import 'package:flutter_app_tv/ui/channel/channels_widget.dart';
@@ -91,55 +93,106 @@ class _SearchState extends State<Search> {
       _position_x_line_saver.clear();
       _scrollControllers.clear();
       _showLoading();
+      print("before  search result ");
 
-      var response =await apiRest.searchByQuery(searchController.text.toString());
-      if(response == null){
-        _showTryAgain();
-      }else{
-        if (response.statusCode == 200) {
-          var jsonData =  convert.jsonDecode(response.body);
 
-          if(jsonData["channels"] != null){
-            for(Map<String,dynamic> channel_map  in jsonData["channels"]){
-               Channel channel = Channel.fromJson(channel_map);
-               channels.add(channel);
-               selected_channel =channel;
-            }
-            if(channels.length>0) {
-              ItemScrollController controller = new ItemScrollController();
-              _scrollControllers.add(controller);
-              _position_x_line_saver.add(0);
-              _counts_x_line_saver.add(channels.length);
+      List<String> pre = ["NF - "];
 
-              Genre genre =  new Genre(id: -3, title: "channels");
-              genres.add(genre);
-            }
 
+      fire.QuerySnapshot qS = await      fire.FirebaseFirestore.instance.collection("searchCollection").where("name",isGreaterThanOrEqualTo:searchController.text.toString()).get();
+
+      print("search result "+qS.docs.length.toString());
+      if(qS.docs.length>0){
+
+
+
+        for(   fire.QueryDocumentSnapshot poster_map  in qS.docs){
+
+          Map<String, dynamic> data = poster_map.data() as Map<String, dynamic>;
+
+          String SERVER = "http://connect.proxytx.cloud";
+          String PORT = "80";
+          String EMAIL = "4fe8679c08";
+          String PASSWORD = "2016";
+
+          String link =SERVER+":$PORT"+"/"+data["stream_type"]+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+data["stream_id"].toString()+"."+data["container_extension"];
+          Poster poster1 = Poster(id:data["stream_id"],
+              title:data["name"],
+              type: "type",
+              label: null,fromIsWaching: false,
+              sublabel: null,
+              imdb: 0.0,
+              // imdb: double.parse(movieContents[_selected_genre][i]["rating"]),
+              downloadas: "1",
+              comment: false,
+              playas: "1",
+              description: link,
+              classification: "--",
+              year: 000,
+              duration: "--:--",
+              // rating: double.parse(movieContents[_selected_genre][i]["rating"]),
+              rating:0.0,
+              image: data["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+              cover:data["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+              trailer: null,
+              genres: [Genre(id: 0, title: "Recently watched")],
+              sources:[Source(size: "",id: 1, type: data["container_extension"], title:data["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link)] );
+
+          postersList.add(poster1);
+          if(selected_channel == null){
+            selected_poster  = poster1;
           }
-          if(jsonData["posters"] != null){
-
-            for(Map<String,dynamic> poster_map  in jsonData["posters"]){
-              Poster poster = Poster.fromJson(poster_map);
-              postersList.add(poster);
-              if(selected_channel == null){
-                selected_poster  = poster;
-              }
-            }
-            if(postersList.length>0){
-              Genre genre = Genre(id: 0,title: "Movies and TV Serie",posters: postersList);
-              genres.add(genre);
-              ItemScrollController controller = new ItemScrollController();
-              _scrollControllers.add(controller);
-              _position_x_line_saver.add(0);
-              _counts_x_line_saver.add(genre.posters!.length);
-            }
-          }
-          _showData();
-
-        } else {
-          _showTryAgain();
+        }
+        if(postersList.length>0){
+          Genre genre = Genre(id: 0,title: "Movies and TV Serie",posters: postersList);
+          genres.add(genre);
+          ItemScrollController controller = new ItemScrollController();
+          _scrollControllers.add(controller);
+          _position_x_line_saver.add(0);
+          _counts_x_line_saver.add(genre.posters!.length);
         }
       }
+      _showData();
+
+
+
+
+
+
+
+      // var response =await apiRest.searchByQuery(searchController.text.toString());
+      // if(response == null){
+      //   _showTryAgain();
+      // }else{
+      //   if (response.statusCode == 200) {
+      //     var jsonData =  convert.jsonDecode(response.body);
+      //
+      //     bool searchIncludeChannels = false;
+      //
+      //     if(searchIncludeChannels  &&  jsonData["channels"] != null){
+      //       for(Map<String,dynamic> channel_map  in jsonData["channels"]){
+      //          Channel channel = Channel.fromJson(channel_map);
+      //          channels.add(channel);
+      //          selected_channel =channel;
+      //       }
+      //       if(channels.length>0) {
+      //         ItemScrollController controller = new ItemScrollController();
+      //         _scrollControllers.add(controller);
+      //         _position_x_line_saver.add(0);
+      //         _counts_x_line_saver.add(channels.length);
+      //
+      //         Genre genre =  new Genre(id: -3, title: "channels");
+      //         genres.add(genre);
+      //       }
+      //
+      //     }
+      //
+      //
+      //
+      //   } else {
+      //     _showTryAgain();
+      //   }
+      // }
       setState(() {
 
       });
@@ -310,7 +363,7 @@ class _SearchState extends State<Search> {
               right: 0,
               top: 0,
               left: MediaQuery.of(context).size.width/4,
-              bottom: MediaQuery.of(context).size.height/4,
+              bottom: MediaQuery.of(context).size.height/8,
               child:getBackgroundImage(),
             ),
             Positioned(
@@ -366,7 +419,7 @@ class _SearchState extends State<Search> {
                 ),
               ),
             ),
-            if(_visibile_success && postersList.length == 0 && channels.length == 0)
+            if(false &&  _visibile_success && postersList.length == 0 && channels.length == 0)
               _emptyWidget(),
             if(_visibile_success && (selected_poster!= null || selected_channel != null))
               AnimatedPositioned(
@@ -386,9 +439,9 @@ class _SearchState extends State<Search> {
                 left: 0,
                 right: 0,
                 duration: Duration(milliseconds: 200),
-                height: (posty < 0)?(MediaQuery.of(context).size.height/2)-50 :(MediaQuery.of(context).size.height/2)+0,
+                height: (posty < 0)?(MediaQuery.of(context).size.height/2)-150 :(MediaQuery.of(context).size.height/2)+0,
                 child: Container(
-                  height: (posty < 0)?(MediaQuery.of(context).size.height/2)-50:(MediaQuery.of(context).size.height/2)+0,
+                  height: (posty < 0)?(MediaQuery.of(context).size.height/2)-150:(MediaQuery.of(context).size.height/2)+0,
                   child: ScrollConfiguration(
                     behavior: MyBehavior(),   // From this behaviour you can change the behaviour
                     child: ScrollablePositionedList.builder(
@@ -657,16 +710,16 @@ class _SearchState extends State<Search> {
     }
   }
   void _goToChannelDetail() {
-    if(posty == 0 ){
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => ChannelDetail(channel:channels[postx]),
-          transitionDuration: Duration(seconds: 0),
-        ),
-      );
-      FocusScope.of(context).requestFocus(null);
-    }
+    // if(posty == 0 ){
+    //   Navigator.push(
+    //     context,
+    //     PageRouteBuilder(
+    //       pageBuilder: (context, animation1, animation2) => ChannelDetail(channel:channels[postx]),
+    //       transitionDuration: Duration(seconds: 0),
+    //     ),
+    //   );
+    //   FocusScope.of(context).requestFocus(null);
+    // }
   }
   Widget getBackgroundImage() {
     if(selected_channel == null && selected_poster == null)

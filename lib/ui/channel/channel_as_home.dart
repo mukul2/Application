@@ -750,7 +750,7 @@ class _HomeState extends ResumableState<TvChannelsHome> {
                     itemBuilder: (context, jndex) {
                       if(genres[jndex].id == -3){
 
-                        return M_C_Widget(jndex:jndex,posty: posty,postx: postx,scrollController: _scrollControllers[jndex],title: genres[jndex].title,posters : genres[jndex].posters);
+                       // return M_C_Widget(jndex:jndex,posty: posty,postx: postx,scrollController: _scrollControllers[jndex],title: genres[jndex].title,posters : genres[jndex].posters);
                         return ChannelsWidget(jndex:jndex,postx: postx,posty: posty,scrollController: _scrollControllers[jndex],size: MediaQuery.of(context).size.longestSide*0.01,title: "TV Channels",channels: channels);
                       }else{
                         return MoviesWidget(jndex:jndex,posty: posty,postx: postx,scrollController: _scrollControllers[jndex],title: genres[jndex].title,posters : genres[jndex].posters);

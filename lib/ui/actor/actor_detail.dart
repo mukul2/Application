@@ -22,8 +22,10 @@ import 'package:transparent_image/transparent_image.dart';
 class ActorDetail extends StatefulWidget {
   Actor actor;
 
+  dynamic data;
 
-  ActorDetail({required this.actor});
+
+  ActorDetail({required this.actor,required this.data});
 
   @override
   _ActorDetailState createState() => _ActorDetailState();
@@ -72,6 +74,56 @@ class _ActorDetailState extends State<ActorDetail> {
   }
   @override
   Widget build(BuildContext context) {
+    Widget safeWi2(){
+      try{
+        if(widget.data.containsKey("place_of_birth") &&   widget.data["place_of_birth"]!=null)
+
+
+          return   SizedBox(width: 5);
+        else{
+          return Container(width: 0,height: 10,);
+        }
+      }catch(e){
+        return Container(width: 0,height: 10,);
+      }
+    }
+    Widget safeWi3(){
+      try{
+        if(widget.data.containsKey("birthday") &&   widget.data["birthday"]!=null)
+
+          return  Text(" •  ${widget.data["birthday"]} "
+
+            , style: TextStyle(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w800
+            ),
+          );
+
+        else{
+          return Container(width: 0,height: 10,);
+        }
+      }catch(e){
+        return Container(width: 0,height: 10,);
+      }
+    }
+    Widget safeWi1(){
+      try{
+       if(widget.data.containsKey("place_of_birth") &&   widget.data["place_of_birth"]!=null)
+
+
+         return  Text("${widget.data["place_of_birth"]}", style: TextStyle(
+            color: Colors.white,
+            fontSize: 13,
+            fontWeight: FontWeight.w800
+        ),);
+       else{
+         return Container(width: 0,height: 10,);
+       }
+      }catch(e){
+        return Container(width: 0,height: 10,);
+      }
+    }
      return  WillPopScope(
       onWillPop: () async{
 
@@ -203,20 +255,10 @@ class _ActorDetailState extends State<ActorDetail> {
                                               Row(
                                                 crossAxisAlignment: CrossAxisAlignment.center,
                                                 children: [
-                                                  Text("${widget.actor.type}", style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 13,
-                                                      fontWeight: FontWeight.w800
-                                                  ),),
-                                                  SizedBox(width: 5),
-                                                  Text(" •  ${widget.actor.born} "
-                                                    , style: TextStyle(
-                                                        color: Colors.white,
-                                                        fontSize: 11,
-                                                        fontWeight: FontWeight.w800
-                                                    ),
-                                                  )
-                                                  ,
+                                                  safeWi1(),
+                                                  safeWi2(),
+                                                  safeWi3(),
+
                                                   SizedBox(width: 5),
                                                   Text(" •  ${widget.actor.height} "
                                                     , style: TextStyle(
@@ -229,7 +271,7 @@ class _ActorDetailState extends State<ActorDetail> {
                                                 ],
                                               ),
                                               SizedBox(height: 10),
-                                              Text(widget.actor.bio+widget.actor.bio
+                                              Text(widget.data["biography"]
                                                 , style: TextStyle(
                                                     color: Colors.white60,
                                                     fontSize: 11,

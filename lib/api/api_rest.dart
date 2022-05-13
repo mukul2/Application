@@ -7,6 +7,8 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_app_tv/api/api_config.dart';
 import 'package:flutter_app_tv/model/actor.dart';
+import 'package:flutter_app_tv/model/poster.dart';
+import 'package:flutter_app_tv/model/source.dart' as ss;
 import 'package:flutter_app_tv/model/subtitle.dart';
 import 'package:http/http.dart' as http;
 
@@ -113,82 +115,151 @@ class apiRest{
       return "";
     }
   }
-
-  static searchMovieInTMDB({required String name})async{
-
-    dynamic MovieDetails;
-
-    String TMDB = "";
-
-    List alls = name.split("-");
-    String second = alls.last;
-
-    List qq = second.split("(");
-
-    List kk = qq.first.toString().split(" ");
-    String key ="" ;
-    for(int i = 0 ; i < kk.length ; i++){
-
-      if(kk[i].toString().trim()!="4K"){
-        if(i==1){
-          if(kk[i].toString().length>0) key = kk[i];
-        }else{
-          if(kk[i].toString().length>0) key = key+"+"+kk[i];
-        }
-
-      }
+  static getVidoesFromTMDB({required String id})async{
 
 
 
 
-    }
-    print(key);
-    key = key.replaceAll("++", "+");
-    key = key.replaceAll(":", "");
-    key = key.replaceAll("(", "");
-    key = key.replaceAll(")", "");
-
-    print(key);
 
 
-
-
-    String tvSHowTMDB = "https://api.themoviedb.org/3/search/movie?api_key=103096910bbe8842c151f7cce00ab218&query="+key;
+    String tvSHowTMDB = "https://api.themoviedb.org/3/movie/$id/videos?api_key=103096910bbe8842c151f7cce00ab218";
     print(tvSHowTMDB);
 
     var responseTMDB = await http.get(Uri.parse(tvSHowTMDB) );
 
     dynamic jsonTMDB = jsonDecode(responseTMDB.body);
-    String tmdbId="";
-    if(jsonTMDB["total_results"]>0){
 
-      tmdbId = jsonTMDB["results"][0]["id"].toString();
-      String tvSHowTMDBFull = "https://api.themoviedb.org/3/movie/$tmdbId?api_key=103096910bbe8842c151f7cce00ab218";
+    List<ss.Source> videos = [];
+
+
+    if(jsonTMDB["results"].length>0){
+      for(int i = 0 ; i < jsonTMDB["results"].length ; i ++){
+        String id = jsonTMDB["results"][i]["key"];
+
+        ss.Source source = ss.Source(id: i,title: jsonTMDB["results"][i]["type"],type: "https://img.youtube.com/vi/$id/hqdefault.jpg",quality: "HD",size: "",kind: "1",premium: "1",external: true,url: "https://www.youtube.com/watch?v="+jsonTMDB["results"][i]["key"]);
+
+        videos.add(source);
+      }
+    }
+
+    return videos;
+
+
+  }
+
+
+
+  static getPeopleInfoFromTMDB({required String id})async{
+
+
+
+
+
+
+    String tvSHowTMDB = "https://api.themoviedb.org/3/person/$id?api_key=103096910bbe8842c151f7cce00ab218";
+    print(tvSHowTMDB);
+
+    var responseTMDB = await http.get(Uri.parse(tvSHowTMDB) );
+
+    dynamic jsonTMDB = jsonDecode(responseTMDB.body);
+
+
+
+    return jsonTMDB;
+
+
+  }
+
+
+
+  static searchMovieInTMDB({required String name,String? rTmdbId})async{
+    dynamic MovieDetails;
+
+    String TMDB = "";
+    if(rTmdbId!=null){
+      String tvSHowTMDBFull = "https://api.themoviedb.org/3/movie/$rTmdbId?api_key=103096910bbe8842c151f7cce00ab218";
       print(tvSHowTMDBFull);
-      TMDB = tmdbId;
+      TMDB = rTmdbId;
       var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
       print(responseTMDFF.body);
 
-
-
-
-
-
-
-
-      //  await FirebaseFirestore.instance.collection("moreInfoSeries").doc(seriedID).set({"fullSeries":responseTMDFF.body});
 
       MovieDetails =  jsonDecode(responseTMDFF.body);
     }else{
-      String tvSHowTMDBFull = "https://api.themoviedb.org/3/movie/414906?api_key=103096910bbe8842c151f7cce00ab218";
-      print(tvSHowTMDBFull);
-      TMDB = tmdbId;
-      var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
-      print(responseTMDFF.body);
 
 
-      MovieDetails =  jsonDecode(responseTMDFF.body);
+      List alls = name.split("-");
+      String second = alls.last;
+
+      List qq = second.split("(");
+
+      List kk = qq.first.toString().split(" ");
+      String key ="" ;
+      for(int i = 0 ; i < kk.length ; i++){
+
+        if(kk[i].toString().trim()!="4K"){
+          if(i==1){
+            if(kk[i].toString().length>0) key = kk[i];
+          }else{
+            if(kk[i].toString().length>0) key = key+"+"+kk[i];
+          }
+
+        }
+
+
+
+
+      }
+      print(key);
+      key = key.replaceAll("++", "+");
+      key = key.replaceAll(":", "");
+      key = key.replaceAll("(", "");
+      key = key.replaceAll(")", "");
+
+      print(key);
+
+
+
+
+      String tvSHowTMDB = "https://api.themoviedb.org/3/search/movie?api_key=103096910bbe8842c151f7cce00ab218&query="+key;
+      print(tvSHowTMDB);
+
+      var responseTMDB = await http.get(Uri.parse(tvSHowTMDB) );
+
+      dynamic jsonTMDB = jsonDecode(responseTMDB.body);
+      String tmdbId="";
+      if(jsonTMDB["total_results"]>0){
+
+        tmdbId = jsonTMDB["results"][0]["id"].toString();
+        String tvSHowTMDBFull = "https://api.themoviedb.org/3/movie/$tmdbId?api_key=103096910bbe8842c151f7cce00ab218";
+        print(tvSHowTMDBFull);
+        TMDB = tmdbId;
+        var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
+        print(responseTMDFF.body);
+
+
+
+
+
+
+
+
+        //  await FirebaseFirestore.instance.collection("moreInfoSeries").doc(seriedID).set({"fullSeries":responseTMDFF.body});
+
+        MovieDetails =  jsonDecode(responseTMDFF.body);
+      }else{
+        String tvSHowTMDBFull = "https://api.themoviedb.org/3/movie/414906?api_key=103096910bbe8842c151f7cce00ab218";
+        print(tvSHowTMDBFull);
+        TMDB = tmdbId;
+        var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
+        print(responseTMDFF.body);
+
+
+        MovieDetails =  jsonDecode(responseTMDFF.body);
+      }
     }
+
+
 
     return {"tmdb_id":TMDB,"movie":MovieDetails};
 

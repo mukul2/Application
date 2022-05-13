@@ -36,6 +36,7 @@ import 'package:transparent_image/transparent_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'dart:convert' as convert;
 
+import '../../Related_videos/related_video_widget.dart';
 import '../../model/subtitle.dart';
 
 
@@ -100,6 +101,9 @@ class _MovieState extends State<Movie> {
 
   dynamic? MovieDetails;
   List<Source>  ss = [];
+  List<Source>  videosOrTrailers = [];
+  String tId = "";
+  bool imdbVarified = false;
   @override
   void initState() {
     // TODO: implement initState
@@ -122,8 +126,20 @@ class _MovieState extends State<Movie> {
   }
 
   _getMovieDetails() async {
+    print("stream id "+widget.movie!.id.toString());
 
-    var r  = await apiRest.searchMovieInTMDB(name: widget.movie!.title);
+   fire.DocumentSnapshot dS = await fire.FirebaseFirestore.instance.collection("moreInfo").doc(widget.movie!.id.toString()).get();
+
+   try{
+      tId = dS.get("tmdbId");
+      imdbVarified = true;
+   }catch(e){
+     imdbVarified = false;
+   }
+
+
+
+    var r  = await apiRest.searchMovieInTMDB(name: widget.movie!.title,rTmdbId: imdbVarified?tId:null);
 
     MovieDetails =  r["movie"];
     actorsList.clear();
@@ -134,6 +150,9 @@ class _MovieState extends State<Movie> {
     availableSubtitles =  await apiRest.getSubtitles(imdb:  TMDB);
 
     print(availableSubtitles);
+    var videosResponse  = await apiRest.getVidoesFromTMDB(id: TMDB);
+
+    videosOrTrailers = videosResponse;
 
 
     setState(() {
@@ -594,12 +613,20 @@ class _MovieState extends State<Movie> {
                                             mainAxisAlignment: MainAxisAlignment.end,
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text(widget.movie!.title.toUpperCase(),
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 22,
-                                                    fontWeight: FontWeight.w900
-                                                ),
+                                              Row(
+                                                children: [
+                                                  Text(widget.movie!.title.toUpperCase(),
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 22,
+                                                        fontWeight: FontWeight.w900
+                                                    ),
+                                                  ),
+                                                  if(imdbVarified)Padding(
+                                                    padding: const EdgeInsets.only(left: 10),
+                                                    child: Container(decoration: BoxDecoration(shape: BoxShape.circle,color: Colors.redAccent ),child: Center(child:Icon(Icons.done ,color: Colors.white,),),),
+                                                  )
+                                                ],
                                               ),
                                               SizedBox(height: 15),
                                               Row(
@@ -1096,12 +1123,14 @@ class _MovieState extends State<Movie> {
                                                 itemBuilder: (context, index) {
                                                   return GestureDetector(
                                                       onTap: (){
-                                                        setState(() {
+                                                        setState(() async {
                                                           posty =1 ;
                                                           postx = index;
-                                                          Future.delayed(Duration(milliseconds: 200),(){
-                                                            _goToActorDetail();
-                                                          });
+
+                                                          var r  = await apiRest. getPeopleInfoFromTMDB(id:actorsList[index].id.toString());
+
+                                                            _goToActorDetail(data: r);
+
                                                         });
                                                       },
                                                       child: CastWidget(posty: posty,postx: postx,actor: actorsList[index],index: index,active_y: 1)
@@ -1120,8 +1149,9 @@ class _MovieState extends State<Movie> {
                                   padding: EdgeInsets.only(top: 5,bottom: 20),
                                   child: Column(
                                     children: [
-                                      if(!_visibile_related_loading)
-                                        MoviesWidget(title: "Related Movies",size: 13,scrollController: _moviesScrollController,postx: postx,jndex: 2,posty: posty,posters: movies)
+                                      if(true || !_visibile_related_loading)
+                                       // MoviesWidget(title: "Related Movies",size: 13,scrollController: _moviesScrollController,postx: postx,jndex: 2,posty: posty,posters: movies)
+                                        RelatedVideoWidget(title: "Videos",size: 13,scrollController: _moviesScrollController,postx: postx,jndex: 2,posty: posty,posters: videosOrTrailers)
                                       else
                                         RelatedLoadingWidget(),
                                     ],
@@ -1283,13 +1313,13 @@ class _MovieState extends State<Movie> {
       );
     }
   }
-  void _goToActorDetail() {
+  void _goToActorDetail({dynamic data}) {
     if(posty == 1 ){
       if(actorsList.length>0){
         Navigator.push(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation1, animation2) => ActorDetail(actor:actorsList[postx]),
+            pageBuilder: (context, animation1, animation2) => ActorDetail(data: data,actor:actorsList[postx]),
             transitionDuration: Duration(seconds: 0),
           ),
         );

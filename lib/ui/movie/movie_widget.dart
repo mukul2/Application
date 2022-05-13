@@ -10,13 +10,13 @@ class MovieWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(height:MediaQuery.of(context).size.width*0.15,
-      width:MediaQuery.of(context).size.width*0.1,
+      width:MediaQuery.of(context).size.width*0.12,
       child: Padding(
         padding: const EdgeInsets.all(5.0),
         child: Column(mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Container(  height: MediaQuery.of(context).size.width*0.15 -( ( movie!.fromIsWaching!=null &&  movie!.fromIsWaching==true)?15:5),
-              width:MediaQuery.of(context).size.width*0.1,
+              width:MediaQuery.of(context).size.width*0.12,
               child: Stack(
                 children: [
                   AnimatedContainer(
@@ -39,7 +39,7 @@ class MovieWidget extends StatelessWidget {
                       ],
                     ),
                     height: MediaQuery.of(context).size.width*0.15 - ( movie!.fromIsWaching!=null &&  movie!.fromIsWaching==true?15:5),
-                    width:MediaQuery.of(context).size.width*0.1,
+                    width:MediaQuery.of(context).size.width*0.12,
                   ),
                     Positioned(
                     top: 10,
