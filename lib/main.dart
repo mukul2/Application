@@ -24,6 +24,7 @@ import 'package:flutter_app_tv/ui/serie/series.dart';
 import 'package:flutter_app_tv/ui/setting/settings.dart';
 import 'package:flutter_app_tv/ui/pages/splash.dart';
 import 'package:wakelock/wakelock.dart';
+import 'EPG/epg.dart';
 import 'SlingTv/sling_tv_activity.dart';
 import 'ui/player/video_player.dart';
 
@@ -71,7 +72,8 @@ class _MyAppState extends State<MyApp> {
            MaterialApp(theme: td,
              debugShowCheckedModeBanner: false,
 
-             home: SlingTv(),
+             home: EpgActivity(),
+            // home: SlingTv(),
             routes: {
               "/splash": (context) => Splash(),
               "/home": (context) => Home(),

@@ -37,7 +37,8 @@
         android:name="${applicationName}"
         android:banner="@drawable/banner"
         android:icon="@mipmap/ic_launcher"
-        android:label="TvFlix"
+        android:label="SmartFlix"
+        android:largeHeap="true"
         android:theme="@style/Theme.Leanback">
         <meta-data
             android:name="flutterEmbedding"

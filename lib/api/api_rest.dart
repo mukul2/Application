@@ -16,6 +16,23 @@ class apiRest{
   static String EMAIL = "4fe8679c08";
 
   static String no_image = "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg?20200913095930";
+
+
+  static get_epg_full () async {
+    try{
+      //String castLink = "http://connect.proxytx.cloud/xmltv.php?username=4fe8679c08&password=2016";
+      String castLink = "http://connect.proxytx.cloud/player_api.php?username=4fe8679c08&password=2016&action=get_short_epg&stream_id=879355";
+      print(castLink);
+      var responseCast = await http.get(Uri.parse(castLink), );
+      return responseCast.body;
+    }catch(e){
+      print(e);
+      print("Empty subtitle");
+      return "";
+    }
+  }
+
+
   static pushWatch({required int durationSeconds,dynamic data}) async {
     FirebaseFirestore  firestore =  FirebaseFirestore.instance;
 
@@ -170,8 +187,6 @@ class apiRest{
 
   }
 
-
-
   static searchMovieInTMDB({required String name,String? rTmdbId})async{
     dynamic MovieDetails;
 
@@ -262,6 +277,22 @@ class apiRest{
 
 
     return {"tmdb_id":TMDB,"movie":MovieDetails};
+
+
+  }
+
+  static get_epg({required String channelId})async{
+
+    print("epg api");
+
+    String tvSHowTMDB = "http://connect.proxytx.cloud/player_api.php?username=4fe8679c08&password=2016&action=get_simple_data_table&stream_id=$channelId";
+    print(tvSHowTMDB);
+
+    var responseTMDB = await http.get(Uri.parse(tvSHowTMDB) );
+    print(responseTMDB.body);
+    dynamic dd =  jsonDecode(responseTMDB.body);
+    return dd["epg_listings"];
+
 
 
   }
