@@ -484,9 +484,13 @@ class _HomeState extends ResumableState<Home> {
         _showTryAgain();
       }
     }
-    setState(() {
+   try{
+      if(mounted) setState(() {
 
-    });
+      });
+   }catch(e){
+
+   }
   }
 
   @override
@@ -581,7 +585,12 @@ class _HomeState extends ResumableState<Home> {
                     postx--;
                   }
                 }else if (posty == -1){
-                  _carouselController.previousPage();
+                  try{
+                    _carouselController.previousPage();
+
+                  }catch(e){
+
+                  }
                 }else{
                   if(postx == 0){
                     print("playing sound ");
@@ -911,11 +920,16 @@ class _HomeState extends ResumableState<Home> {
     });
   }
   void _showData() {
-    setState(() {
-      _visibile_loading = false;
-      _visibile_error= false;
-      _visibile_success= true;
-    });
+   try{
+     if(mounted) setState(() {
+       _visibile_loading = false;
+       _visibile_error= false;
+       _visibile_success= true;
+     });
+
+   }catch(e){
+
+   }
   }
   void _tryAgain(){
     if(_visibile_error && posty == -1){

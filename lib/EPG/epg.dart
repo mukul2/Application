@@ -237,7 +237,7 @@ List<ListView> pageWidgets = [];
                   itemBuilder: (context, index) {
                     return Padding(
                       padding: const EdgeInsets.only(left: 0,right: 0),
-                      child: Center(child: Container(width:  MediaQuery.of(context).size.width*0.00007*3000,height:  MediaQuery.of(context).size.longestSide*0.02,child: Text(timers[index],style: TextStyle(color: Colors.white,fontSize:  MediaQuery.of(context).size.longestSide*0.015),textAlign: TextAlign.start,))),
+                      child: Center(child: Container(width:  MediaQuery.of(context).size.width*0.00007*2000,height:  MediaQuery.of(context).size.longestSide*0.02,child: Text(timers[index],style: TextStyle(color: Colors.white,fontSize:  MediaQuery.of(context).size.longestSide*0.015),textAlign: TextAlign.start,))),
                     );
                   },
                 ),

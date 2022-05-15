@@ -25,10 +25,7 @@ class _SlingTvState extends State<SlingTv> {
   Widget build(BuildContext context) {
     return MaterialApp(home:  Shortcuts(shortcuts: <LogicalKeySet, Intent>{
       LogicalKeySet(LogicalKeyboardKey.select): ActivateIntent(),
-    }, child: MaterialApp(
-      title: 'SFlix',debugShowCheckedModeBanner: false,
-      home: Activity()
-    )),);
+    }, child: Activity()),);
   }
 }
 
@@ -233,6 +230,8 @@ class MyCustomWidget extends StatefulWidget {
   String data ;
   Function(bool) gotfocused;
   String? logo;
+
+  FocusNode? focusNode ;
   MyCustomWidget({required this.data,required this.gotfocused,this.logo});
 
 
@@ -248,32 +247,38 @@ class _MyCustomWidgetState extends State<MyCustomWidget> {
   Widget build(BuildContext context) {
     return Focus(
       onFocusChange: (bool focused) {
+
+      print("change ??");
         setState(() {
           _color = focused ? Colors.white : Colors.grey;
           _label = focused ? 'Focused' : 'Unfocused';
         });
         widget.gotfocused(focused);
       },
-      child: Padding(
-        padding:  EdgeInsets.all(MediaQuery.of(context).size.longestSide*0.004),
-        child: Center(
-          child: AnimatedContainer(duration: Duration(milliseconds: 200),decoration: BoxDecoration( color: _color,borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.0015)),
-           // width:_label=='Focused'?MediaQuery.of(context).size.width*0.30: MediaQuery.of(context).size.width*0.23,
-           // height:_label=='Focused'?MediaQuery.of(context).size.width*0.30: MediaQuery.of(context).size.width*0.23,
-            height: _label=='Focused'?MediaQuery.of(context).size.width*0.03: MediaQuery.of(context).size.width*0.025,
-            alignment: Alignment.center,
+      child: InkWell(onTap: (){
+        print("clicked ");
+      },
+        child: Padding(
+          padding:  EdgeInsets.all(MediaQuery.of(context).size.longestSide*0.004),
+          child: Center(
+            child: AnimatedContainer(duration: Duration(milliseconds: 200),decoration: BoxDecoration( color: _color,borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.0015)),
+             // width:_label=='Focused'?MediaQuery.of(context).size.width*0.30: MediaQuery.of(context).size.width*0.23,
+             // height:_label=='Focused'?MediaQuery.of(context).size.width*0.30: MediaQuery.of(context).size.width*0.23,
+              height: _label=='Focused'?MediaQuery.of(context).size.width*0.03: MediaQuery.of(context).size.width*0.025,
+              alignment: Alignment.center,
 
-            child: (widget.logo!=null)? Row(
-              children: [
+              child: (widget.logo!=null)? Row(
+                children: [
 
-                if(widget.logo!=null) Padding(
-                  padding:  EdgeInsets.all(MediaQuery.of(context).size.height*0.004),
-                  child: Image.network(widget.logo!),
-                ),
+                  if(widget.logo!=null) Padding(
+                    padding:  EdgeInsets.all(MediaQuery.of(context).size.height*0.004),
+                    child: Image.network(widget.logo!),
+                  ),
 
-                Center(child: Text(widget.data,style: TextStyle(fontSize:MediaQuery.of(context).size.height*0.03),)),
-              ],
-            ) :Center(child: Text(widget.data,style: TextStyle(fontSize:MediaQuery.of(context).size.height*0.03),)),
+                  Center(child: Text(widget.data,style: TextStyle(fontSize:MediaQuery.of(context).size.height*0.03),)),
+                ],
+              ) :Center(child: Text(widget.data,style: TextStyle(fontSize:MediaQuery.of(context).size.height*0.03),)),
+            ),
           ),
         ),
       ),

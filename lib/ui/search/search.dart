@@ -70,20 +70,20 @@ class _SearchState extends State<Search> {
 
   }
   Future<String> getLogged() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    logged = (await prefs.getBool("LOGGED_USER"))!;
-
-    if(logged == true) {
-      String? img = await prefs.getString("IMAGE_USER");
-      image = Image.network(img!);
-    }else{
-      logged = false;
-      image = Image.asset("assets/images/profile.jpg");
-    }
-    setState(() {
-      print(logged);
-    });
+    // SharedPreferences prefs = await SharedPreferences.getInstance();
+    //
+    // logged = (await prefs.getBool("LOGGED_USER"))!;
+    //
+    // if(logged == true) {
+    //   String? img = await prefs.getString("IMAGE_USER");
+    //   image = Image.network(img!);
+    // }else{
+    //   logged = false;
+    //   image = Image.asset("assets/images/profile.jpg");
+    // }
+    // setState(() {
+    //   print(logged);
+    // });
     return "done";
 
   }

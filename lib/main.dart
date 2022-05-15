@@ -63,10 +63,111 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+
+    FocusNode focusNode = FocusNode();
     List<String>sTitles = ["English","Bengali"];
     ThemeData td =  ThemeData(fontFamily: "Poppins",primaryColor: Colors.redAccent,  primarySwatch: Colors.red,
       visualDensity: VisualDensity.adaptivePlatformDensity,
       scaffoldBackgroundColor: Colors.black,);
+
+     MaterialApp(home:RawKeyboardListener(
+      focusNode: focusNode,
+      onKey: (RawKeyEvent event) {
+        if (event is RawKeyDownEvent && event.data is RawKeyEventDataAndroid) {
+          RawKeyDownEvent rawKeyDownEvent = event;
+          RawKeyEventDataAndroid rawKeyEventDataAndroid =rawKeyDownEvent.data as RawKeyEventDataAndroid;
+          //print(rawKeyEventDataAndroid.keyCode);
+          switch (rawKeyEventDataAndroid.keyCode) {
+
+
+            case KEY_CENTER:
+
+              break;
+            case KEY_UP:
+
+
+
+
+              break;
+            case KEY_DOWN:
+
+              break;
+            case KEY_LEFT:
+
+              break;
+            case KEY_RIGHT:
+
+              break;
+            default:
+              break;
+          }
+
+
+        }
+      },
+      child:Scaffold(backgroundColor: Colors.black,
+        body: Column(
+          children: [
+            MyCustomWidget(data: 'name',gotfocused: (val){
+              print(val);
+            },),
+            MyCustomWidget(data: 'name 2',gotfocused: (val){
+              print(val);
+            },),
+          ],
+        ),
+      ),
+    ) ,);
+
+     Shortcuts(shortcuts: <LogicalKeySet, Intent>{
+      LogicalKeySet(LogicalKeyboardKey.select): ActivateIntent(),
+    }, child: MaterialApp(
+        title: 'SFlix',debugShowCheckedModeBanner: false,
+        home: WillPopScope(
+          onWillPop: () async{
+
+
+            return true;
+          },
+          child:  true?Scaffold(backgroundColor: Colors.black,
+            body: Column(
+              children: [
+                   MyCustomWidget(data: 'name',gotfocused: (val){
+                  print(val);
+                },),
+                  MyCustomWidget(data: 'name 2',gotfocused: (val){
+                  print(val);
+                },),
+              ],
+            ),
+          ): SlingTv(),
+        )
+    ));
+    return Shortcuts(shortcuts: <LogicalKeySet, Intent>{
+      LogicalKeySet(LogicalKeyboardKey.select): ActivateIntent(),
+    }, child:  MaterialApp(theme: td,
+      debugShowCheckedModeBanner: false,
+
+      home: EpgActivity(),
+      // home: SlingTv(),
+    //  home:Home() ,
+      routes: {
+        "/splash": (context) => Splash(),
+        "/home": (context) => Home(),
+        "/movie": (context) => Movie(),
+        "/serie": (context) => Serie(),
+        "/channel_detail": (context) => ChannelDetail(),
+        "/channels": (context) => Channels(),
+        "/movies": (context) => Movies(),
+        "/series": (context) => SeriesAsHome(),
+        "/reviews": (context) => Reviews(id: 1, image: "image", title: 'title', type: "type"),
+        "/review_add": (context) => ReviewAdd(type: "", id: 1, image: 'image'),
+        "/comments": (context) => Comments(),
+        "/comment_add": (context) => CommentAdd(image: "", id: 1,type: ""),
+        "/login": (context) => Login(),
+        "/video_player": (context) => VideoPlayer(focused_source: 0),
+      },
+    ));
 
     return
            MaterialApp(theme: td,
@@ -97,4 +198,61 @@ class _MyAppState extends State<MyApp> {
 
 
 
+}
+
+
+class MyCustomWidget extends StatefulWidget {
+  String data ;
+  Function(bool) gotfocused;
+  String? logo;
+  MyCustomWidget({required this.data,required this.gotfocused,this.logo});
+
+
+  @override
+  State<MyCustomWidget> createState() => _MyCustomWidgetState();
+}
+
+class _MyCustomWidgetState extends State<MyCustomWidget> {
+  Color _color = Colors.grey;
+  String _label = 'Unfocused';
+
+  @override
+  Widget build(BuildContext context) {
+    return Focus(
+      onFocusChange: (bool focused) {
+        setState(() {
+          _color = focused ? Colors.white : Colors.grey;
+          _label = focused ? 'Focused' : 'Unfocused';
+        });
+        widget.gotfocused(focused);
+      },
+      child: InkWell(onTap: (){
+        print("clicked ");
+      },
+        child: Padding(
+          padding:  EdgeInsets.all(MediaQuery.of(context).size.longestSide*0.004),
+          child: Center(
+            child: AnimatedContainer(duration: Duration(milliseconds: 200),decoration: BoxDecoration( color: _color,borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.0015)),
+              // width:_label=='Focused'?MediaQuery.of(context).size.width*0.30: MediaQuery.of(context).size.width*0.23,
+              // height:_label=='Focused'?MediaQuery.of(context).size.width*0.30: MediaQuery.of(context).size.width*0.23,
+              height: _label=='Focused'?MediaQuery.of(context).size.width*0.03: MediaQuery.of(context).size.width*0.025,
+              alignment: Alignment.center,
+
+              child: (widget.logo!=null)? Row(
+                children: [
+
+                  if(widget.logo!=null) Padding(
+                    padding:  EdgeInsets.all(MediaQuery.of(context).size.height*0.004),
+                    child: Image.network(widget.logo!),
+                  ),
+
+                  Center(child: Text(widget.data,style: TextStyle(fontSize:MediaQuery.of(context).size.height*0.03),)),
+                ],
+              ) :Center(child: Text(widget.data,style: TextStyle(fontSize:MediaQuery.of(context).size.height*0.03),)),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

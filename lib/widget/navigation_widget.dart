@@ -203,7 +203,7 @@ class _NavigationWidgetState extends ResumableState<NavigationWidget> {
                               color:(widget.selectedItem == 2)? (widget.posty == -2 && widget.postx == 2)?Colors.white:Colors.white70:(widget.posty == -2 && widget.postx == 2)?Colors.white24:Colors.transparent,
                             ),
                             child: Text(
-                              "Movies",
+                              "TV 2",
                               style: TextStyle(
                                   color:(widget.selectedItem == 2)?Colors.black:(widget.posty == -2 && widget.postx == 2)?Colors.white:Colors.white60,
                                   fontSize: 15,

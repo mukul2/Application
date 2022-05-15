@@ -41,6 +41,7 @@ import 'package:need_resume/need_resume.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transparent_image/transparent_image.dart';
 
+import '../../SlingTv/sling_tv_activity.dart';
 import '../../series_like_home/home.dart';
 
 
@@ -106,19 +107,36 @@ class _ChannelsState extends ResumableState<Channels> {
   bool _visibile_error = false;
   bool _visibile_success = false;
 
+  int tv_type = 0;
+
   bool? logged;
   Image image = Image.asset("assets/images/profile.jpg");
+
+  FocusNode focusNode = FocusNode();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    Future.delayed(Duration.zero, () {
-      FocusScope.of(context).requestFocus(home_focus_node);
-      _getCountries();
-      _getCategories();
-      //_getList();
-      getLogged();
+    Future.delayed(Duration.zero, () async {
+      FocusScope.of(context).requestFocus(focusNode);
+      SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+      setState(() {
+        try{
+          tv_type = sharedPreferences!.getInt("tvtype")!;
+        }catch(e){
+          tv_type = 0 ;
+        }
+      });
+
+      if(tv_type!=0){
+        _getCountries();
+        _getCategories();
+        //_getList();
+        getLogged();
+      }
+
     });
 
 
@@ -288,7 +306,746 @@ class _ChannelsState extends ResumableState<Channels> {
   }
   @override
   Widget build(BuildContext context) {
-    return WillPopScope(
+    print("here i M ");
+    try{
+      return   tv_type==0? RawKeyboardListener(
+        focusNode: focusNode,
+        onKey: (RawKeyEvent event) {
+          print("keyboard");
+          if (event is RawKeyDownEvent && event.data is RawKeyEventDataAndroid) {
+            RawKeyDownEvent rawKeyDownEvent = event;
+            RawKeyEventDataAndroid rawKeyEventDataAndroid =rawKeyDownEvent.data as RawKeyEventDataAndroid;
+            print(rawKeyEventDataAndroid.keyCode);
+
+            setState(() {
+
+            });
+            switch (rawKeyEventDataAndroid.keyCode) {
+
+
+
+
+              case KEY_CENTER:
+
+
+                break;
+              case KEY_UP:
+                print("up pressed");
+
+
+
+
+                break;
+              case KEY_DOWN:
+
+                break;
+              case KEY_LEFT:
+
+                break;
+              case KEY_RIGHT:
+
+                break;
+              default:
+                break;
+            }
+
+
+          }
+        },
+        child:WillPopScope( onWillPop: () async{
+
+
+          setState(() {
+            postx = 4;
+            posty = -2;
+          });
+
+
+          //_scrollToIndexXY(4,0);
+        //  FocusScope.of(context).requestFocus(focusNode);
+
+          // Navigator.pushReplacement(
+          //   context,
+          //   PageRouteBuilder(
+          //     pageBuilder: (context, animation1, animation2) => Channels(),
+          //     transitionDuration: Duration(seconds: 0),
+          //   ),
+          // );
+          // FocusScope.of(context).requestFocus(null);
+          // setState(() {
+          //   posty==0;
+          //   postx=4;
+          // });
+          // FocusScope.of(context).requestFocus(null);
+
+          return false;
+        },
+          child:Scaffold(body:  Stack(
+            children: [
+
+
+
+              Padding(
+                padding:  EdgeInsets.only(top: 70),
+                child: SlingTv(),
+              ),
+              Align(alignment: Alignment.topCenter,child:  NavigationWidget(postx:postx,posty:posty,selectedItem : 4,image : image, logged : logged),)
+            ],
+          ),),
+        ),
+      ):WillPopScope(
+        onWillPop: () async{
+
+          if(_visibile_categories_dialog){
+            setState(() {
+              _visibile_categories_dialog = false;
+            });
+            return false;
+          }
+          if(_visibile_countries_dialog){
+            setState(() {
+              _visibile_countries_dialog = false;
+            });
+
+            return false;
+          }
+          return true;
+        },
+        child: Scaffold(
+          backgroundColor: Colors.black,
+          body:RawKeyboardListener(
+            focusNode: home_focus_node,
+            onKey: (RawKeyEvent event) {
+              if (event is RawKeyDownEvent && event.data is RawKeyEventDataAndroid) {
+                RawKeyDownEvent rawKeyDownEvent = event;
+                RawKeyEventDataAndroid rawKeyEventDataAndroid =rawKeyDownEvent.data as RawKeyEventDataAndroid;
+
+                switch (rawKeyEventDataAndroid.keyCode) {
+                  case KEY_CENTER:
+                    _selectFilter();
+
+                    _goToSearch();
+                    _goToHome();
+                    _goToMovies();
+                    _goToSeries();
+                    _goToMyList();
+                    _goToSettings();
+                    _goToProfile();
+
+                    _goToChannelDetail();
+                    _tryAgain();
+                    if(_visibile_categories_dialog == true) {
+                      _selectedCategory();
+                    }else{
+                      _showCategoriesDialog();
+                    }
+                    if(_visibile_countries_dialog == true) {
+                      _selectedCountry();
+                    }else{
+                      _showCountriesDialog();
+                    }
+                    break;
+                  case KEY_UP:
+
+                    if(_visibile_loading){
+                      print("playing sound ");
+                      break;
+                    }
+                    if(_visibile_error){
+                      if(posty ==  -2){
+                        print("playing sound ");
+                      }else if(posty == -1){
+                        posty--;
+                        postx=4;
+                      }
+                      break;
+                    }
+                    if(_visibile_categories_dialog){
+                      (_focused_category  == 0 )?  print("play sound") : _focused_category--;
+                      break;
+                    }
+                    if(_visibile_countries_dialog){
+                      (_focused_country  == 0 )?  print("play sound") : _focused_country--;
+                      break;
+                    }
+                    if(posty ==  -2){
+                      print("playing sound ");
+                    }else if(posty == -1){
+
+                      posty--;
+                      postx=4;
+                    }else if(posty == 0){
+
+                      posty--;
+                      postx=0;
+                    }else{
+                      posty--;
+                      _scrollToIndexXY(postx,posty);
+                      _focused_channel =  ((posty * _channels_element_by_line) + postx);
+                    }
+                    break;
+                  case KEY_DOWN:
+                    if(_visibile_error){
+                      if(posty < -1)
+                        posty++;
+                      else
+                        print("playing sound ");
+                      break;
+                    }
+                    if(_visibile_loading){
+                      print("playing sound ");
+                      break;
+                    }
+                    if(_visibile_categories_dialog){
+                      (_focused_category  == categories.length -1 )? print("play sound") : _focused_category++;
+                      break;
+                    }
+                    if(_visibile_countries_dialog){
+                      (_focused_country  == countries.length -1 )? print("play sound") : _focused_country++;
+                      break;
+                    }
+                    if((channles.length/_channels_element_by_line).ceil()-1==posty){
+                      print("playing sound ");
+                    }else{
+                      posty++;
+                      if(posty >= 0){
+                        if(postx> (_counts_x_line_saver[posty] - 1)){
+                          postx = _counts_x_line_saver[posty] -1;
+                        }
+                        _scrollToIndexXY(postx,posty);
+                        _focused_channel =  ((posty * _channels_element_by_line) + postx);
+                      }else{
+                        postx= 0;
+                      }
+                      if(posty == (channles.length/_channels_element_by_line).ceil()-3){
+                        _loadMore();
+                      }
+                    }
+                    break;
+                  case KEY_LEFT:
+                    if(_visibile_categories_dialog || _visibile_countries_dialog){
+                      print("playing sound ");
+                      break;
+                    }
+
+                    if(posty == -2){
+                      if(postx == 0){
+                        print("playing sound ");
+                      }else{
+                        postx--;
+                      }
+                    }else if (posty == -1){
+                      if(_visibile_loading || _visibile_error){
+                        print("playing sound ");
+                        break;
+                      }
+                      (postx == 0)? print("playing sound "): postx --;
+                    }else{
+                      if(_visibile_loading || _visibile_error){
+                        print("playing sound ");
+                        break;
+                      }
+                      if(postx == 0){
+                        print("playing sound ");
+                      }else{
+                        postx--;
+                        _scrollToIndexXY(postx,posty);
+                      }
+                      _focused_channel =  ((posty * _channels_element_by_line) + postx);
+
+                    }
+                    break;
+                  case KEY_RIGHT:
+                    if(_visibile_categories_dialog || _visibile_countries_dialog){
+                      print("playing sound ");
+                      break;
+                    }
+                    switch(posty){
+                      case -1:
+                        if(_visibile_loading || _visibile_error){
+                          print("playing sound ");
+                          break;
+                        }
+                        (postx == 6)? print("playing sound "): postx ++;
+                        break;
+                      case -2:
+                        if(postx == 7)
+                          print("playing sound ");
+                        else
+                          postx++;
+                        break;
+                      default:
+                        if(_visibile_loading || _visibile_error){
+                          print("playing sound ");
+                          break;
+                        }
+                        if(_counts_x_line_saver[posty]-1 == postx){
+                          print("playing sound ");
+                        }else{
+                          postx++;
+                          _scrollToIndexXY(postx,posty);
+                        }
+                        _focused_channel =  ((posty * _channels_element_by_line) + postx);
+
+                        break;
+                    }
+                    break;
+                  default:
+                    break;
+                }
+
+                setState(() {
+
+                });
+                if(_visibile_categories_dialog && _categoriesScrollController!= null){
+                  _categoriesScrollController.scrollTo(index: _focused_category,alignment: 0.43,duration: Duration(milliseconds: 500),curve: Curves.easeInOutQuart);
+                }
+                if(_visibile_countries_dialog && _countriesScrollController!= null){
+                  _countriesScrollController.scrollTo(index: _focused_country,alignment: 0.43,duration: Duration(milliseconds: 500),curve: Curves.easeInOutQuart);
+                }
+              }
+            },
+            child: Stack(
+              children: [
+                if(!channles.isEmpty)
+                  Positioned(
+                      right: 0,
+                      top: 0,
+                      left: MediaQuery.of(context).size.width/4,
+                      bottom: MediaQuery.of(context).size.height/4,
+                      // child:FadeInImage(placeholder: MemoryImage(kTransparentImage),image:(channles.length > 0)? CachedNetworkImageProvider(channles[_focused_channel].image):CachedNetworkImageProvider("null"),fit: BoxFit.cover)
+                      child:CachedNetworkImage(imageUrl:channles[_focused_channel].image,fit: BoxFit.cover,width: MediaQuery.of(context).size.width,height: MediaQuery.of(context).size.height,fadeInDuration: Duration(seconds: 1))
+
+                  ),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  top: 0,
+                  child: Container(
+                      decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.centerLeft,
+                            end: Alignment.centerRight,
+                            colors: [Colors.black,Colors.black,Colors.black54,Colors.black54,Colors.black54],
+                          )
+                      )
+                  ),
+                ),
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                      height: MediaQuery.of(context).size.height - (MediaQuery.of(context).size.height/3),
+                      decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.bottomCenter,
+                            end: Alignment.topCenter,
+                            colors: [Colors.black,Colors.black, Colors.transparent, Colors.transparent],
+                          )
+                      )
+                  ),
+                ),
+                NavigationWidget(postx:postx,posty:posty,selectedItem : 4,image : image, logged : logged),
+                if(_visibile_loading )
+                  ChannelLoadingWidget(),
+                if(_visibile_error )
+                  _tryAgainWidget(),
+                if(channles.length>0 && !_visibile_loading && !_visibile_error)
+                  AnimatedPositioned(
+                      top: (posty < 0)? 70 : 40,
+                      left: 0,
+                      right: 0,
+                      duration: Duration(milliseconds: 200),
+                      child: MovieShortDetailWidget(channel :  channles[_focused_channel])
+                  ),
+                Positioned(
+                  top:  10,
+                  left: 45,
+                  right: 45,
+                  child: AnimatedOpacity(
+                    opacity: (posty < 0)? 0 : 1,
+                    duration: Duration(milliseconds: 200),
+                    child: GestureDetector(
+                      onTap: (){
+                        setState(() {
+                          posty = -1;
+                        });
+                      },
+                      child: Container(
+                        child: Icon(
+                          Icons.keyboard_arrow_up,
+                          color: Colors.white,
+                          size: 30,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                if(_visibile_success)
+                  AnimatedPositioned(
+                    bottom: 0,
+                    left: 0,
+                    right: 0,
+                    duration: Duration(milliseconds: 200),
+                    height: (posty < 0)?(MediaQuery.of(context).size.height/2) + 20:(MediaQuery.of(context).size.height/2)+50,
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.only(left: 45,right: 50),
+                          height: 50,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: (){
+                                          posty = -1 ;
+                                          postx = 0;
+                                          _showCategoriesDialog();
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.only(left:7,right: 0),
+                                          margin: EdgeInsets.symmetric(vertical: 7),
+                                          height: 50,
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                categories[_selected_category].title,
+                                                style: TextStyle(
+                                                    color: (posty == -1 && postx == 0)? Colors.black:Colors.white70,
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w700
+                                                ),
+                                              ),
+                                              Icon(
+                                                Icons.arrow_drop_down,
+                                                color: (posty == -1 && postx == 0)? Colors.black:Colors.white70,
+                                                size: 30,
+                                              ),
+                                            ],
+                                          ),
+                                          decoration: BoxDecoration(
+                                              color: (posty == -1 && postx == 0)? Colors.white:Colors.transparent,
+                                              border: Border.all(color: Colors.white70,width: 2),
+                                              borderRadius: BorderRadius.circular(5)
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(width: 7),
+                                      GestureDetector(
+                                        onTap: (){
+                                          posty = -1 ;
+                                          postx = 1;
+                                          _showCountriesDialog();
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.only(left:10,right: 0),
+                                          margin: EdgeInsets.symmetric(vertical: 7),
+                                          height: 50,
+                                          child: Row(
+                                            children: [
+                                              Text(
+                                                countries[_selected_country].title,
+                                                style: TextStyle(
+                                                    color: (posty == -1 && postx == 1)? Colors.black:Colors.white70,
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.w700
+                                                ),
+                                              ),
+                                              Icon(
+                                                Icons.arrow_drop_down,
+                                                color: (posty == -1 && postx == 1)? Colors.black:Colors.white70,
+                                                size: 30,
+                                              ),
+                                            ],
+                                          ),
+                                          decoration: BoxDecoration(
+                                              color: (posty == -1 && postx == 1)? Colors.white:Colors.transparent,
+                                              border: Border.all(color: Colors.white70,width: 2),
+                                              borderRadius: BorderRadius.circular(5)
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              if(false)   AnimatedOpacity(
+                                opacity: (posty == -1 && postx >0)? 1 :0.8,
+                                duration: Duration(milliseconds: 250),
+                                child: Container(
+                                  height: 50,
+                                  margin: EdgeInsets.symmetric(vertical: 7),
+                                  decoration: BoxDecoration(
+                                      border: Border.all(color: Colors.white,width: 2),
+                                      borderRadius: BorderRadius.circular(5)
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      GestureDetector(
+                                        onTap: (){
+                                          setState(() {
+                                            posty = -1;
+                                            postx =2;
+                                            Future.delayed(Duration(milliseconds: 50),(){
+                                              _selectFilter();
+                                            });
+                                          });
+
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(horizontal: 12),
+                                          height: 50,
+                                          color: ((posty == -1 && postx == 2) || selected_sort == 2)? Colors.white:Colors.transparent,
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.access_time,
+                                                color: ((posty == -1 && postx == 2) || selected_sort == 2)? Colors.black:Colors.white,
+                                                size: 18,
+                                              ),
+                                              SizedBox(width: 5),
+                                              Text(
+                                                "Newest",
+                                                style: TextStyle(
+                                                    color: ((posty == -1 && postx == 2) || selected_sort == 2)? Colors.black:Colors.white,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w700
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        onTap: (){
+                                          setState(() {
+                                            posty = -1;
+                                            postx =3;
+                                            Future.delayed(Duration(milliseconds: 50),(){
+                                              _selectFilter();
+                                            });
+                                          });
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(horizontal: 12),
+                                          height: 50,
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.remove_red_eye,
+                                                color: ((posty == -1 && postx == 3) || selected_sort == 3)? Colors.black:Colors.white,
+                                                size: 18,
+                                              ),
+                                              SizedBox(width: 5),
+                                              Text(
+                                                "Views",
+                                                style: TextStyle(
+                                                    color: ((posty == -1 && postx == 3) || selected_sort == 3)? Colors.black:Colors.white,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w700
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          decoration: BoxDecoration(
+                                            border: Border(left: BorderSide(color: Colors.white,width: 1)),
+                                            color: ((posty == -1 && postx == 3) || selected_sort == 3)? Colors.white:Colors.transparent,
+
+                                          ),
+                                        ),
+                                      ),
+                                      GestureDetector(
+                                        onTap: (){
+                                          setState(() {
+                                            posty = -1;
+                                            postx =4;
+                                            Future.delayed(Duration(milliseconds: 50),(){
+                                              _selectFilter();
+                                            });
+                                          });
+
+                                        },
+                                        child: Container(
+                                          height: 50,
+                                          padding: EdgeInsets.symmetric(horizontal: 12),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.star_half,
+                                                color: ((posty == -1 && postx == 4) || selected_sort == 4)? Colors.black:Colors.white,
+                                                size: 18,
+                                              ),
+                                              SizedBox(width: 5),
+                                              Text(
+                                                "Rating",
+                                                style: TextStyle(
+                                                    color:((posty == -1 && postx == 4) || selected_sort == 4)? Colors.black:Colors.white,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w700
+                                                ),
+                                              ),
+
+                                            ],
+                                          ),
+                                          decoration: BoxDecoration(
+                                            border: Border(left: BorderSide(color: Colors.white,width: 1)),
+                                            color: ((posty == -1 && postx == 4) || selected_sort ==4)? Colors.white:Colors.transparent,
+
+                                          ),
+                                        ),
+                                      ),
+
+                                      GestureDetector(
+                                        onTap: (){
+                                          setState(() {
+                                            posty = -1;
+                                            postx =5;
+                                            Future.delayed(Duration(milliseconds: 50),(){
+                                              _selectFilter();
+                                            });
+                                          });
+
+                                        },
+                                        child: Container(
+                                          height: 50,
+                                          padding: EdgeInsets.symmetric(horizontal: 12),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.text_fields,
+                                                color: ((posty == -1 && postx == 5) || selected_sort == 5)? Colors.black:Colors.white,
+                                                size: 18,
+                                              ),
+                                              SizedBox(width: 5),
+                                              Text(
+                                                "Title",
+                                                style: TextStyle(
+                                                    color: ((posty == -1 && postx == 5) || selected_sort == 5)? Colors.black:Colors.white,
+                                                    fontSize: 12,
+                                                    fontWeight: FontWeight.w700
+                                                ),
+                                              ),
+
+                                            ],
+                                          ),
+                                          decoration: BoxDecoration(
+                                            border: Border(left: BorderSide(color: Colors.white,width: 1)),
+                                            color: ((posty == -1 && postx == 5) || selected_sort == 5)? Colors.white:Colors.transparent,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            child: ScrollConfiguration(
+                              behavior: MyBehavior(),   // From this behaviour you can change the behaviour
+                              child: ScrollablePositionedList.builder(
+                                itemCount: (channles.length / _channels_element_by_line).ceil(),
+                                scrollDirection: Axis.vertical,
+                                itemScrollController: _scrollController,
+                                itemBuilder: (context, jndex) {
+                                  int items_line_count = (channles.length -  ((jndex+1) * _channels_element_by_line) > 0)? _channels_element_by_line:  (channles.length -  (jndex * _channels_element_by_line)).abs();
+                                  return _channlesLineGridWidget(jndex,items_line_count);
+                                },
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                CategoriesDialog(categoriesScrollController: _categoriesScrollController,visibile: _visibile_categories_dialog,categoriesList: categories,focused_category: _focused_category,selected_category:_selected_category,close:closCategoriesDialog,select : selectCategory),
+                CountriesDialog(countriesScrollController: _countriesScrollController,visibile: _visibile_countries_dialog,countriesList: countries,focused_country: _focused_country,selected_country:_selected_country,close:closCountriesDialog,select : selectCountry),
+              ],
+            ),
+          ),
+        ),
+      );
+    }catch(e){
+      return Center(child: Text(e.toString(),style: TextStyle(color: Colors.white),),);
+    }
+    return Shortcuts(shortcuts: <LogicalKeySet, Intent>{
+      LogicalKeySet(LogicalKeyboardKey.select): ActivateIntent(),
+    }, child: MaterialApp(
+      title: 'SFlix',debugShowCheckedModeBanner: false,
+      home: WillPopScope(
+        onWillPop: () async{
+
+          if(_visibile_categories_dialog){
+            setState(() {
+              _visibile_categories_dialog = false;
+            });
+            return false;
+          }
+          if(_visibile_countries_dialog){
+            setState(() {
+              _visibile_countries_dialog = false;
+            });
+
+            return false;
+          }
+          return true;
+        },
+        child:  true?Scaffold(backgroundColor: Colors.black,
+          body: Column(
+            children: [
+              MyCustomWidget(data: 'name',gotfocused: (val){
+                print(val);
+              },),
+              MyCustomWidget(data: 'name 2',gotfocused: (val){
+                print(val);
+              },),
+            ],
+          ),
+        ): SlingTv(),
+      )
+    ));
+
+
+
+    return  tv_type==0? WillPopScope(
+      onWillPop: () async{
+
+        if(_visibile_categories_dialog){
+          setState(() {
+            _visibile_categories_dialog = false;
+          });
+          return false;
+        }
+        if(_visibile_countries_dialog){
+          setState(() {
+            _visibile_countries_dialog = false;
+          });
+
+          return false;
+        }
+        return true;
+      },
+      child:  true?Scaffold(
+        body: Column(
+          children: [
+            InkWell(focusColor: Colors.grey,child: Text("goof",style: TextStyle(color: Colors.white),),),
+            InkWell(focusColor: Colors.grey,child: Text("goof 2",style: TextStyle(color: Colors.white),),),
+            InkWell(focusColor: Colors.grey,child: Text("goof",style: TextStyle(color: Colors.white),),),
+            InkWell(focusColor: Colors.grey,child: Text("goof",style: TextStyle(color: Colors.white),),),
+            InkWell(focusColor: Colors.grey,child: Text("goof",style: TextStyle(color: Colors.white),),),
+          ],
+        ),
+      ): SlingTv(),
+    ):  WillPopScope(
       onWillPop: () async{
 
         if(_visibile_categories_dialog){

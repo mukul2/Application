@@ -48,6 +48,8 @@ class _SettingsState extends State<Settings> {
   double pos_y = 0;
   double pos_x = 0;
 
+  int tv_type = 0;
+
   late SharedPreferences prefs;
 
   @override
@@ -87,13 +89,20 @@ class _SettingsState extends State<Settings> {
             case KEY_LEFT:
 
               if(pos_y == 0){
+                if(tv_type > 0)
+                  tv_type --;
+
+                prefs.setInt("tvtype", tv_type);
+
+              }
+              if(pos_y == 1){
                 if(_subtitle_size > 5)
                   _subtitle_size --;
 
                 prefs.setInt("subtitle_size", _subtitle_size);
 
               }
-              if(pos_y == 1){
+              if(pos_y == 2){
                 if(_subtitle_color>0)
                   _subtitle_color --;
                 else
@@ -103,7 +112,7 @@ class _SettingsState extends State<Settings> {
               }
 
 
-              if(pos_y == 2){
+              if(pos_y == 3){
                 if(_subtitle_background>0)
                   _subtitle_background --;
                 else
@@ -112,14 +121,24 @@ class _SettingsState extends State<Settings> {
               break;
             case KEY_RIGHT:
 
+
               if(pos_y == 0){
+                if(tv_type < 1)
+                  tv_type ++;
+
+                prefs.setInt("tvtype", tv_type);
+
+              }
+
+
+              if(pos_y == 1){
                 if(_subtitle_size< 45)
                   _subtitle_size ++;
 
                 prefs.setInt("subtitle_size", _subtitle_size);
 
               }
-              if(pos_y == 1){
+              if(pos_y == 2){
                 if(_subtitle_color < 10)
                   _subtitle_color ++;
                 else
@@ -128,7 +147,7 @@ class _SettingsState extends State<Settings> {
                 prefs.setInt("subtitle_color", _subtitle_color);
 
               }
-              if(pos_y == 2){
+              if(pos_y == 3){
                 if(_subtitle_background < 11)
                   _subtitle_background ++;
                 else
@@ -214,22 +233,23 @@ class _SettingsState extends State<Settings> {
                             child:  Column(
                               children: [
                                 //SettingSubtitleWidget(icon: Icons.subtitles,title: "Subtitles",isFocused: (pos_y == 0),subtitle: "Movies and series subtitles",enabled: _subtitle_enabled),
-                                SettingSizeWidget(icon: Icons.text_fields,title: "Subtitle size",isFocused: (pos_y == 0),subtitle: "Subtitle text size",size:_subtitle_size),
-                                SettingColorWidget(icon: Icons.text_format,title: "Subtitle color",isFocused:  (pos_y == 1),subtitle: "Subtitle text color",color: _subtitle_color),
-                                SettingBackgroundWidget(icon: Icons.format_color_fill,title: "Subtitle Background color",isFocused:  (pos_y == 2),subtitle: "Subtitle text background color",color: _subtitle_background),
-                                SettingWidget(icon: Icons.lock,title: "Privacy Policy",isFocused: (pos_y == 3),subtitle: "Privacy policy / terms and conditions ",action:(){
-                                  setState(() {
-                                    pos_y = 3;
-                                  });
-                                  _goToPrivacyPolicy();
-                                }),
-                                SettingWidget(icon: Icons.email,title: "Contact us",isFocused: (pos_y == 4),subtitle: "support and report bugs",action:(){
+                                SettingChooseTVTypeWidget(icon: Icons.tv,title: "Tv Type",isFocused: (pos_y == 0),subtitle: "Chose TV Type",size:tv_type),
+                                SettingSizeWidget(icon: Icons.text_fields,title: "Subtitle size",isFocused: (pos_y == 1),subtitle: "Subtitle text size",size:_subtitle_size),
+                                SettingColorWidget(icon: Icons.text_format,title: "Subtitle color",isFocused:  (pos_y == 2),subtitle: "Subtitle text color",color: _subtitle_color),
+                                SettingBackgroundWidget(icon: Icons.format_color_fill,title: "Subtitle Background color",isFocused:  (pos_y == 3),subtitle: "Subtitle text background color",color: _subtitle_background),
+                                SettingWidget(icon: Icons.lock,title: "Privacy Policy",isFocused: (pos_y == 4),subtitle: "Privacy policy / terms and conditions ",action:(){
                                   setState(() {
                                     pos_y = 4;
                                   });
+                                  _goToPrivacyPolicy();
+                                }),
+                                SettingWidget(icon: Icons.email,title: "Contact us",isFocused: (pos_y == 5),subtitle: "support and report bugs",action:(){
+                                  setState(() {
+                                    pos_y = 5;
+                                  });
                                   _goToContactUs();
                                 }),
-                                SettingWidget(icon: Icons.info,title: "Versions",isFocused: (pos_y == 5),subtitle: "2.3", action: (){}),
+                                SettingWidget(icon: Icons.info,title: "Versions",isFocused: (pos_y == 6),subtitle: "2.3", action: (){}),
                               ],
                             ),
                           ),
@@ -285,6 +305,7 @@ class _SettingsState extends State<Settings> {
     _subtitle_size =  prefs.getInt("subtitle_size")!;
     _subtitle_color =  prefs.getInt("subtitle_color")!;
     _subtitle_background =  prefs.getInt("subtitle_background")!;
+    tv_type = prefs.getInt("tvtype")!;
     setState(() {
 
     });
