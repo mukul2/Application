@@ -72,8 +72,9 @@ class _MyAppState extends State<MyApp> {
            MaterialApp(theme: td,
              debugShowCheckedModeBanner: false,
 
-             home: EpgActivity(),
+             //home: EpgActivity(),
             // home: SlingTv(),
+             home:Home() ,
             routes: {
               "/splash": (context) => Splash(),
               "/home": (context) => Home(),

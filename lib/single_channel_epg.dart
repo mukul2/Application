@@ -80,17 +80,17 @@ class _EPG_of_channel_horizontalState extends State<EPG_of_channel_horizontal> {
   }
   @override
   Widget build(BuildContext context) {
-    return epgs.length>0? ListView.builder(physics: NeverScrollableScrollPhysics(),controller: EPGcontroller,shrinkWrap: true,
+    return epgs.length>0? ListView.builder(shrinkWrap: true,
       itemCount: epgs.length,scrollDirection: Axis.horizontal,
       itemBuilder: (context, index) {
-      return InkWell(onTap: (){},focusColor: Colors.redAccent,child:  Container(width: MediaQuery.of(context).size.width*0.0001*((int.parse(epgs[index]["stop_timestamp"])-int.parse(epgs[index]["start_timestamp"]))),child:
+      return Container(decoration: BoxDecoration(borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width*0.005)),
+        child: InkWell(onTap: (){},focusColor: Colors.redAccent,child:  Container(margin: EdgeInsets.all(MediaQuery.of(context).size.width*0.002),decoration: BoxDecoration(color: Colors.grey.withOpacity(0.2),borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width*0.005)),width: MediaQuery.of(context).size.width*0.00007*((int.parse(epgs[index]["stop_timestamp"])-int.parse(epgs[index]["start_timestamp"]))),child:
 
-      Column(crossAxisAlignment: CrossAxisAlignment.center,mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(utf8.decode(base64.decode(epgs[index]["title"])),style:  TextStyle(color: Colors.white,fontSize:MediaQuery.of(context).size.height*0.02),),
-        //  Text(utf8.decode(base64.decode(epgs[index]["description"])),style:  TextStyle(color: Colors.white,fontSize:MediaQuery.of(context).size.height*0.015),),
-          Row(
+        Center(
+          child: Wrap(
+            //mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              Text(utf8.decode(base64.decode(epgs[index]["title"])),style:  TextStyle(color: Colors.white,fontSize:MediaQuery.of(context).size.height*0.02),),
               Text(   DateFormat('HH:mm a').format(DateTime.fromMillisecondsSinceEpoch(60000+int.parse(epgs[index]["start_timestamp"])*1000)),style:  TextStyle(color: Colors.white,fontSize:MediaQuery.of(context).size.height*0.015),),
               Text(  " - ",style:  TextStyle(color: Colors.white,fontSize:MediaQuery.of(context).size.height*0.015),),
               Text(   DateFormat('HH:mm a').format(DateTime.fromMillisecondsSinceEpoch(60000+int.parse(epgs[index]["stop_timestamp"])*1000)),style:  TextStyle(color: Colors.white,fontSize:MediaQuery.of(context).size.height*0.015),),
@@ -99,16 +99,13 @@ class _EPG_of_channel_horizontalState extends State<EPG_of_channel_horizontal> {
 
             ],
           ),
-          // Text( epgs[index]["start_timestamp"],style:  TextStyle(color: Colors.white,fontSize:MediaQuery.of(context).size.height*0.015),),
-          //Text( epgs[index].toString(),style:  TextStyle(color: Colors.white,fontSize:MediaQuery.of(context).size.height*0.015),),
-
-        ],
-      )));
+        ))),
+      );
         return ListTile(
           title: Text(epgs[index]["title"],style:  TextStyle(color: Colors.white,fontSize:MediaQuery.of(context).size.height*0.03),),
         );
       },
-    ):Center(child: Text("No EPG",style:  TextStyle(color:epgDownlaoded? Colors.white:Colors.redAccent,fontSize:MediaQuery.of(context).size.height*0.03),),);
+    ):Center(child: Text("---",style:  TextStyle(color:epgDownlaoded? Colors.white:Colors.redAccent,fontSize:MediaQuery.of(context).size.height*0.03),),);
   }
 
   Future<void> getEpgs() async {
@@ -120,7 +117,7 @@ class _EPG_of_channel_horizontalState extends State<EPG_of_channel_horizontal> {
     print(responseEPG.body);
     epgs  =dd["epg_listings"];
     print("Downloaded epg");
-    setState(() {
+    if(mounted) setState(() {
       epgDownlaoded = true;
     });
 
