@@ -148,9 +148,9 @@ class _MyAppState extends State<MyApp> {
     }, child:  MaterialApp(theme: td,
       debugShowCheckedModeBanner: false,
 
-      home: EpgActivity(),
+    //  home: EpgActivity(),
       // home: SlingTv(),
-    //  home:Home() ,
+      home:Home() ,
       routes: {
         "/splash": (context) => Splash(),
         "/home": (context) => Home(),

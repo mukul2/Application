@@ -804,7 +804,7 @@ class _ChannelDetailState extends State<ChannelDetail> {
                           }
                         })
                 ),
-                SourcesDialog(sourcesScrollController2: _scrollController,visibileSourcesDialog: visibileSourcesDialog,focused_source: _focused_source,selected_source: _selected_source,sourcesList: widget.channel!.sources,sourcesScrollController: _sourcesScrollController,close: closeSourceDialog,select: selectSource),
+                SourcesDialog(subtitleList: [],sourcesScrollController2: _scrollController,visibileSourcesDialog: visibileSourcesDialog,focused_source: _focused_source,selected_source: _selected_source,sourcesList: widget.channel!.sources,sourcesScrollController: _sourcesScrollController,close: closeSourceDialog,select: selectSource),
                 SubscribeDialog(visible:visible_subscribe_dialog ,close:(){
                   setState(() {
                     visible_subscribe_dialog= false;
@@ -864,7 +864,7 @@ class _ChannelDetailState extends State<ChannelDetail> {
       Navigator.push(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => VideoPlayer(sourcesList: _sources,selected_source:_new_selected_source,focused_source: _new_selected_source,channel: widget.channel),
+          pageBuilder: (context, animation1, animation2) => VideoPlayer(subtitles: [],sourcesList: _sources,selected_source:_new_selected_source,focused_source: _new_selected_source,channel: widget.channel),
           transitionDuration: Duration(seconds: 0),
         ),
       );
