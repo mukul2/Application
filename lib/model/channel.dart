@@ -26,6 +26,8 @@ class Channel{
   List<Country> countries;
   List<Source> sources;
 
+  List? epgs;
+
 
   Channel({
     required this.id,
@@ -44,7 +46,7 @@ class Channel{
     required this.website,
     required this.countries,
     required this.categories,
-    required this.sources
+    required this.sources,this.epgs
   });
 
   factory Channel.fromJson(Map<String, dynamic> parsedJson){

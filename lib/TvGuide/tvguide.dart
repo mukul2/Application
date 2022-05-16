@@ -73,6 +73,8 @@ class _HomeState extends ResumableState<TVGUIDE> {
   List<model.Channel> channels = [];
   bool controllerInited = false;
 
+  List tabs = ["Type 1","Type 2","Type 3","Type 4","Type 5",];
+
   List epgs = [];
 
   String nowInitialingLink = "";
@@ -88,6 +90,9 @@ class _HomeState extends ResumableState<TVGUIDE> {
   FocusNode home_focus_node = FocusNode();
   model.Channel? selected_poster;
   model.Channel? selected_channel;
+
+
+  List<model.Channel> fullChannel = [];
 
   List<Poster> postersList = [];
 
@@ -435,11 +440,26 @@ class _HomeState extends ResumableState<TVGUIDE> {
         //   }
         // }
       }
+      Future<List> downloadEPG({required String id}) async {
+
+        List epgs = [];
+        String castLink = "http://connect.proxytx.cloud/player_api.php?username=4fe8679c08&password=2016&action=get_short_epg&stream_id="+id.toString()+"&limit=10";
+        print(castLink);
+        var responseEPG = await http.get(Uri.parse(castLink), );
+        print("sort epg res "+ responseEPG.body);
+
+        dynamic dd = jsonDecode(responseEPG.body);
+        epgs = dd["epg_listings"];
+
+
+
+        return epgs;
+      }
 
       if(true){
 
-        fire.QuerySnapshot qS = await  fire.FirebaseFirestore.instance.collection("tvCat4fe8679c08").get();
-
+        fire.QuerySnapshot qS = await  fire.FirebaseFirestore.instance.collection("tvCat4fe8679c08").limit(1).get();
+        fullChannel.clear();
         print("Downloading 2");
 
 
@@ -468,21 +488,38 @@ class _HomeState extends ResumableState<TVGUIDE> {
             String m3uFile = SERVER+":$PORT"+"/"+someChannelList[j]["stream_type"]+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+someChannelList[j]["stream_id"].toString()+".m3u8";
             print(m3uFile);
 
-            Channel channel = Channel(
-                countries: [Country(id: 1,title: "UK", image: '')],id: someChannelList[j]["stream_id"],comment: false,title:someChannelList[j]["name"],image:(someChannelList[j]["stream_icon"].toString().length>0)? someChannelList[j]["stream_icon"]: "https://i5.walmartimages.com/asr/74d5a667-7df8-44f2-b9db-81f26878d316_1.c7233452b7b19b699ef96944c8cbbe74.jpeg", categories: [Category(id: 1, title: "Sports")], duration: '', classification: '', rating: 4.3, sources:
-            [
-              Source(id: 1,
-                  type: "LIVE",
-                  title: someChannelList[j]["name"],
-                  size: null,
-                  quality: "FHD",  kind: "both",
-                  premium: "1",
-                  external: false,
-                  url: m3uFile)
-            ], description: 'Description', sublabel: null, type: '', playas: '', website: '', downloadas: '', label: '' );
+            print("going to get epg");
 
-            // allChannel.add(channel);
-            oneCategoryChannels.add(channel);
+            List ep = await downloadEPG(id: someChannelList[j]["stream_id"].toString());
+            print("got epg");
+
+            if(ep.length >0){
+              Channel channel = Channel(epgs: ep,
+                  countries: [Country(id: 1,title: "UK", image: '')],id: someChannelList[j]["stream_id"],comment: false,title:someChannelList[j]["name"],image:(someChannelList[j]["stream_icon"].toString().length>0)? someChannelList[j]["stream_icon"]: "https://i5.walmartimages.com/asr/74d5a667-7df8-44f2-b9db-81f26878d316_1.c7233452b7b19b699ef96944c8cbbe74.jpeg", categories: [Category(id: 1, title: "Sports")], duration: '', classification: '', rating: 4.3, sources:
+                  [
+                    Source(id: 1,
+                        type: "LIVE",
+                        title: someChannelList[j]["name"],
+                        size: null,
+                        quality: "FHD",  kind: "both",
+                        premium: "1",
+                        external: false,
+                        url: m3uFile)
+                  ], description: 'Description', sublabel: null, type: '', playas: '', website: '', downloadas: '', label: '' );
+
+              // allChannel.add(channel);
+              oneCategoryChannels.add(channel);
+
+              fullChannel.add(channel);
+
+
+              ItemScrollController controller = new ItemScrollController();
+              _scrollControllers.add(controller);
+              _position_x_line_saver.add(0);
+              _counts_x_line_saver.add(ep.length);
+            }
+
+
           }
 
 
@@ -523,13 +560,13 @@ class _HomeState extends ResumableState<TVGUIDE> {
 
 
 
-          GenreAsChannel gg = GenreAsChannel(id: i, title: d["name"]??"--" ,posters:oneCategoryChannels );
-
-          genresAsC.add(gg);
-          ItemScrollController controller = new ItemScrollController();
-          _scrollControllers.add(controller);
-          _position_x_line_saver.add(0);
-          _counts_x_line_saver.add(gg.posters!.length);
+          // GenreAsChannel gg = GenreAsChannel(id: i, title: d["name"]??"--" ,posters:oneCategoryChannels );
+          //
+          // genresAsC.add(gg);
+          // ItemScrollController controller = new ItemScrollController();
+          // _scrollControllers.add(controller);
+          // _position_x_line_saver.add(0);
+          // _counts_x_line_saver.add(gg.posters!.length);
 
 
         }
@@ -537,7 +574,7 @@ class _HomeState extends ResumableState<TVGUIDE> {
 
       //<---------Recently Added starts  ----------->
 
-
+print("count "+fullChannel.length.toString());
       _showData();
 
     } else {
@@ -552,7 +589,7 @@ class _HomeState extends ResumableState<TVGUIDE> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey,
+      backgroundColor: Colors.black,
       body:RawKeyboardListener(
         focusNode: home_focus_node,
         onKey: (RawKeyEvent event) {
@@ -615,7 +652,7 @@ class _HomeState extends ResumableState<TVGUIDE> {
                   print("playing sound ");
                   break;
                 }
-                if(genresAsC.length-1==posty){
+                if(fullChannel.length-1==posty){
                   print("playing sound ");
                 }else{
                   posty++;
@@ -642,7 +679,7 @@ class _HomeState extends ResumableState<TVGUIDE> {
                     postx--;
                   }
                 }else if (posty == -1){
-                  _carouselController.previousPage();
+                 // _carouselController.previousPage();
                 }else{
                   if(postx == 0){
                     print("playing sound ");
@@ -660,7 +697,7 @@ class _HomeState extends ResumableState<TVGUIDE> {
                       print("playing sound ");
                       break;
                     }
-                    _carouselController.nextPage();
+                   // _carouselController.nextPage();
                     break;
                   case -2:
                     if(postx == 7)
@@ -708,7 +745,7 @@ class _HomeState extends ResumableState<TVGUIDE> {
         },
         child: Stack(
           children: [
-            Positioned(
+            if(true)   Positioned(
               right: 0,
               top: 0,
               // left: MediaQuery.of(context).size.width/4,
@@ -717,7 +754,7 @@ class _HomeState extends ResumableState<TVGUIDE> {
               child:getBackgroundImage(),
 
             ),
-            if(true)   Positioned(
+            if(false)   Positioned(
               left: 0,
               right: 0,
               bottom: 0,
@@ -733,7 +770,7 @@ class _HomeState extends ResumableState<TVGUIDE> {
                   )
               ),
             ),
-            if(true)     Positioned(
+            if(false)     Positioned(
               left: 0,
               right: 0,
               bottom: 0,
@@ -789,20 +826,23 @@ class _HomeState extends ResumableState<TVGUIDE> {
                 left: 0,
                 right: 0,
                 duration: Duration(milliseconds: 200),
-                height: (posty < 0)?(MediaQuery.of(context).size.height/2)  -50:(MediaQuery.of(context).size.height/2)-50,
+                height: (posty < 0)?(MediaQuery.of(context).size.height/1)  -80:(MediaQuery.of(context).size.height/1)-50,
                 child: Container(
-                  height: (posty < 0)?(MediaQuery.of(context).size.height/2) -50:(MediaQuery.of(context).size.height/2)-50,
-                  child: ScrollConfiguration(
+                  height: (posty < 0)?(MediaQuery.of(context).size.height/1) -80:(MediaQuery.of(context).size.height/1)-50,
+                  child:ScrollConfiguration(
                     behavior: MyBehavior(),   // From this behaviour you can change the behaviour
                     child: ScrollablePositionedList.builder(
-                      itemCount: genresAsC.length,
+                      itemCount: fullChannel.length,
                       scrollDirection: Axis.vertical,
                       itemScrollController: _scrollController,
                       itemBuilder: (context, jndex) {
                         if(true|| genresAsC[jndex].id == -3){
 
+
+
+
                           // return M_C_Widget(jndex:jndex,posty: posty,postx: postx,scrollController: _scrollControllers[jndex],title: genres[jndex].title,posters : genres[jndex].posters);
-                          return ChannelsWidget(jndex:jndex,postx: postx,posty: posty,scrollController: _scrollControllers[jndex],size: MediaQuery.of(context).size.longestSide*0.013,title:genresAsC[jndex].title,channels: genresAsC[jndex].posters!);
+                          return ChannelsWidgetForEPGUI(channel: fullChannel[jndex],jndex:jndex,postx: postx,posty: posty,scrollController: _scrollControllers[jndex],size: MediaQuery.of(context).size.longestSide*0.013,title:"XXX");
                         }else{
                           return Text("NN",style: TextStyle(color: Colors.white),);
                           //   return MoviesWidget(jndex:jndex,posty: posty,postx: postx,scrollController: _scrollControllers[jndex],title: genresAsC[jndex].title,posters : genresAsC[jndex].posters);
@@ -812,8 +852,8 @@ class _HomeState extends ResumableState<TVGUIDE> {
                   ),
                 ),
               ),
-            NavigationWidget(postx:postx,posty:posty,selectedItem : 5,image : image, logged : logged),
-            if(posty > -1 && genresAsC.length>0) Positioned(bottom: MediaQuery.of(context).size.height*0.45,left: MediaQuery.of(context).size.width*0.027,child: Column(mainAxisAlignment: MainAxisAlignment.end,crossAxisAlignment: CrossAxisAlignment.start,
+            NavigationWidget(postx:postx,posty:posty,selectedItem : 5,image : image, logged : logged,),
+            if(false)    if(posty > -1 && genresAsC.length>0) Positioned(bottom: MediaQuery.of(context).size.height*0.45,left: MediaQuery.of(context).size.width*0.027,child: Column(mainAxisAlignment: MainAxisAlignment.end,crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(selected_channel!.title,style: TextStyle(color: Colors.white,fontSize: MediaQuery.of(context).size.longestSide*0.025),),
 

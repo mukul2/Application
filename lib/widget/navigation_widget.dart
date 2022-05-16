@@ -26,6 +26,8 @@ class NavigationWidget extends StatefulWidget {
   Image? image;
   bool? logged;
 
+  bool? animate;
+
   NavigationWidget({this.posty, this.postx, this.selectedItem, this. image,this.logged});
 
   @override
