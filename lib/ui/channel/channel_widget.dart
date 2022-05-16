@@ -11,30 +11,31 @@ class ChannelWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 5.0,vertical: 5),
+      padding:  EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.longestSide*0.008,vertical: MediaQuery.of(context).size.longestSide*0.008),
       child: AnimatedContainer(
         duration: Duration(milliseconds: 200),
         child: ClipRRect(
             child: CachedNetworkImage(
               imageUrl: channel.image,
               errorWidget: (context, url, error) => Icon(Icons.error),
-             // fit: BoxFit.cover,
+              fit: isFocus? BoxFit.cover:BoxFit.none,
             ),
-            borderRadius: BorderRadius.circular(5)
+            borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.004)
         ),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(7),
+          borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.004),
           color: Colors.blueGrey,
-          border: (isFocus)?Border.all(color: Colors.purple,width: 2):Border.all(color: Colors.transparent,width: 0),
+          border: (isFocus)?Border.all(color: Colors.purple,width: MediaQuery.of(context).size.longestSide*0.002):Border.all(color: Colors.transparent,width: 0),
           boxShadow: [
             BoxShadow(
                 color: (isFocus)?Colors.purple:Colors.white.withOpacity(0),
                 offset: Offset(0,0),
-                blurRadius: 6
+                blurRadius: MediaQuery.of(context).size.longestSide*0.002
             ),
           ],
         ),
-        width: 136,
+
+        width: MediaQuery.of(context).size.longestSide*0.18,
       ),
     );
   }

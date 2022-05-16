@@ -40,10 +40,12 @@ import 'dart:convert' as convert;
 import 'package:transparent_image/transparent_image.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../TvGuide/tvguide.dart';
 import '../../model/channel.dart';
 import '../../model/country.dart';
 import '../../model/source.dart';
 import '../../series_like_home/home.dart';
+import '../channel/channel_as_home.dart';
 
 /// A [StatelessWidget] which demonstrates
 /// how to consume and interact with a [CounterBloc].
@@ -511,7 +513,8 @@ class _HomeState extends ResumableState<Home> {
                 _goToMovies();
                 _goToSeries();
                 _goToChannels();
-                _goToMyList();
+                //_goToMyList();
+                _goToTVGUIDE();
                 _goToSettings();
                 _goToProfile();
                 _tryAgain();
@@ -813,6 +816,20 @@ class _HomeState extends ResumableState<Home> {
       }
     }
   }
+  void  _goToTVGUIDE(){
+    if(posty == -2 && postx == 5){
+
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => TVGUIDE(),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
+        FocusScope.of(context).requestFocus(null);
+
+    }
+  }
   void  _goToProfile(){
 
     if(posty == -2 && postx == 7){
@@ -852,7 +869,7 @@ class _HomeState extends ResumableState<Home> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => Channels(),
+          pageBuilder: (context, animation1, animation2) => TvChannelsHome(),
           transitionDuration: Duration(seconds: 0),
         ),
       );

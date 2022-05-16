@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/series_like_home/home.dart';
 import 'package:flutter_app_tv/ui/auth/auth.dart';
+import 'package:flutter_app_tv/ui/channel/channel_as_home.dart';
 import 'package:flutter_app_tv/ui/channel/channel_detail.dart';
 import 'package:flutter_app_tv/ui/channel/channels.dart';
 import 'package:flutter_app_tv/ui/comment/comment_add.dart';
@@ -149,15 +150,15 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
 
     //  home: EpgActivity(),
-      // home: SlingTv(),
-      home:Home() ,
+       home: Home(),
+      //home:TvChannelsHome() ,
       routes: {
         "/splash": (context) => Splash(),
         "/home": (context) => Home(),
         "/movie": (context) => Movie(),
         "/serie": (context) => Serie(),
         "/channel_detail": (context) => ChannelDetail(),
-        "/channels": (context) => Channels(),
+        "/channels": (context) => TvChannelsHome(),
         "/movies": (context) => Movies(),
         "/series": (context) => SeriesAsHome(),
         "/reviews": (context) => Reviews(id: 1, image: "image", title: 'title', type: "type"),

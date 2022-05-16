@@ -43,6 +43,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../model/channel.dart';
 import '../../model/country.dart';
 import '../../model/source.dart';
+import '../ui/channel/channel_as_home.dart';
 import 'home.dart';
 
 /// A [StatelessWidget] which demonstrates
@@ -833,7 +834,7 @@ class _HomeState extends ResumableState<HomeForMovie> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => Channels(),
+          pageBuilder: (context, animation1, animation2) => TvChannelsHome(),
           transitionDuration: Duration(seconds: 0),
         ),
       );

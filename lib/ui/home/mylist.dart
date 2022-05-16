@@ -40,6 +40,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 import '../../series_like_home/home.dart';
+import '../channel/channel_as_home.dart';
 
 /// A [StatelessWidget] which demonstrates
 /// how to consume and interact with a [CounterBloc].
@@ -560,7 +561,7 @@ class _MyListState extends ResumableState<MyList> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => Channels(),
+          pageBuilder: (context, animation1, animation2) => TvChannelsHome(),
           transitionDuration: Duration(seconds: 0),
         ),
       );

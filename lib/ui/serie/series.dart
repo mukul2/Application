@@ -37,6 +37,9 @@ import 'dart:convert' as convert;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transparent_image/transparent_image.dart';
 
+import '../../TvGuide/tvguide.dart';
+import '../channel/channel_as_home.dart';
+
 
 /// A [StatelessWidget] which demonstrates
 /// how to consume and interact with a [CounterBloc].
@@ -323,7 +326,8 @@ class _SeriesState extends ResumableState<Series> {
                   _goToHome();
                   _goToMovies();
                   _goToChannels();
-                  _goToMyList();
+                 // _goToMyList();
+                  _goToTVGUIDE();
                   _goToSettings();
                   _goToProfile();
 
@@ -981,6 +985,21 @@ class _SeriesState extends ResumableState<Series> {
 
     }
   }
+  void  _goToTVGUIDE(){
+
+    if(posty == -2 && postx == 5){
+
+        push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => TVGUIDE(),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
+      }
+
+
+  }
   void  _goToMovies(){
     if(posty == -2 && postx == 2){
       Navigator.pushReplacement(
@@ -997,7 +1016,7 @@ class _SeriesState extends ResumableState<Series> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => Channels(),
+          pageBuilder: (context, animation1, animation2) => TvChannelsHome(),
           transitionDuration: Duration(seconds: 0),
         ),
       );

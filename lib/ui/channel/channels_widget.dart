@@ -29,13 +29,13 @@ class _ChannelsWidgetState extends State<ChannelsWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: MediaQuery.of(context).size.longestSide*0.12,
+      height: MediaQuery.of(context).size.longestSide*0.18,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: EdgeInsets.only(left: 50,bottom: 5),
+            padding: EdgeInsets.only(left: MediaQuery.of(context).size.longestSide*0.027,bottom: MediaQuery.of(context).size.longestSide*0.004),
 
             child: Text(
                 widget.title,
@@ -47,7 +47,7 @@ class _ChannelsWidgetState extends State<ChannelsWidget> {
             ),
           ),
           Container(
-            height:  MediaQuery.of(context).size.longestSide*0.1,
+            height:  MediaQuery.of(context).size.longestSide*0.12,
             child:  ScrollConfiguration(
               behavior: MyBehavior(),   // From this behaviour you can change the behaviour
               child: ScrollablePositionedList.builder(
@@ -56,7 +56,7 @@ class _ChannelsWidgetState extends State<ChannelsWidget> {
                 scrollDirection: Axis.horizontal,
                 itemBuilder: (context, index) {
                   return Padding(
-                    padding:  EdgeInsets.only(left:(0==index)?40:0),
+                    padding:  EdgeInsets.only(left:(0==index)?MediaQuery.of(context).size.longestSide*0.018:0),
                     child: GestureDetector(
                         onTap: (){
                           setState(() {

@@ -42,6 +42,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 import '../../SlingTv/sling_tv_activity.dart';
+import '../../TvGuide/tvguide.dart';
 import '../../series_like_home/home.dart';
 
 
@@ -1095,7 +1096,8 @@ class _ChannelsState extends ResumableState<Channels> {
                   _goToHome();
                   _goToMovies();
                   _goToSeries();
-                  _goToMyList();
+                  //_goToMyList();
+                  _goToTVGUIDE();
                   _goToSettings();
                   _goToProfile();
 
@@ -1620,11 +1622,111 @@ class _ChannelsState extends ResumableState<Channels> {
                           child: ScrollConfiguration(
                             behavior: MyBehavior(),   // From this behaviour you can change the behaviour
                             child: ScrollablePositionedList.builder(
-                              itemCount: (channles.length / _channels_element_by_line).ceil(),
+                             // itemCount: (channles.length / _channels_element_by_line).ceil(),
+                              itemCount:categories.length,
                               scrollDirection: Axis.vertical,
                               itemScrollController: _scrollController,
                               itemBuilder: (context, jndex) {
                                 int items_line_count = (channles.length -  ((jndex+1) * _channels_element_by_line) > 0)? _channels_element_by_line:  (channles.length -  (jndex * _channels_element_by_line)).abs();
+                                return Column(
+                                  children: [
+                                    Text(categories[jndex].title,style: TextStyle(color: Colors.white),),
+                                    AnimatedContainer(
+                                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(2), color: Colors.blueGrey, border: (jndex==posty)?Border.all(color: Colors.purple,width: 2):Border.all(color: Colors.transparent,width: 0), boxShadow: [BoxShadow(color: (jndex==posty)?Colors.purple:Colors.white.withOpacity(0), offset: Offset(0,0), blurRadius: 6),
+                                ],
+                                ), duration: Duration(milliseconds: 200),child: ScrollConfiguration(
+                                      behavior: MyBehavior(),   // From this behaviour you can change the behaviour
+                                      child: ScrollablePositionedList.builder(
+                                        itemCount: categoryChannel[jndex].length,
+                                        scrollDirection: Axis.vertical,
+                                        itemScrollController: _scrollController,
+                                        itemBuilder: (context, pndex) {
+                                          return ChannelWidget(isFocus: (jndex==posty) && (pndex == postx),channel: categoryChannel[jndex][pndex],);
+
+                                        },
+                                      ),
+                                    ) ),
+
+                                  ],
+                                );
+                                return Row(
+                                  children: [
+                                    Expanded(child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 5.0,vertical: 5),
+                                      child: AnimatedContainer(
+                                        duration: Duration(milliseconds: 200),
+                                        child: Text(categories[jndex].title,style: TextStyle(color: Colors.white),),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(7),
+                                          color: Colors.blueGrey,
+                                          border: (jndex==posty)?Border.all(color: Colors.purple,width: 2):Border.all(color: Colors.transparent,width: 0),
+                                          boxShadow: [
+                                            BoxShadow(
+                                                color: (true)?Colors.purple:Colors.white.withOpacity(0),
+                                                offset: Offset(0,0),
+                                                blurRadius: 6
+                                            ),
+                                          ],
+                                        ),
+                                        width: 136,height: 50,
+                                      ),
+                                    )),
+                                    Expanded(child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 5.0,vertical: 5),
+                                      child: AnimatedContainer(
+                                        duration: Duration(milliseconds: 200),
+                                        child: ClipRRect(
+                                            child: CachedNetworkImage(
+                                              imageUrl:"https://starktimes.com/wp-content/uploads/2022/03/Emily-Willis.jpg",
+                                              errorWidget: (context, url, error) => Icon(Icons.error),
+                                              // fit: BoxFit.cover,
+                                            ),
+                                            borderRadius: BorderRadius.circular(5)
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(7),
+                                          color: Colors.blueGrey,
+                                          border: (jndex==posty)?Border.all(color: Colors.purple,width: 2):Border.all(color: Colors.transparent,width: 0),
+                                          boxShadow: [
+                                            BoxShadow(
+                                                color: (true)?Colors.purple:Colors.white.withOpacity(0),
+                                                offset: Offset(0,0),
+                                                blurRadius: 6
+                                            ),
+                                          ],
+                                        ),
+                                        width: 136,height: 136,
+                                      ),
+                                    )),
+                                    Expanded(child: Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 5.0,vertical: 5),
+                                      child: AnimatedContainer(
+                                        duration: Duration(milliseconds: 200),
+                                        child: ClipRRect(
+                                            child: CachedNetworkImage(
+                                              imageUrl:"https://starktimes.com/wp-content/uploads/2022/03/Emily-Willis.jpg",
+                                              errorWidget: (context, url, error) => Icon(Icons.error),
+                                              // fit: BoxFit.cover,
+                                            ),
+                                            borderRadius: BorderRadius.circular(5)
+                                        ),
+                                        decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(7),
+                                          color: Colors.blueGrey,
+                                          border: (jndex==posty)?Border.all(color: Colors.purple,width: 2):Border.all(color: Colors.transparent,width: 0),
+                                          boxShadow: [
+                                            BoxShadow(
+                                                color: (true)?Colors.purple:Colors.white.withOpacity(0),
+                                                offset: Offset(0,0),
+                                                blurRadius: 6
+                                            ),
+                                          ],
+                                        ),
+                                        width: 136,height: 136,
+                                      ),
+                                    )),
+                                  ],
+                                );
                                 return _channlesLineGridWidget(jndex,items_line_count);
                               },
                             ),
@@ -1683,6 +1785,21 @@ class _ChannelsState extends ResumableState<Channels> {
         ),
       );
       FocusScope.of(context).requestFocus(null);
+    }
+  }
+
+  void  _goToTVGUIDE(){
+    if(posty == -2 && postx == 5){
+
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation1, animation2) => TVGUIDE(),
+          transitionDuration: Duration(seconds: 0),
+        ),
+      );
+      FocusScope.of(context).requestFocus(null);
+
     }
   }
   void  _goToMyList(){

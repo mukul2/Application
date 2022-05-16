@@ -14,7 +14,9 @@ import 'package:flutter_app_tv/ui/setting/settings.dart';
 import 'package:need_resume/need_resume.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../TvGuide/tvguide.dart';
 import '../series_like_home/home.dart';
+import '../ui/channel/channel_as_home.dart';
 
 class NavigationWidget extends StatefulWidget {
 
@@ -257,7 +259,7 @@ class _NavigationWidgetState extends ResumableState<NavigationWidget> {
                                   Navigator.pushReplacement(
                                     context,
                                     PageRouteBuilder(
-                                      pageBuilder: (context, animation1, animation2) => Channels(),
+                                      pageBuilder: (context, animation1, animation2) => TvChannelsHome(),
                                       transitionDuration: Duration(seconds: 0),
                                     ),
                                   );
@@ -283,6 +285,41 @@ class _NavigationWidgetState extends ResumableState<NavigationWidget> {
                           ),
                         ),
                         GestureDetector(
+                          onTap: (){
+                            setState(() {
+                              widget.postx = 5;
+                              widget.posty = -2;
+                              Future.delayed(Duration(milliseconds: 200),(){
+                                if(widget.selectedItem != 5){
+                                  Navigator.pushReplacement(
+                                    context,
+                                    PageRouteBuilder(
+                                      pageBuilder: (context, animation1, animation2) => TVGUIDE(),
+                                      transitionDuration: Duration(seconds: 0),
+                                    ),
+                                  );
+                                }
+                              });
+                            });
+                          },
+                          child: Container(
+                            margin: EdgeInsets.symmetric(horizontal: 7,vertical: 1),
+                            padding: EdgeInsets.symmetric(horizontal: 15,vertical: 9),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              color:(widget.selectedItem == 5)? (widget.posty == -2 && widget.postx == 5)?Colors.white:Colors.white70:(widget.posty == -2 && widget.postx == 5)?Colors.white24:Colors.transparent,
+                            ),
+                            child: Text(
+                              "TV Guide",
+                              style: TextStyle(
+                                  color:(widget.selectedItem == 5)?Colors.black:(widget.posty == -2 && widget.postx == 5)?Colors.white:Colors.white60,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w500
+                              ),
+                            ),
+                          ),
+                        ),
+                      if(false)  GestureDetector(
                           onTap: (){
                             setState(() {
                               widget.postx = 5;

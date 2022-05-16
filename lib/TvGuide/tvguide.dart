@@ -1,4 +1,4 @@
-
+import 'package:flutter/cupertino.dart';
 import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
@@ -47,11 +47,16 @@ import '../../model/country.dart';
 import '../../model/gnre_as_channel.dart';
 import '../../model/source.dart';
 import '../../series_like_home/home.dart';
-import 'm_channel_widget.dart';
+
 import 'package:video_player/video_player.dart' as vP;
+
+import '../ui/channel/channel_as_home.dart';
+
+
+
 /// A [StatelessWidget] which demonstrates
 /// how to consume and interact with a [CounterBloc].
-class TvChannelsHome extends StatefulWidget {
+class TVGUIDE extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
 }
@@ -59,7 +64,7 @@ class TvChannelsHome extends StatefulWidget {
 
 
 
-class _HomeState extends ResumableState<TvChannelsHome> {
+class _HomeState extends ResumableState<TVGUIDE> {
 
 
   // List<Genre> genres = [];
@@ -72,7 +77,7 @@ class _HomeState extends ResumableState<TvChannelsHome> {
 
   String nowInitialingLink = "";
   late vP.VideoPlayerController? _controller;
-  int postx = 4;
+  int postx = 5;
   int posty = -2;
   int side_current = 0;
   CarouselController _carouselController = CarouselController();
@@ -84,7 +89,7 @@ class _HomeState extends ResumableState<TvChannelsHome> {
   model.Channel? selected_poster;
   model.Channel? selected_channel;
 
- List<Poster> postersList = [];
+  List<Poster> postersList = [];
 
 
   bool _visibile_loading = false;
@@ -112,7 +117,7 @@ class _HomeState extends ResumableState<TvChannelsHome> {
     getLogged();
 
   }
-   getLogged() async {
+  getLogged() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
     logged = await prefs.getBool("LOGGED_USER");
@@ -135,35 +140,33 @@ class _HomeState extends ResumableState<TvChannelsHome> {
     _showLoading();
 
 
-      if (true) {
+    if (true) {
 
-        print("Downloading");
-
-
-        bool showSlide = false;
-
-        if(showSlide){
-          fire.QuerySnapshot recentMovies = await  fire.FirebaseFirestore.instance.collection("recentMovies").get();
-
-          fire.QueryDocumentSnapshot qsS = recentMovies.docs.first;
+      print("Downloading");
 
 
-          try {
-            String listStr = qsS.get("data");
+      bool showSlide = false;
 
-            listStr.replaceAll("'", '"');
+      if(showSlide){
+        fire.QuerySnapshot recentMovies = await  fire.FirebaseFirestore.instance.collection("recentMovies").get();
 
-            List li = convert.jsonDecode(listStr);
-
-            List<Poster> posters = [];
-
-            for (int k = 0; k < li.length; k++) {
-              String SERVER = "http://connect.proxytx.cloud";
-              String PORT = "80";
-              String EMAIL = "4fe8679c08";
-              String PASSWORD = "2016";
+        fire.QueryDocumentSnapshot qsS = recentMovies.docs.first;
 
 
+        try {
+          String listStr = qsS.get("data");
+
+          listStr.replaceAll("'", '"');
+
+          List li = convert.jsonDecode(listStr);
+
+          List<Poster> posters = [];
+
+          for (int k = 0; k < li.length; k++) {
+            String SERVER = "http://connect.proxytx.cloud";
+            String PORT = "80";
+            String EMAIL = "4fe8679c08";
+            String PASSWORD = "2016";
 
 
 
@@ -177,212 +180,240 @@ class _HomeState extends ResumableState<TvChannelsHome> {
 
 
 
-              String link = SERVER + ":$PORT" + "/" + li[k]["stream_type"] +
-                  "/" + EMAIL + "/" + PASSWORD.toString() + "/" +
-                  li[k]["stream_id"].toString() + "." +
-                  li[k]["container_extension"];
+
+
+            String link = SERVER + ":$PORT" + "/" + li[k]["stream_type"] +
+                "/" + EMAIL + "/" + PASSWORD.toString() + "/" +
+                li[k]["stream_id"].toString() + "." +
+                li[k]["container_extension"];
 
 
 
-              String titleForSearch =  li[k]["name"];
+            String titleForSearch =  li[k]["name"];
 
-              // List alls = title.split("-");
-              // String second = alls.last;
-              //
-              // List qq = second.split("(");
-              //
-              // List kk = qq.first.toString().split(" ");
-              // String key ="" ;
-              // for(int i = 0 ; i < kk.length ; i++){
-              //
-              //   if(kk[i].toString().trim()!="4K"){
-              //     if(i==1){
-              //       if(kk[i].toString().length>0) key = kk[i];
-              //     }else{
-              //       if(kk[i].toString().length>0) key = key+"+"+kk[i];
-              //     }
-              //
-              //   }
-              //
-              //
-              //
-              //
-              // }
-              //
-              // key = key.replaceAll("++", "+");
-              // key = key.replaceAll(":", "");
-              // key = key.replaceAll("(", "");
-              // key = key.replaceAll(")", "");
-              //
-              // print(key);
-              //
-              //
-              //
-              //
-              // String tvSHowTMDB = "https://api.themoviedb.org/3/search/movie?api_key=103096910bbe8842c151f7cce00ab218&query="+key;
-              // print(tvSHowTMDB);
-              //
-              // var responseTMDB = await http.get(Uri.parse(tvSHowTMDB) );
-              //
-              // dynamic jsonTMDB = jsonDecode(responseTMDB.body);
-              // String tmdbId="";
-              // if(jsonTMDB["total_results"]>0){
-              //
-              //   tmdbId = jsonTMDB["results"][0]["id"].toString();
-              //   String tvSHowTMDBFull = "https://api.themoviedb.org/3/movie/$tmdbId?api_key=103096910bbe8842c151f7cce00ab218";
-              //   print(tvSHowTMDBFull);
-              //   TMDB = tmdbId;
-              //   var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
-              //   print(responseTMDFF.body);
-              //
-              //   //  await FirebaseFirestore.instance.collection("moreInfoSeries").doc(seriedID).set({"fullSeries":responseTMDFF.body});
-              //
-              //   return jsonDecode(responseTMDFF.body);
-              // }else{
-              //   String tvSHowTMDBFull = "https://api.themoviedb.org/3/movie/414906?api_key=103096910bbe8842c151f7cce00ab218";
-              //   print(tvSHowTMDBFull);
-              //   TMDB = tmdbId;
-              //   var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
-              //   print(responseTMDFF.body);
-              //
-              //   //  await FirebaseFirestore.instance.collection("moreInfoSeries").doc(seriedID).set({"fullSeries":responseTMDFF.body});
-              //
-              //   return jsonDecode(responseTMDFF.body);
-              // }
-
-
+            // List alls = title.split("-");
+            // String second = alls.last;
+            //
+            // List qq = second.split("(");
+            //
+            // List kk = qq.first.toString().split(" ");
+            // String key ="" ;
+            // for(int i = 0 ; i < kk.length ; i++){
+            //
+            //   if(kk[i].toString().trim()!="4K"){
+            //     if(i==1){
+            //       if(kk[i].toString().length>0) key = kk[i];
+            //     }else{
+            //       if(kk[i].toString().length>0) key = key+"+"+kk[i];
+            //     }
+            //
+            //   }
+            //
+            //
+            //
+            //
+            // }
+            //
+            // key = key.replaceAll("++", "+");
+            // key = key.replaceAll(":", "");
+            // key = key.replaceAll("(", "");
+            // key = key.replaceAll(")", "");
+            //
+            // print(key);
+            //
+            //
+            //
+            //
+            // String tvSHowTMDB = "https://api.themoviedb.org/3/search/movie?api_key=103096910bbe8842c151f7cce00ab218&query="+key;
+            // print(tvSHowTMDB);
+            //
+            // var responseTMDB = await http.get(Uri.parse(tvSHowTMDB) );
+            //
+            // dynamic jsonTMDB = jsonDecode(responseTMDB.body);
+            // String tmdbId="";
+            // if(jsonTMDB["total_results"]>0){
+            //
+            //   tmdbId = jsonTMDB["results"][0]["id"].toString();
+            //   String tvSHowTMDBFull = "https://api.themoviedb.org/3/movie/$tmdbId?api_key=103096910bbe8842c151f7cce00ab218";
+            //   print(tvSHowTMDBFull);
+            //   TMDB = tmdbId;
+            //   var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
+            //   print(responseTMDFF.body);
+            //
+            //   //  await FirebaseFirestore.instance.collection("moreInfoSeries").doc(seriedID).set({"fullSeries":responseTMDFF.body});
+            //
+            //   return jsonDecode(responseTMDFF.body);
+            // }else{
+            //   String tvSHowTMDBFull = "https://api.themoviedb.org/3/movie/414906?api_key=103096910bbe8842c151f7cce00ab218";
+            //   print(tvSHowTMDBFull);
+            //   TMDB = tmdbId;
+            //   var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
+            //   print(responseTMDFF.body);
+            //
+            //   //  await FirebaseFirestore.instance.collection("moreInfoSeries").doc(seriedID).set({"fullSeries":responseTMDFF.body});
+            //
+            //   return jsonDecode(responseTMDFF.body);
+            // }
 
 
 
-              Poster poster1 = Poster(id: li[k]["stream_id"],
-                  title: li[k]["name"],
-                  type: "type",
-                  label: null,
-                  sublabel: null,
-                  imdb: 0.0,
-                  // imdb: double.parse(movieContents[_selected_genre][i]["rating"]),
-                  downloadas: "1",
-                  comment: false,
-                  playas: "1",
-                  description: link,
-                  classification: "--",
-                  year: 000,
-                  duration: "--:--",
-                  // rating: double.parse(movieContents[_selected_genre][i]["rating"]),
-                  rating: 0.0,
-                  image: li[k]["stream_icon"] ??
-                      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
-                  cover: li[k]["stream_icon"] ??
-                      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
-                  trailer: null,
-                  genres: [Genre(id: k, title: "Recently added")],
-                  sources: [
-                    Source(size: "",
-                        id: 1,
-                        type: li[k]["container_extension"],
-                        title: li[k]["container_extension"],
-                        quality: "FHD",
-                        kind: "both",
-                        premium: "1",
-                        external: false,
-                        url: link)
-                  ]);
-
-              posters.add(poster1);
-
-              modelS.Source source = modelS.Source(size: "",id: 1, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
-              Channel channel = model.Channel(id: k, title: li[k]["name"], type: "", label: "", sublabel: "", downloadas: "", comment: false, playas: "", description: "Description", classification: "", duration: "02:02:02", rating: 9.9, image: li[k]["stream_icon"] ??
-                  "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png", website: "", countries: [], categories: [], sources: [source]);
-
-              Slide slide = Slide(id: k, title: li[k]["name"], type: "", image: li[k]["stream_icon"] ??
-                  "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png", url: "", category: null, genre: Genre(id: k, title: "Recently added",posters: [poster1]), channel: null);
-              slides.add(slide);
-            }
-
-            // Genre gg = Genre(id: 1, title: "Recently added", posters: posters);
-
-            //  genres.add(gg);
 
 
+            Poster poster1 = Poster(id: li[k]["stream_id"],
+                title: li[k]["name"],
+                type: "type",
+                label: null,
+                sublabel: null,
+                imdb: 0.0,
+                // imdb: double.parse(movieContents[_selected_genre][i]["rating"]),
+                downloadas: "1",
+                comment: false,
+                playas: "1",
+                description: link,
+                classification: "--",
+                year: 000,
+                duration: "--:--",
+                // rating: double.parse(movieContents[_selected_genre][i]["rating"]),
+                rating: 0.0,
+                image: li[k]["stream_icon"] ??
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+                cover: li[k]["stream_icon"] ??
+                    "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+                trailer: null,
+                genres: [Genre(id: k, title: "Recently added")],
+                sources: [
+                  Source(size: "",
+                      id: 1,
+                      type: li[k]["container_extension"],
+                      title: li[k]["container_extension"],
+                      quality: "FHD",
+                      kind: "both",
+                      premium: "1",
+                      external: false,
+                      url: link)
+                ]);
 
-           // GenreAsChannel gg = GenreAsChannel(id: 1, title: "Recently added",posters:posters );
+            posters.add(poster1);
+
+            modelS.Source source = modelS.Source(size: "",id: 1, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
+            Channel channel = model.Channel(id: k, title: li[k]["name"], type: "", label: "", sublabel: "", downloadas: "", comment: false, playas: "", description: "Description", classification: "", duration: "02:02:02", rating: 9.9, image: li[k]["stream_icon"] ??
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png", website: "", countries: [], categories: [], sources: [source]);
+
+            Slide slide = Slide(id: k, title: li[k]["name"], type: "", image: li[k]["stream_icon"] ??
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png", url: "", category: null, genre: Genre(id: k, title: "Recently added",posters: [poster1]), channel: null);
+            slides.add(slide);
+          }
+
+          // Genre gg = Genre(id: 1, title: "Recently added", posters: posters);
+
+          //  genres.add(gg);
+
+
+
+          // GenreAsChannel gg = GenreAsChannel(id: 1, title: "Recently added",posters:posters );
 
           //  genresAsC.add(gg);
-        //    ItemScrollController controller = new ItemScrollController();
-         //   _scrollControllers.add(controller);
+          //    ItemScrollController controller = new ItemScrollController();
+          //   _scrollControllers.add(controller);
           //  _position_x_line_saver.add(0);
           //  _counts_x_line_saver.add(gg.posters!.length);
 
 
 
-            ItemScrollController controller = new ItemScrollController();
-            _scrollControllers.add(controller);
-            _position_x_line_saver.add(0);
-            _counts_x_line_saver.add(slides.length);
-          } catch (e) {
+          ItemScrollController controller = new ItemScrollController();
+          _scrollControllers.add(controller);
+          _position_x_line_saver.add(0);
+          _counts_x_line_saver.add(slides.length);
+        } catch (e) {
+          print(e);
+          print("cach recent");
+        }
+      }
+
+
+      if(false ){
+        //continue watching
+
+
+        fire.QuerySnapshot recentWatch = await  fire.FirebaseFirestore.instance.collection("watchHistory4fe8679c08").where("type",isEqualTo: "movie").get();
+
+
+        List<fire.QueryDocumentSnapshot> allData = recentWatch.docs;
+
+        allData.sort((a, b) => a.get("time").compareTo(b.get("time")));
+
+        allData = allData.reversed.toList();
+
+
+        List<Poster> posters = [];
+        for(int i = 0 ; i < recentWatch.docs.length ; i++){
+
+          try{
+            Map<String, dynamic> dataMap = allData[i].data() as Map<String, dynamic>;
+
+            // String listStr = recentWatch.docs[i].get("data");
+            // dynamic li = convert.jsonDecode(listStr);
+
+
+
+
+
+
+            String SERVER = "http://connect.proxytx.cloud";
+            String PORT = "80";
+            String EMAIL = "4fe8679c08";
+            String PASSWORD = "2016";
+
+            String link =SERVER+":$PORT"+"/"+dataMap["data"]["stream_type"]+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+dataMap["data"]["stream_id"].toString()+"."+dataMap["data"]["container_extension"];
+            Poster poster1 = Poster(id:dataMap["data"]["stream_id"],
+                title:dataMap["data"]["name"],
+                type: "type",
+                label: null,fromIsWaching: true,
+                sublabel: null,
+                imdb: 0.0,
+                // imdb: double.parse(movieContents[_selected_genre][i]["rating"]),
+                downloadas: "1",
+                comment: false,
+                playas: "1",
+                description: link,
+                classification: "--",
+                year: 000,
+                duration: "--:--",
+                // rating: double.parse(movieContents[_selected_genre][i]["rating"]),
+                rating:0.0,
+                image: dataMap["data"]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+                cover:dataMap["data"]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+                trailer: null,
+                genres: [Genre(id: i, title: "Recently watched")],
+                sources:[Source(size: "",id: 1, type: dataMap["data"]["container_extension"], title:dataMap["data"]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link)] );
+
+            posters.add(poster1);
+
+
+
+
+
+
+
+
+          }catch(e){
+
             print(e);
             print("cach recent");
+
           }
+
+
         }
 
 
-        if(false ){
-          //continue watching
+        Genre gg = Genre(id: 99, title: "Contiue watching",posters:posters );
 
-
-          fire.QuerySnapshot recentWatch = await  fire.FirebaseFirestore.instance.collection("watchHistory4fe8679c08").where("type",isEqualTo: "movie").get();
-
-
-          List<fire.QueryDocumentSnapshot> allData = recentWatch.docs;
-
-          allData.sort((a, b) => a.get("time").compareTo(b.get("time")));
-
-          allData = allData.reversed.toList();
-
-
-          List<Poster> posters = [];
-          for(int i = 0 ; i < recentWatch.docs.length ; i++){
-
-            try{
-              Map<String, dynamic> dataMap = allData[i].data() as Map<String, dynamic>;
-
-             // String listStr = recentWatch.docs[i].get("data");
-             // dynamic li = convert.jsonDecode(listStr);
-
-
-
-
-
-
-                String SERVER = "http://connect.proxytx.cloud";
-                String PORT = "80";
-                String EMAIL = "4fe8679c08";
-                String PASSWORD = "2016";
-
-                String link =SERVER+":$PORT"+"/"+dataMap["data"]["stream_type"]+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+dataMap["data"]["stream_id"].toString()+"."+dataMap["data"]["container_extension"];
-                Poster poster1 = Poster(id:dataMap["data"]["stream_id"],
-                    title:dataMap["data"]["name"],
-                    type: "type",
-                    label: null,fromIsWaching: true,
-                    sublabel: null,
-                    imdb: 0.0,
-                    // imdb: double.parse(movieContents[_selected_genre][i]["rating"]),
-                    downloadas: "1",
-                    comment: false,
-                    playas: "1",
-                    description: link,
-                    classification: "--",
-                    year: 000,
-                    duration: "--:--",
-                    // rating: double.parse(movieContents[_selected_genre][i]["rating"]),
-                    rating:0.0,
-                    image: dataMap["data"]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
-                    cover:dataMap["data"]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
-                    trailer: null,
-                    genres: [Genre(id: i, title: "Recently watched")],
-                    sources:[Source(size: "",id: 1, type: dataMap["data"]["container_extension"], title:dataMap["data"]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link)] );
-
-                posters.add(poster1);
+        //genres.add(gg);
+        ItemScrollController controller = new ItemScrollController();
+        _scrollControllers.add(controller);
+        _position_x_line_saver.add(0);
+        _counts_x_line_saver.add(gg.posters!.length);
 
 
 
@@ -391,153 +422,127 @@ class _HomeState extends ResumableState<TvChannelsHome> {
 
 
 
-            }catch(e){
-
-              print(e);
-              print("cach recent");
-
-            }
 
 
+        // for(Map<String,dynamic> genre_map  in jsonData["genres"]){
+        //   Genre genre = Genre.fromJson(genre_map);
+        //   if(genre.posters!.length >0) {
+        //     genres.add(genre);
+        //     ItemScrollController controller = new ItemScrollController();
+        //     _scrollControllers.add(controller);
+        //     _position_x_line_saver.add(0);
+        //     _counts_x_line_saver.add(genre.posters!.length);
+        //   }
+        // }
+      }
+
+      if(true){
+
+        fire.QuerySnapshot qS = await  fire.FirebaseFirestore.instance.collection("tvCat4fe8679c08").get();
+
+        print("Downloading 2");
+
+
+        for(int i = 0 ; i < qS.docs.length ; i++){
+
+          Map<String, dynamic> dataMap = qS.docs[i].data() as Map<String, dynamic>;
+          String data = dataMap["data"];
+          dynamic d = convert.jsonDecode(data);
+          List someChannelList = d["list"];
+          //  List someChannelList = qS.docs[i].get("list");
+
+          // dynamic da =  convert.jsonDecode(data);
+          List<Channel> oneCategoryChannels = [];
+
+
+
+
+          String SERVER = "http://connect.proxytx.cloud";
+          String PORT = "80";
+          String EMAIL = "4fe8679c08";
+          String PASSWORD = "2016";
+          // List someChannelList = da["list"];
+
+
+          for(int j = 0 ; j < someChannelList.length ; j++){
+            String m3uFile = SERVER+":$PORT"+"/"+someChannelList[j]["stream_type"]+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+someChannelList[j]["stream_id"].toString()+".m3u8";
+            print(m3uFile);
+
+            Channel channel = Channel(
+                countries: [Country(id: 1,title: "UK", image: '')],id: someChannelList[j]["stream_id"],comment: false,title:someChannelList[j]["name"],image:(someChannelList[j]["stream_icon"].toString().length>0)? someChannelList[j]["stream_icon"]: "https://i5.walmartimages.com/asr/74d5a667-7df8-44f2-b9db-81f26878d316_1.c7233452b7b19b699ef96944c8cbbe74.jpeg", categories: [Category(id: 1, title: "Sports")], duration: '', classification: '', rating: 4.3, sources:
+            [
+              Source(id: 1,
+                  type: "LIVE",
+                  title: someChannelList[j]["name"],
+                  size: null,
+                  quality: "FHD",  kind: "both",
+                  premium: "1",
+                  external: false,
+                  url: m3uFile)
+            ], description: 'Description', sublabel: null, type: '', playas: '', website: '', downloadas: '', label: '' );
+
+            // allChannel.add(channel);
+            oneCategoryChannels.add(channel);
           }
 
 
-          Genre gg = Genre(id: 99, title: "Contiue watching",posters:posters );
 
-          //genres.add(gg);
+
+          // String link =SERVER+":$PORT"+"/"+li[k]["stream_type"]+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+li[k]["stream_id"].toString()+"."+li[k]["container_extension"];
+
+          // modelS.Source sss = Source(size: "",id: 1, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
+          // modelS.Source sss2 = Source(size: "",id: 2, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
+          // modelS.Source sss3 = Source(size: "",id: 3, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
+          // Poster poster1 = Poster(id:li[k]["stream_id"],
+          //     title:li[k]["name"],
+          //     type: "type",
+          //     label: null,
+          //     sublabel: null,
+          //     imdb: 0.0,
+          //     // imdb: double.parse(movieContents[_selected_genre][i]["rating"]),
+          //     downloadas: "1",
+          //     comment: false,
+          //     playas: "1",
+          //     description: link,
+          //     classification: "--",
+          //     year: 000,
+          //     duration: "--:--",
+          //     // rating: double.parse(movieContents[_selected_genre][i]["rating"]),
+          //     rating:0.0,
+          //     image: li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+          //     cover:li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+          //     trailer: null,
+          //     genres: [Genre(id: k, title: qS.docs[i].get("name"))],
+          //     sources:[sss,sss2,sss3] );
+          //
+          // posters.add(poster1);
+
+
+
+
+
+
+
+          GenreAsChannel gg = GenreAsChannel(id: i, title: d["name"]??"--" ,posters:oneCategoryChannels );
+
+          genresAsC.add(gg);
           ItemScrollController controller = new ItemScrollController();
           _scrollControllers.add(controller);
           _position_x_line_saver.add(0);
           _counts_x_line_saver.add(gg.posters!.length);
 
 
-
-
-
-
-
-
-
-
-          // for(Map<String,dynamic> genre_map  in jsonData["genres"]){
-          //   Genre genre = Genre.fromJson(genre_map);
-          //   if(genre.posters!.length >0) {
-          //     genres.add(genre);
-          //     ItemScrollController controller = new ItemScrollController();
-          //     _scrollControllers.add(controller);
-          //     _position_x_line_saver.add(0);
-          //     _counts_x_line_saver.add(genre.posters!.length);
-          //   }
-          // }
         }
-
-        if(true){
-
-          fire.QuerySnapshot qS = await  fire.FirebaseFirestore.instance.collection("tvCat4fe8679c08").get();
-
-          print("Downloading 2");
-
-
-          for(int i = 0 ; i < qS.docs.length ; i++){
-
-            Map<String, dynamic> dataMap = qS.docs[i].data() as Map<String, dynamic>;
-              String data = dataMap["data"];
-              dynamic d = convert.jsonDecode(data);
-              List someChannelList = d["list"];
-            //  List someChannelList = qS.docs[i].get("list");
-
-             // dynamic da =  convert.jsonDecode(data);
-              List<Channel> oneCategoryChannels = [];
-
-
-
-
-                String SERVER = "http://connect.proxytx.cloud";
-                String PORT = "80";
-                String EMAIL = "4fe8679c08";
-                String PASSWORD = "2016";
-               // List someChannelList = da["list"];
-
-
-                for(int j = 0 ; j < someChannelList.length ; j++){
-                  String m3uFile = SERVER+":$PORT"+"/"+someChannelList[j]["stream_type"]+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+someChannelList[j]["stream_id"].toString()+".m3u8";
-                  print(m3uFile);
-
-                  Channel channel = Channel(
-                      countries: [Country(id: 1,title: "UK", image: '')],id: someChannelList[j]["stream_id"],comment: false,title:someChannelList[j]["name"],image:(someChannelList[j]["stream_icon"].toString().length>0)? someChannelList[j]["stream_icon"]: "https://i5.walmartimages.com/asr/74d5a667-7df8-44f2-b9db-81f26878d316_1.c7233452b7b19b699ef96944c8cbbe74.jpeg", categories: [Category(id: 1, title: "Sports")], duration: '', classification: '', rating: 4.3, sources:
-                  [
-                    Source(id: 1,
-                        type: "LIVE",
-                        title: someChannelList[j]["name"],
-                        size: null,
-                        quality: "FHD",  kind: "both",
-                        premium: "1",
-                        external: false,
-                        url: m3uFile)
-                  ], description: 'Description', sublabel: null, type: '', playas: '', website: '', downloadas: '', label: '' );
-
-                 // allChannel.add(channel);
-                  oneCategoryChannels.add(channel);
-                }
-
-
-
-
-               // String link =SERVER+":$PORT"+"/"+li[k]["stream_type"]+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+li[k]["stream_id"].toString()+"."+li[k]["container_extension"];
-
-                // modelS.Source sss = Source(size: "",id: 1, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
-                // modelS.Source sss2 = Source(size: "",id: 2, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
-                // modelS.Source sss3 = Source(size: "",id: 3, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
-                // Poster poster1 = Poster(id:li[k]["stream_id"],
-                //     title:li[k]["name"],
-                //     type: "type",
-                //     label: null,
-                //     sublabel: null,
-                //     imdb: 0.0,
-                //     // imdb: double.parse(movieContents[_selected_genre][i]["rating"]),
-                //     downloadas: "1",
-                //     comment: false,
-                //     playas: "1",
-                //     description: link,
-                //     classification: "--",
-                //     year: 000,
-                //     duration: "--:--",
-                //     // rating: double.parse(movieContents[_selected_genre][i]["rating"]),
-                //     rating:0.0,
-                //     image: li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
-                //     cover:li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
-                //     trailer: null,
-                //     genres: [Genre(id: k, title: qS.docs[i].get("name"))],
-                //     sources:[sss,sss2,sss3] );
-                //
-                // posters.add(poster1);
-
-
-
-
-
-
-
-              GenreAsChannel gg = GenreAsChannel(id: i, title: d["name"]??"--" ,posters:oneCategoryChannels );
-
-              genresAsC.add(gg);
-              ItemScrollController controller = new ItemScrollController();
-              _scrollControllers.add(controller);
-              _position_x_line_saver.add(0);
-              _counts_x_line_saver.add(gg.posters!.length);
-
-
-          }
-        }
-
-        //<---------Recently Added starts  ----------->
-
-
-        _showData();
-
-      } else {
-        _showTryAgain();
       }
+
+      //<---------Recently Added starts  ----------->
+
+
+      _showData();
+
+    } else {
+      _showTryAgain();
+    }
 
     setState(() {
 
@@ -562,8 +567,7 @@ class _HomeState extends ResumableState<TvChannelsHome> {
                 _goToMovies();
                 _goToSeries();
                 _goToChannels();
-               // _goToMyList();
-                _goToTVGUIDE();
+                //_goToMyList();
                 _goToSettings();
                 _goToProfile();
                 _tryAgain();
@@ -666,7 +670,7 @@ class _HomeState extends ResumableState<TvChannelsHome> {
                     break;
                   default:
                     if(_counts_x_line_saver[posty]-1 == postx){
-                        print("playing sound ");
+                      print("playing sound ");
                     }else{
                       postx++;
                       _position_x_line_saver[posty]=postx;
@@ -681,21 +685,21 @@ class _HomeState extends ResumableState<TvChannelsHome> {
             }
             if(genresAsC.length>0){
               controllerInited = false;
-                if( posty == 0){
-                  selected_poster = null;
-                  selected_channel =  null;
-                }
+              if( posty == 0){
+                selected_poster = null;
+                selected_channel =  null;
+              }
 
-                if( posty == 0){
-                  controllerInited = false;
-                 // selected_channel =null;
-                  selected_channel =  genresAsC[posty].posters![postx];
-                }
-                if(posty > 0){
-                  controllerInited = false;
+              if( posty == 0){
+                controllerInited = false;
+                // selected_channel =null;
+                selected_channel =  genresAsC[posty].posters![postx];
+              }
+              if(posty > 0){
+                controllerInited = false;
                 //  selected_channel =null;
-                  selected_channel =  genresAsC[posty].posters![postx];
-                }
+                selected_channel =  genresAsC[posty].posters![postx];
+              }
             }
             setState(() {
 
@@ -705,15 +709,15 @@ class _HomeState extends ResumableState<TvChannelsHome> {
         child: Stack(
           children: [
             Positioned(
-                right: 0,
-                top: 0,
-               // left: MediaQuery.of(context).size.width/4,
-               // bottom: MediaQuery.of(context).size.height/4,
-                bottom:0,
-                child:getBackgroundImage(),
+              right: 0,
+              top: 0,
+              // left: MediaQuery.of(context).size.width/4,
+              // bottom: MediaQuery.of(context).size.height/4,
+              bottom:0,
+              child:getBackgroundImage(),
 
             ),
-         if(true)   Positioned(
+            if(true)   Positioned(
               left: 0,
               right: 0,
               bottom: 0,
@@ -724,7 +728,7 @@ class _HomeState extends ResumableState<TvChannelsHome> {
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                         colors: [Colors.black,Colors.black54.withOpacity(0.5),Colors.black54.withOpacity(0.2),Colors.transparent],
-                       // colors: [Colors.black,Colors.black.withOpacity(0.4),Colors.black.withOpacity(0.2),Colors.black.withOpacity(0.1),Colors.transparent],
+                        // colors: [Colors.black,Colors.black.withOpacity(0.4),Colors.black.withOpacity(0.2),Colors.black.withOpacity(0.1),Colors.transparent],
                       )
                   )
               ),
@@ -740,7 +744,7 @@ class _HomeState extends ResumableState<TvChannelsHome> {
                         begin: Alignment.bottomCenter,
                         end: Alignment.topCenter,
                         colors: [Colors.black, Colors.transparent, Colors.transparent],
-                       // colors: [Colors.black,Colors.black.withOpacity(0.4),Colors.black.withOpacity(0.2),Colors.black.withOpacity(0.1),Colors.transparent],
+                        // colors: [Colors.black,Colors.black.withOpacity(0.4),Colors.black.withOpacity(0.2),Colors.black.withOpacity(0.1),Colors.transparent],
 
                       )
                   )
@@ -775,41 +779,41 @@ class _HomeState extends ResumableState<TvChannelsHome> {
             //     side_current = value;
             //   });
             // }),
-            if(_visibile_loading)
-              HomeLoadingWidget(),
+              if(_visibile_loading)
+                HomeLoadingWidget(),
             if(_visibile_error)
               _tryAgainWidget(),
             if(true || _visibile_success)
-            AnimatedPositioned(
-              bottom: 0,
-              left: 0,
-              right: 0,
-              duration: Duration(milliseconds: 200),
-              height: (posty < 0)?(MediaQuery.of(context).size.height/2)  -50:(MediaQuery.of(context).size.height/2)-50,
-              child: Container(
-                height: (posty < 0)?(MediaQuery.of(context).size.height/2) -50:(MediaQuery.of(context).size.height/2)-50,
-                child: ScrollConfiguration(
-                  behavior: MyBehavior(),   // From this behaviour you can change the behaviour
-                  child: ScrollablePositionedList.builder(
-                    itemCount: genresAsC.length,
-                    scrollDirection: Axis.vertical,
-                    itemScrollController: _scrollController,
-                    itemBuilder: (context, jndex) {
-                      if(true|| genresAsC[jndex].id == -3){
+              AnimatedPositioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                duration: Duration(milliseconds: 200),
+                height: (posty < 0)?(MediaQuery.of(context).size.height/2)  -50:(MediaQuery.of(context).size.height/2)-50,
+                child: Container(
+                  height: (posty < 0)?(MediaQuery.of(context).size.height/2) -50:(MediaQuery.of(context).size.height/2)-50,
+                  child: ScrollConfiguration(
+                    behavior: MyBehavior(),   // From this behaviour you can change the behaviour
+                    child: ScrollablePositionedList.builder(
+                      itemCount: genresAsC.length,
+                      scrollDirection: Axis.vertical,
+                      itemScrollController: _scrollController,
+                      itemBuilder: (context, jndex) {
+                        if(true|| genresAsC[jndex].id == -3){
 
-                       // return M_C_Widget(jndex:jndex,posty: posty,postx: postx,scrollController: _scrollControllers[jndex],title: genres[jndex].title,posters : genres[jndex].posters);
-                        return ChannelsWidget(jndex:jndex,postx: postx,posty: posty,scrollController: _scrollControllers[jndex],size: MediaQuery.of(context).size.longestSide*0.013,title:genresAsC[jndex].title,channels: genresAsC[jndex].posters!);
-                      }else{
-                        return Text("NN",style: TextStyle(color: Colors.white),);
-                     //   return MoviesWidget(jndex:jndex,posty: posty,postx: postx,scrollController: _scrollControllers[jndex],title: genresAsC[jndex].title,posters : genresAsC[jndex].posters);
-                      }
-                    },
+                          // return M_C_Widget(jndex:jndex,posty: posty,postx: postx,scrollController: _scrollControllers[jndex],title: genres[jndex].title,posters : genres[jndex].posters);
+                          return ChannelsWidget(jndex:jndex,postx: postx,posty: posty,scrollController: _scrollControllers[jndex],size: MediaQuery.of(context).size.longestSide*0.013,title:genresAsC[jndex].title,channels: genresAsC[jndex].posters!);
+                        }else{
+                          return Text("NN",style: TextStyle(color: Colors.white),);
+                          //   return MoviesWidget(jndex:jndex,posty: posty,postx: postx,scrollController: _scrollControllers[jndex],title: genresAsC[jndex].title,posters : genresAsC[jndex].posters);
+                        }
+                      },
+                    ),
                   ),
                 ),
               ),
-            ),
-            NavigationWidget(postx:postx,posty:posty,selectedItem : 4,image : image, logged : logged),
-           if(posty > -1 && genresAsC.length>0) Positioned(bottom: MediaQuery.of(context).size.height*0.45,left: MediaQuery.of(context).size.width*0.027,child: Column(mainAxisAlignment: MainAxisAlignment.end,crossAxisAlignment: CrossAxisAlignment.start,
+            NavigationWidget(postx:postx,posty:posty,selectedItem : 5,image : image, logged : logged),
+            if(posty > -1 && genresAsC.length>0) Positioned(bottom: MediaQuery.of(context).size.height*0.45,left: MediaQuery.of(context).size.width*0.027,child: Column(mainAxisAlignment: MainAxisAlignment.end,crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(selected_channel!.title,style: TextStyle(color: Colors.white,fontSize: MediaQuery.of(context).size.longestSide*0.025),),
 
@@ -828,7 +832,7 @@ class _HomeState extends ResumableState<TvChannelsHome> {
                 if(epgs.length>0) Row(crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Text(utf8.decode(base64.decode(epgs[0]["title"]))
-                       // +" "+((( ((int.parse(epgs[0]["stop_timestamp"])*1000)-(DateTime.now().millisecondsSinceEpoch))))/(1000*60*60)).toStringAsFixed(0)+" min remaining"
+                      // +" "+((( ((int.parse(epgs[0]["stop_timestamp"])*1000)-(DateTime.now().millisecondsSinceEpoch))))/(1000*60*60)).toStringAsFixed(0)+" min remaining"
                       ,style: TextStyle(color: Colors.white,fontSize: MediaQuery.of(context).size.longestSide*0.015),),
                     Text(" (now)"
                       // +" "+((( ((int.parse(epgs[0]["stop_timestamp"])*1000)-(DateTime.now().millisecondsSinceEpoch))))/(1000*60*60)).toStringAsFixed(0)+" min remaining"
@@ -890,7 +894,7 @@ class _HomeState extends ResumableState<TvChannelsHome> {
                 ),
 
 
-              if(false)  if(epgs.length>0)  Row(
+                if(false)  if(epgs.length>0)  Row(
                   children: [
 
 
@@ -905,10 +909,10 @@ class _HomeState extends ResumableState<TvChannelsHome> {
                   ],
                 ),
 
-              //  Container(width: 100,child: LinearProgressIndicator(value: 0.1,)),
-              //  if(epgs.length>0) Text("Now "+utf8.decode(base64.decode(epgs[0]["title"]))+" "+( (int.parse(epgs[0]["stop_timestamp"])-int.parse(epgs[0]["start_timestamp"]))/60).toStringAsFixed(0)+" min",style: TextStyle(color: Colors.white,fontSize: MediaQuery.of(context).size.longestSide*0.015),),
-              //  if(epgs.length>1)   Text("Later "+utf8.decode(base64.decode(epgs[1]["title"])),style: TextStyle(color: Colors.white,fontSize: MediaQuery.of(context).size.longestSide*0.015),),
-               // if(epgs.length>1)   Text(epgs[0]["stop_timestamp"]+" --  "+DateTime.now().millisecondsSinceEpoch.toString(),style: TextStyle(color: Colors.white,fontSize: MediaQuery.of(context).size.longestSide*0.015),),
+                //  Container(width: 100,child: LinearProgressIndicator(value: 0.1,)),
+                //  if(epgs.length>0) Text("Now "+utf8.decode(base64.decode(epgs[0]["title"]))+" "+( (int.parse(epgs[0]["stop_timestamp"])-int.parse(epgs[0]["start_timestamp"]))/60).toStringAsFixed(0)+" min",style: TextStyle(color: Colors.white,fontSize: MediaQuery.of(context).size.longestSide*0.015),),
+                //  if(epgs.length>1)   Text("Later "+utf8.decode(base64.decode(epgs[1]["title"])),style: TextStyle(color: Colors.white,fontSize: MediaQuery.of(context).size.longestSide*0.015),),
+                // if(epgs.length>1)   Text(epgs[0]["stop_timestamp"]+" --  "+DateTime.now().millisecondsSinceEpoch.toString(),style: TextStyle(color: Colors.white,fontSize: MediaQuery.of(context).size.longestSide*0.015),),
 
                 Container(margin: EdgeInsets.only(top:MediaQuery.of(context).size.longestSide*0.015 ),
                   child: Row(
@@ -974,21 +978,6 @@ class _HomeState extends ResumableState<TvChannelsHome> {
       FocusScope.of(context).requestFocus(null);
     }
   }
-
-  void  _goToTVGUIDE(){
-    if(posty == -2 && postx == 5){
-
-        Navigator.pushReplacement(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation1, animation2) => MyList(),
-            transitionDuration: Duration(seconds: 0),
-          ),
-        );
-        FocusScope.of(context).requestFocus(null);
-
-    }
-  }
   void  _goToMyList(){
     if(posty == -2 && postx == 5){
       if(logged == true){
@@ -1034,7 +1023,7 @@ class _HomeState extends ResumableState<TvChannelsHome> {
 
     }
   }
-    void  _goToSeries(){
+  void  _goToSeries(){
     if(posty == -2 && postx == 3){
       Navigator.pushReplacement(
         context,
@@ -1277,80 +1266,80 @@ class _HomeState extends ResumableState<TvChannelsHome> {
 
 
 
-      if(false ||  posty < 0 && slides.length>0 )
-        return  CachedNetworkImage(imageUrl:  slides[side_current].image , fit: BoxFit.cover,width: MediaQuery.of(context).size.width,height: MediaQuery.of(context).size.height,fadeInDuration: Duration(seconds: 1));
-      if(false ||posty == 0 && channels.length>0)
-        return  CachedNetworkImage(imageUrl:channels[postx].image,fit: BoxFit.cover,width: MediaQuery.of(context).size.width,height: MediaQuery.of(context).size.height,fadeInDuration: Duration(seconds: 1));
-      if(posty > -1 && genresAsC.length>0 && nowInitialingLink!=selected_channel!.sources.first.url){
+    if(false ||  posty < 0 && slides.length>0 )
+      return  CachedNetworkImage(imageUrl:  slides[side_current].image , fit: BoxFit.cover,width: MediaQuery.of(context).size.width,height: MediaQuery.of(context).size.height,fadeInDuration: Duration(seconds: 1));
+    if(false ||posty == 0 && channels.length>0)
+      return  CachedNetworkImage(imageUrl:channels[postx].image,fit: BoxFit.cover,width: MediaQuery.of(context).size.width,height: MediaQuery.of(context).size.height,fadeInDuration: Duration(seconds: 1));
+    if(posty > -1 && genresAsC.length>0 && nowInitialingLink!=selected_channel!.sources.first.url){
 
-        print("master");
-        if(controllerInited==true &&  _controller!=null){
-          print("need to remove old controler");
-          vP.VideoPlayerController oldcontroller = _controller!;
+      print("master");
+      if(controllerInited==true &&  _controller!=null){
+        print("need to remove old controler");
+        vP.VideoPlayerController oldcontroller = _controller!;
 
-          // Registering a callback for the end of next frame
-          // to dispose of an old controller
-          // (which won't be used anymore after calling setState)
-          WidgetsBinding.instance!.addPostFrameCallback((_) async {
-            await oldcontroller.dispose();
+        // Registering a callback for the end of next frame
+        // to dispose of an old controller
+        // (which won't be used anymore after calling setState)
+        WidgetsBinding.instance!.addPostFrameCallback((_) async {
+          await oldcontroller.dispose();
 
-            // Initing new controller
-            // Initing new controller
+          // Initing new controller
+          // Initing new controller
 
-            nowInitialingLink = selected_channel!.sources.first.url;
-            _controller = vP.VideoPlayerController.network(selected_channel!.sources.first.url)
-              ..initialize().then((_) {
-                print("inited 2");
-                // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
-                setState(() {});
-                _controller!.play();
-                controllerInited = true;
-                setState(() {
+          nowInitialingLink = selected_channel!.sources.first.url;
+          _controller = vP.VideoPlayerController.network(selected_channel!.sources.first.url)
+            ..initialize().then((_) {
+              print("inited 2");
+              // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
+              setState(() {});
+              _controller!.play();
+              controllerInited = true;
+              setState(() {
 
 
-                });
               });
-          });
+            });
+        });
 
-          // Making sure that controller is not used by setting it to null
-          setState(() {
-           // _controller = null;
-          });
-        }else{
-          print("no need to clear");
-          WidgetsBinding.instance!.addPostFrameCallback((_) async {
-
-
-            // Initing new controller
-            // Initing new controller
-            nowInitialingLink = selected_channel!.sources.first.url;
-            _controller = vP.VideoPlayerController.network(selected_channel!.sources.first.url)
-              ..initialize().then((_) {
-                print("inited");
-                // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
-                setState(() {});
-                _controller!.play();
-                controllerInited = true;
-                setState(() {
-
-
-                });
-              });
-          });
-        }
-
-
-print("if else finish");
-        tvSmall =   (controllerInited==true && _controller!=null &&   _controller!.value.isInitialized == true)? Container(width: MediaQuery.of(context).size.width,height:  MediaQuery.of(context).size.height,child: vP.VideoPlayer(_controller!)) : CupertinoActivityIndicator(color: Colors.white,);
-
-
-
-
+        // Making sure that controller is not used by setting it to null
+        setState(() {
+          // _controller = null;
+        });
       }else{
-        return  (controllerInited==true && _controller!=null &&   _controller!.value.isInitialized == true)? Container(width: MediaQuery.of(context).size.width,height:  MediaQuery.of(context).size.height,child: vP.VideoPlayer(_controller!)): CupertinoActivityIndicator(color: Colors.redAccent,);
+        print("no need to clear");
+        WidgetsBinding.instance!.addPostFrameCallback((_) async {
+
+
+          // Initing new controller
+          // Initing new controller
+          nowInitialingLink = selected_channel!.sources.first.url;
+          _controller = vP.VideoPlayerController.network(selected_channel!.sources.first.url)
+            ..initialize().then((_) {
+              print("inited");
+              // Ensure the first frame is shown after the video is initialized, even before the play button has been pressed.
+              setState(() {});
+              _controller!.play();
+              controllerInited = true;
+              setState(() {
+
+
+              });
+            });
+        });
       }
-        return  tvSmall;
-      return Container(color: Colors.black,);
+
+
+      print("if else finish");
+      tvSmall =   (controllerInited==true && _controller!=null &&   _controller!.value.isInitialized == true)? Container(width: MediaQuery.of(context).size.width,height:  MediaQuery.of(context).size.height,child: vP.VideoPlayer(_controller!)) : CupertinoActivityIndicator(color: Colors.white,);
+
+
+
+
+    }else{
+      return  (controllerInited==true && _controller!=null &&   _controller!.value.isInitialized == true)? Container(width: MediaQuery.of(context).size.width,height:  MediaQuery.of(context).size.height,child: vP.VideoPlayer(_controller!)): CupertinoActivityIndicator(color: Colors.redAccent,);
+    }
+    return  tvSmall;
+    return Container(color: Colors.black,);
 
 
 
