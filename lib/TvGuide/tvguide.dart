@@ -458,7 +458,7 @@ class _HomeState extends ResumableState<TVGUIDE> {
 
       if(true){
 
-        fire.QuerySnapshot qS = await  fire.FirebaseFirestore.instance.collection("tvCat4fe8679c08").limit(1).get();
+        fire.QuerySnapshot qS = await  fire.FirebaseFirestore.instance.collection("tvCat4fe8679c08").get();
         fullChannel.clear();
         print("Downloading 2");
 
@@ -521,6 +521,13 @@ class _HomeState extends ResumableState<TVGUIDE> {
 
 
           }
+          setState(() {
+            print("setstate for old");
+            
+          });
+          print("waiting 3 second");
+         await Future.delayed(Duration(seconds: 3));
+          print("waiting finished");
 
 
 
@@ -648,10 +655,10 @@ print("count "+fullChannel.length.toString());
                     print("playing sound ");
                   break;
                 }
-                if(_visibile_loading){
-                  print("playing sound ");
-                  break;
-                }
+                // if(_visibile_loading){
+                //   print("playing sound ");
+                //   break;
+                // }
                 if(fullChannel.length-1==posty){
                   print("playing sound ");
                 }else{
