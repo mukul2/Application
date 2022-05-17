@@ -44,6 +44,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../model/channel.dart';
 import '../../model/country.dart';
 import '../../model/source.dart';
+import '../SlingTv/sling_tv.dart';
 import '../ui/channel/channel_as_home.dart';
 
 /// A [StatelessWidget] which demonstrates
@@ -966,7 +967,7 @@ class _HomeState extends ResumableState<SeriesAsHome> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => mmm.Movies(),
+          pageBuilder: (context, animation1, animation2) => TVSLING(),
           transitionDuration: Duration(seconds: 0),
         ),
       );

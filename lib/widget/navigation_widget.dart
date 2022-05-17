@@ -14,6 +14,7 @@ import 'package:flutter_app_tv/ui/setting/settings.dart';
 import 'package:need_resume/need_resume.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../SlingTv/sling_tv.dart';
 import '../TvGuide/tvguide.dart';
 import '../series_like_home/home.dart';
 import '../ui/channel/channel_as_home.dart';
@@ -183,7 +184,7 @@ class _NavigationWidgetState extends ResumableState<NavigationWidget> {
                                   Navigator.pushReplacement(
                                     context,
                                     PageRouteBuilder(
-                                      pageBuilder: (context, animation1, animation2) => Movies(),
+                                      pageBuilder: (context, animation1, animation2) => TVSLING(),
                                       transitionDuration: Duration(seconds: 0),
                                     ),
                                   );
@@ -207,7 +208,7 @@ class _NavigationWidgetState extends ResumableState<NavigationWidget> {
                               color:(widget.selectedItem == 2)? (widget.posty == -2 && widget.postx == 2)?Colors.white:Colors.white70:(widget.posty == -2 && widget.postx == 2)?Colors.white24:Colors.transparent,
                             ),
                             child: Text(
-                              "TV 2",
+                              "Sling TV",
                               style: TextStyle(
                                   color:(widget.selectedItem == 2)?Colors.black:(widget.posty == -2 && widget.postx == 2)?Colors.white:Colors.white60,
                                   fontSize: 15,

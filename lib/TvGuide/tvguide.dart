@@ -50,6 +50,7 @@ import '../../series_like_home/home.dart';
 
 import 'package:video_player/video_player.dart' as vP;
 
+import '../SlingTv/sling_tv.dart';
 import '../ui/channel/channel_as_home.dart';
 
 
@@ -1004,7 +1005,7 @@ print("count "+fullChannel.length.toString());
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => mmm.Movies(),
+          pageBuilder: (context, animation1, animation2) => TVSLING(),
           transitionDuration: Duration(seconds: 0),
         ),
       );

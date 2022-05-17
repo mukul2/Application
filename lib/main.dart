@@ -26,6 +26,7 @@ import 'package:flutter_app_tv/ui/setting/settings.dart';
 import 'package:flutter_app_tv/ui/pages/splash.dart';
 import 'package:wakelock/wakelock.dart';
 import 'EPG/epg.dart';
+import 'SlingTv/sling_tv.dart';
 import 'SlingTv/sling_tv_activity.dart';
 import 'ui/player/video_player.dart';
 
@@ -150,7 +151,7 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
 
     //  home: EpgActivity(),
-       home: Home(),
+       home: TVSLING(),
       //home:TvChannelsHome() ,
       routes: {
         "/splash": (context) => Splash(),

@@ -42,6 +42,7 @@ import 'dart:convert' as convert;
 import 'package:transparent_image/transparent_image.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../SlingTv/sling_tv.dart';
 import '../../model/channel.dart';
 import '../../model/country.dart';
 import '../../model/gnre_as_channel.dart';
@@ -953,7 +954,7 @@ class _HomeState extends ResumableState<TvChannelsHome> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => mmm.Movies(),
+          pageBuilder: (context, animation1, animation2) =>TVSLING(),
           transitionDuration: Duration(seconds: 0),
         ),
       );
