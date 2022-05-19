@@ -433,85 +433,68 @@ class _HomeState extends ResumableState<TvChannelsHome> {
         }
 
         if(true){
+          makeUI({required List dataMap}) async {
 
-          fire.QuerySnapshot qS = await  fire.FirebaseFirestore.instance.collection("tvCat4fe8679c08").get();
+            SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
-          print("Downloading 2");
+            String? server =  sharedPreferences.getString("SERVER_URL");
+            String? port =  sharedPreferences.getString("PORT");
+            String? USER_ID =  sharedPreferences.getString("USER_ID");
+            String? PASSWORD =  sharedPreferences.getString("PASSWORD");
 
 
-          for(int i = 0 ; i < qS.docs.length ; i++){
 
-            Map<String, dynamic> dataMap = qS.docs[i].data() as Map<String, dynamic>;
-              String data = dataMap["data"];
-              dynamic d = convert.jsonDecode(data);
-              List someChannelList = d["list"];
-            //  List someChannelList = qS.docs[i].get("list");
 
-             // dynamic da =  convert.jsonDecode(data);
+         for(int i = 0 ; i < dataMap.length ; i++){
+
+
+
+              //String data = dataMap["data"];
+           //   dynamic d = convert.jsonDecode(data);
+              List someChannelList = [];
+              try{
+                 someChannelList = dataMap[i]["list"];
+              }catch(e){
+                print(e);
+                print(dataMap[i]);
+
+              }
+              //  List someChannelList = qS.docs[i].get("list");
+
+              // dynamic da =  convert.jsonDecode(data);
               List<Channel> oneCategoryChannels = [];
 
 
 
 
-                String SERVER = "http://connect.proxytx.cloud";
-                String PORT = "80";
-                String EMAIL = "4fe8679c08";
-                String PASSWORD = "2016";
-               // List someChannelList = da["list"];
+              // String SERVER = "http://connect.proxytx.cloud";
+              // String PORT = "80";
+              // String EMAIL = "4fe8679c08";
+              // String PASSWORD = "2016";
+              // List someChannelList = da["list"];
 
 
-                for(int j = 0 ; j < someChannelList.length ; j++){
-                  String m3uFile = SERVER+":$PORT"+"/"+someChannelList[j]["stream_type"]+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+someChannelList[j]["stream_id"].toString()+".m3u8";
-                  print(m3uFile);
+              for(int j = 0 ; j < someChannelList.length ; j++){
 
-                  Channel channel = Channel(
-                      countries: [Country(id: 1,title: "UK", image: '')],id: someChannelList[j]["stream_id"],comment: false,title:someChannelList[j]["name"],image:(someChannelList[j]["stream_icon"].toString().length>0)? someChannelList[j]["stream_icon"]: "https://i5.walmartimages.com/asr/74d5a667-7df8-44f2-b9db-81f26878d316_1.c7233452b7b19b699ef96944c8cbbe74.jpeg", categories: [Category(id: 1, title: "Sports")], duration: '', classification: '', rating: 4.3, sources:
-                  [
-                    Source(id: 1,
-                        type: "LIVE",
-                        title: someChannelList[j]["name"],
-                        size: null,
-                        quality: "FHD",  kind: "both",
-                        premium: "1",
-                        external: false,
-                        url: m3uFile)
-                  ], description: 'Description', sublabel: null, type: '', playas: '', website: '', downloadas: '', label: '' );
+                String m3uFile = "http://$server:$port/"+someChannelList[j]["stream_type"]+"/"+USER_ID!+"/"+PASSWORD!.toString() +"/"+someChannelList[j]["stream_id"].toString()+".m3u8";
+                print(m3uFile);
 
-                 // allChannel.add(channel);
-                  oneCategoryChannels.add(channel);
-                }
+                Channel channel = Channel(
+                    countries: [Country(id: 1,title: "UK", image: '')],id: someChannelList[j]["stream_id"],comment: false,title:someChannelList[j]["name"],image:(someChannelList[j]["stream_icon"].toString().length>0)? someChannelList[j]["stream_icon"]: "https://i5.walmartimages.com/asr/74d5a667-7df8-44f2-b9db-81f26878d316_1.c7233452b7b19b699ef96944c8cbbe74.jpeg", categories: [Category(id: 1, title: dataMap[i]["name"])], duration: '', classification: '', rating: 4.3, sources:
+                [
+                  Source(id: 1,
+                      type: "LIVE",
+                      title: someChannelList[j]["name"],
+                      size: null,
+                      quality: "FHD",  kind: "both",
+                      premium: "1",
+                      external: false,
+                      url: m3uFile)
+                ], description: 'Description', sublabel: null, type: '', playas: '', website: '', downloadas: '', label: '' );
 
-
-
-
-               // String link =SERVER+":$PORT"+"/"+li[k]["stream_type"]+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+li[k]["stream_id"].toString()+"."+li[k]["container_extension"];
-
-                // modelS.Source sss = Source(size: "",id: 1, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
-                // modelS.Source sss2 = Source(size: "",id: 2, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
-                // modelS.Source sss3 = Source(size: "",id: 3, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
-                // Poster poster1 = Poster(id:li[k]["stream_id"],
-                //     title:li[k]["name"],
-                //     type: "type",
-                //     label: null,
-                //     sublabel: null,
-                //     imdb: 0.0,
-                //     // imdb: double.parse(movieContents[_selected_genre][i]["rating"]),
-                //     downloadas: "1",
-                //     comment: false,
-                //     playas: "1",
-                //     description: link,
-                //     classification: "--",
-                //     year: 000,
-                //     duration: "--:--",
-                //     // rating: double.parse(movieContents[_selected_genre][i]["rating"]),
-                //     rating:0.0,
-                //     image: li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
-                //     cover:li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
-                //     trailer: null,
-                //     genres: [Genre(id: k, title: qS.docs[i].get("name"))],
-                //     sources:[sss,sss2,sss3] );
-                //
-                // posters.add(poster1);
+                // allChannel.add(channel);
+                oneCategoryChannels.add(channel);
+              }
 
 
 
@@ -519,7 +502,14 @@ class _HomeState extends ResumableState<TvChannelsHome> {
 
 
 
-              GenreAsChannel gg = GenreAsChannel(id: i, title: d["name"]??"--" ,posters:oneCategoryChannels );
+
+              String name = "";
+              try{
+                name = dataMap[i]["name"]??"--";
+              }catch(e){
+                print(e);
+              }
+              GenreAsChannel gg = GenreAsChannel(id: i, title: name ,posters:oneCategoryChannels );
 
               genresAsC.add(gg);
               ItemScrollController controller = new ItemScrollController();
@@ -528,7 +518,38 @@ class _HomeState extends ResumableState<TvChannelsHome> {
               _counts_x_line_saver.add(gg.posters!.length);
 
 
+            }
           }
+
+
+
+          if( await apiRest.checkFile("tv.json") == false){
+            List allSeriesCategory =  await apiRest.getTVCateDetails();
+            makeUI(dataMap: allSeriesCategory);
+          }else{
+
+            File f = await apiRest.localFile("tv.json");
+
+            String data = await f.readAsString();
+            try{
+              // value = jsonDecode(data);
+
+              makeUI(dataMap: jsonDecode(data));
+            }catch(e){
+
+            }
+            apiRest.getTVCateDetails();
+          }
+
+
+
+
+
+
+
+
+
+
         }
 
         //<---------Recently Added starts  ----------->
@@ -589,7 +610,7 @@ class _HomeState extends ResumableState<TvChannelsHome> {
                   print("playing sound ");
                 }else if(posty == -1){
                   posty--;
-                  postx=1;
+                  postx=4;
                 }else if(posty == 0){
                   posty--;
                   postx=0;
@@ -812,7 +833,7 @@ class _HomeState extends ResumableState<TvChannelsHome> {
             NavigationWidget(postx:postx,posty:posty,selectedItem : 4,image : image, logged : logged),
            if(posty > -1 && genresAsC.length>0) Positioned(bottom: MediaQuery.of(context).size.height*0.45,left: MediaQuery.of(context).size.width*0.027,child: Column(mainAxisAlignment: MainAxisAlignment.end,crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(selected_channel!.title,style: TextStyle(color: Colors.white,fontSize: MediaQuery.of(context).size.longestSide*0.025),),
+                Text(selected_channel!.title,style: TextStyle(color: Colors.white,fontSize: MediaQuery.of(context).size.longestSide*0.020),),
 
                 // if(epgs.length>0)  Row(
                 //   children: [

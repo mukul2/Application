@@ -330,14 +330,18 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async{
-        if(widget.poster!=null && widget.episode!=null && widget.season!=null){
+        //&& widget.episode!=null && widget.season!=null
+        if(widget.poster!=null && widget.episode==null){
+          print("save in fb");
 
           dynamic data =   {"num":0,"name":widget.poster!.title,"stream_type":"movie","stream_id":widget.poster!.id,"stream_icon":widget.poster!.cover,"rating":widget.poster!.rating.toString(),"rating_5based":(widget.poster!.rating/2).roundToDouble(),"added":"1650236100","category_id":"1242","container_extension":widget.poster!.sources[0].type,"custom_sid":null,"direct_source":widget.poster!.sources[0].url};
-          apiRest.pushWatch(durationSeconds:_betterPlayerController!.videoPlayerController!.value.position.inSeconds,data: data);
-
+           apiRest.pushWatch(durationSeconds:_betterPlayerController!.videoPlayerController!.value.position.inSeconds,data: data);
+          return true;
+        }else{
+          return true;
         }
 
-        return true;
+
         if(visible_subscribe_dialog){
           setState(() {
             visible_subscribe_dialog = false;
@@ -374,7 +378,7 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
               print("Focus Node 0 ${rawKeyEventDataAndroid.keyCode}");
 
               if(rawKeyEventDataAndroid.keyCode == 4){
-                Navigator.pop(context);
+               // Navigator.pop(context);
               }
 
 

@@ -89,7 +89,7 @@ class _NavigationWidgetState extends ResumableState<NavigationWidget> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Container(
-                          width: 100,
+                          width: MediaQuery.of(context).size.width*0.1,
                           child: Padding(
                             padding: const EdgeInsets.all(0.0),
                             child:  Image.asset("assets/images/logo.png"),
@@ -131,7 +131,7 @@ class _NavigationWidgetState extends ResumableState<NavigationWidget> {
                                   "Search",
                                   style: TextStyle(
                                       color:(widget.selectedItem == 0)?Colors.black:(widget.posty == -2 && widget.postx == 0)?Colors.white:Colors.white60,
-                                      fontSize: 15,
+                                      fontSize: MediaQuery.of(context).size.longestSide*0.013,
                                       fontWeight: FontWeight.w500
                                   ),
                                 ),
@@ -168,7 +168,7 @@ class _NavigationWidgetState extends ResumableState<NavigationWidget> {
                               "Movies",
                               style: TextStyle(
                                   color:(widget.selectedItem == 1)?Colors.black:(widget.posty == -2 && widget.postx == 1)?Colors.white:Colors.white60,
-                                  fontSize: 14,
+                                  fontSize: MediaQuery.of(context).size.longestSide*0.013,
                                   fontWeight: FontWeight.w500
                               ),
                             ),
@@ -211,7 +211,7 @@ class _NavigationWidgetState extends ResumableState<NavigationWidget> {
                               "Sling TV",
                               style: TextStyle(
                                   color:(widget.selectedItem == 2)?Colors.black:(widget.posty == -2 && widget.postx == 2)?Colors.white:Colors.white60,
-                                  fontSize: 15,
+                                  fontSize: MediaQuery.of(context).size.longestSide*0.013,
                                   fontWeight: FontWeight.w500
                               ),
                             ),
@@ -246,7 +246,7 @@ class _NavigationWidgetState extends ResumableState<NavigationWidget> {
                               "Shows",
                               style: TextStyle(
                                   color:(widget.selectedItem == 3)?Colors.black:(widget.posty == -2 && widget.postx == 3)?Colors.white:Colors.white60,
-                                  fontSize: 15,
+                                  fontSize: MediaQuery.of(context).size.longestSide*0.013,
                                   fontWeight: FontWeight.w500
                               ),
                             ),
@@ -281,7 +281,7 @@ class _NavigationWidgetState extends ResumableState<NavigationWidget> {
                               "Live TV",
                               style: TextStyle(
                                   color:(widget.selectedItem == 4)?Colors.black:(widget.posty == -2 && widget.postx == 4)?Colors.white:Colors.white60,
-                                  fontSize: 15,
+                                  fontSize: MediaQuery.of(context).size.longestSide*0.013,
                                   fontWeight: FontWeight.w500
                               ),
                             ),
@@ -316,7 +316,7 @@ class _NavigationWidgetState extends ResumableState<NavigationWidget> {
                               "TV Guide",
                               style: TextStyle(
                                   color:(widget.selectedItem == 5)?Colors.black:(widget.posty == -2 && widget.postx == 5)?Colors.white:Colors.white60,
-                                  fontSize: 15,
+                                  fontSize: MediaQuery.of(context).size.longestSide*0.013,
                                   fontWeight: FontWeight.w500
                               ),
                             ),

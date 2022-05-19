@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -28,6 +29,7 @@ import 'package:wakelock/wakelock.dart';
 import 'EPG/epg.dart';
 import 'SlingTv/sling_tv.dart';
 import 'SlingTv/sling_tv_activity.dart';
+import 'cer.dart';
 import 'ui/player/video_player.dart';
 
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
@@ -38,7 +40,7 @@ import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
 
 void main() async{
-
+  HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   Wakelock.enable();
@@ -68,7 +70,7 @@ class _MyAppState extends State<MyApp> {
 
     FocusNode focusNode = FocusNode();
     List<String>sTitles = ["English","Bengali"];
-    ThemeData td =  ThemeData(fontFamily: "Poppins",primaryColor: Colors.redAccent,  primarySwatch: Colors.red,
+    ThemeData td =  ThemeData(fontFamily: "SF Pro M",primaryColor: Colors.redAccent,  primarySwatch: Colors.red,
       visualDensity: VisualDensity.adaptivePlatformDensity,
       scaffoldBackgroundColor: Colors.black,);
 
@@ -151,7 +153,7 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
 
     //  home: EpgActivity(),
-       home: TVSLING(),
+       home: Splash(),
       //home:TvChannelsHome() ,
       routes: {
         "/splash": (context) => Splash(),

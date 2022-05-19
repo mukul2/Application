@@ -1,4 +1,5 @@
 
+import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
@@ -46,6 +47,7 @@ import '../../model/country.dart';
 import '../../model/source.dart';
 import '../SlingTv/sling_tv.dart';
 import '../ui/channel/channel_as_home.dart';
+import '../ui/home/home.dart';
 
 /// A [StatelessWidget] which demonstrates
 /// how to consume and interact with a [CounterBloc].
@@ -90,6 +92,8 @@ class _HomeState extends ResumableState<SeriesAsHome> {
     // TODO: implement initState
     super.initState();
     Future.delayed(Duration.zero, () {
+
+      print("Show this is");
       FocusScope.of(context).requestFocus(home_focus_node);
       _getList();
       getLogged();
@@ -409,272 +413,305 @@ class _HomeState extends ResumableState<SeriesAsHome> {
 
         if(true){
           print("Now get series");
+          //
+          // fire.QuerySnapshot recentMovies = await  fire.FirebaseFirestore.instance.collection("recentSeries").get();
+          //
+          // fire.QueryDocumentSnapshot qsS = recentMovies.docs.first;
+          //
+          //
+          // String listStr = qsS.get("data");
+          //
+          // listStr.replaceAll("'", '"');
+          //
+          // List li = convert.jsonDecode(listStr);
+          //
+          // List<Poster> posters = [];
+          //
+          // for (int k = 0; k < li.length; k++) {
+          //   String SERVER = "http://connect.proxytx.cloud";
+          //   String PORT = "80";
+          //   String EMAIL = "4fe8679c08";
+          //   String PASSWORD = "2016";
+          //
+          //   // String link = SERVER + ":$PORT" + "/" + li[k]["stream_type"] +
+          //   //     "/" + EMAIL + "/" + PASSWORD.toString() + "/" +
+          //   //     li[k]["stream_id"].toString() + "." +
+          //   //     li[k]["container_extension"];
+          //
+          //
+          //
+          //   String titleForSearch =  li[k]["name"];
+          //
+          //   // List alls = title.split("-");
+          //   // String second = alls.last;
+          //   //
+          //   // List qq = second.split("(");
+          //   //
+          //   // List kk = qq.first.toString().split(" ");
+          //   // String key ="" ;
+          //   // for(int i = 0 ; i < kk.length ; i++){
+          //   //
+          //   //   if(kk[i].toString().trim()!="4K"){
+          //   //     if(i==1){
+          //   //       if(kk[i].toString().length>0) key = kk[i];
+          //   //     }else{
+          //   //       if(kk[i].toString().length>0) key = key+"+"+kk[i];
+          //   //     }
+          //   //
+          //   //   }
+          //   //
+          //   //
+          //   //
+          //   //
+          //   // }
+          //   //
+          //   // key = key.replaceAll("++", "+");
+          //   // key = key.replaceAll(":", "");
+          //   // key = key.replaceAll("(", "");
+          //   // key = key.replaceAll(")", "");
+          //   //
+          //   // print(key);
+          //   //
+          //   //
+          //   //
+          //   //
+          //   // String tvSHowTMDB = "https://api.themoviedb.org/3/search/movie?api_key=103096910bbe8842c151f7cce00ab218&query="+key;
+          //   // print(tvSHowTMDB);
+          //   //
+          //   // var responseTMDB = await http.get(Uri.parse(tvSHowTMDB) );
+          //   //
+          //   // dynamic jsonTMDB = jsonDecode(responseTMDB.body);
+          //   // String tmdbId="";
+          //   // if(jsonTMDB["total_results"]>0){
+          //   //
+          //   //   tmdbId = jsonTMDB["results"][0]["id"].toString();
+          //   //   String tvSHowTMDBFull = "https://api.themoviedb.org/3/movie/$tmdbId?api_key=103096910bbe8842c151f7cce00ab218";
+          //   //   print(tvSHowTMDBFull);
+          //   //   TMDB = tmdbId;
+          //   //   var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
+          //   //   print(responseTMDFF.body);
+          //   //
+          //   //   //  await FirebaseFirestore.instance.collection("moreInfoSeries").doc(seriedID).set({"fullSeries":responseTMDFF.body});
+          //   //
+          //   //   return jsonDecode(responseTMDFF.body);
+          //   // }else{
+          //   //   String tvSHowTMDBFull = "https://api.themoviedb.org/3/movie/414906?api_key=103096910bbe8842c151f7cce00ab218";
+          //   //   print(tvSHowTMDBFull);
+          //   //   TMDB = tmdbId;
+          //   //   var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
+          //   //   print(responseTMDFF.body);
+          //   //
+          //   //   //  await FirebaseFirestore.instance.collection("moreInfoSeries").doc(seriedID).set({"fullSeries":responseTMDFF.body});
+          //   //
+          //   //   return jsonDecode(responseTMDFF.body);
+          //   // }
+          //
+          //
+          //
+          //
+          //
+          //
+          //
+          //  List<Genre>gnnn = [];
+          //   if(li[k]["plot"]!=null){
+          //     String g = li[k]["plot"];
+          //     List ggg = g.split(",");
+          //     for(int i = 0 ; i <ggg.length; i++ ){
+          //       gnnn.add(Genre(id: k, title: ggg[i]));
+          //     }
+          //
+          //   }
+          //
+          //   String covv = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png";
+          //
+          //   try{
+          //     covv = li[k]["backdrop_path"][0];
+          //
+          //   }catch(e){
+          //     try{
+          //       covv =  li[k]["cover"] ;
+          //
+          //     }catch(e){
+          //
+          //
+          //
+          //     }
+          //   }
+          //
+          //
+          //   Poster poster1 = Poster(id: li[k]["series_id"],
+          //       title: li[k]["name"],
+          //       type: "serie",
+          //       label: null,
+          //       sublabel: null,
+          //       imdb: li[k]["rating_5based"!]!=null?li[k]["rating_5based"!].toDouble() : 0.0,
+          //       // imdb: double.parse(movieContents[_selected_genre][i]["rating"]),
+          //       downloadas: "1",
+          //       comment: false,
+          //       playas: "1",
+          //       description: li[k]["plot"] ??"--",
+          //       classification: "--",
+          //       year: li[k]["releaseDate"]!=null?(int.parse(DateFormat("yyyy").format(DateTime.parse("2019-09-30")))): 000 ,
+          //       duration: "--:--",
+          //       // rating: double.parse(movieContents[_selected_genre][i]["rating"]),
+          //       rating: 0.0,
+          //       image: li[k]["cover"] ??
+          //           "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+          //       cover: covv,
+          //       trailer: null,
+          //       genres: gnnn,
+          //       sources: [
+          //       ]);
+          //
+          //   posters.add(poster1);
+          //
+          //   // modelS.Source source = modelS.Source(size: "",id: 1, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
+          //   // Channel channel = model.Channel(id: k, title: li[k]["name"], type: "", label: "", sublabel: "", downloadas: "", comment: false, playas: "", description: "Description", classification: "", duration: "02:02:02", rating: 9.9, image: li[k]["stream_icon"] ??
+          //   //     "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png", website: "", countries: [], categories: [], sources: [source]);
+          //
+          //   // Slide slide = Slide(id: k, title: li[k]["name"], type: "", image: li[k]["stream_icon"] ??
+          //   //     "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png", url: "", category: null, genre: Genre(id: k, title: "Recently added",posters: [poster1]), channel: null);
+          //   // slides.add(slide);
+          // }
+          //
+          // Genre gg = Genre(id: 0, title: "Recently added",posters:posters );
+          //
+          // genres.add(gg);
+          // ItemScrollController controller = new ItemScrollController();
+          // _scrollControllers.add(controller);
+          // _position_x_line_saver.add(0);
+          // _counts_x_line_saver.add(gg.posters!.length);
 
-          fire.QuerySnapshot recentMovies = await  fire.FirebaseFirestore.instance.collection("recentSeries").get();
 
-          fire.QueryDocumentSnapshot qsS = recentMovies.docs.first;
+        //  fire.QuerySnapshot qS = await  fire.FirebaseFirestore.instance.collection("series").get();
 
+          makeMoVieUI({required List allVodCategory}) async {
 
-          String listStr = qsS.get("data");
+            // SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+            //
+            // String? server =  sharedPreferences.getString("SERVER_URL");
+            // String? port =  sharedPreferences.getString("PORT");
+            // String? USER_ID =  sharedPreferences.getString("USER_ID");
+            // String? PASSWORD =  sharedPreferences.getString("PASSWORD");
 
-          listStr.replaceAll("'", '"');
-
-          List li = convert.jsonDecode(listStr);
-
-          List<Poster> posters = [];
-
-          for (int k = 0; k < li.length; k++) {
-            String SERVER = "http://connect.proxytx.cloud";
-            String PORT = "80";
-            String EMAIL = "4fe8679c08";
-            String PASSWORD = "2016";
-
-            // String link = SERVER + ":$PORT" + "/" + li[k]["stream_type"] +
-            //     "/" + EMAIL + "/" + PASSWORD.toString() + "/" +
-            //     li[k]["stream_id"].toString() + "." +
-            //     li[k]["container_extension"];
-
-
-
-            String titleForSearch =  li[k]["name"];
-
-            // List alls = title.split("-");
-            // String second = alls.last;
-            //
-            // List qq = second.split("(");
-            //
-            // List kk = qq.first.toString().split(" ");
-            // String key ="" ;
-            // for(int i = 0 ; i < kk.length ; i++){
-            //
-            //   if(kk[i].toString().trim()!="4K"){
-            //     if(i==1){
-            //       if(kk[i].toString().length>0) key = kk[i];
-            //     }else{
-            //       if(kk[i].toString().length>0) key = key+"+"+kk[i];
-            //     }
-            //
-            //   }
-            //
-            //
-            //
-            //
-            // }
-            //
-            // key = key.replaceAll("++", "+");
-            // key = key.replaceAll(":", "");
-            // key = key.replaceAll("(", "");
-            // key = key.replaceAll(")", "");
-            //
-            // print(key);
-            //
-            //
-            //
-            //
-            // String tvSHowTMDB = "https://api.themoviedb.org/3/search/movie?api_key=103096910bbe8842c151f7cce00ab218&query="+key;
-            // print(tvSHowTMDB);
-            //
-            // var responseTMDB = await http.get(Uri.parse(tvSHowTMDB) );
-            //
-            // dynamic jsonTMDB = jsonDecode(responseTMDB.body);
-            // String tmdbId="";
-            // if(jsonTMDB["total_results"]>0){
-            //
-            //   tmdbId = jsonTMDB["results"][0]["id"].toString();
-            //   String tvSHowTMDBFull = "https://api.themoviedb.org/3/movie/$tmdbId?api_key=103096910bbe8842c151f7cce00ab218";
-            //   print(tvSHowTMDBFull);
-            //   TMDB = tmdbId;
-            //   var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
-            //   print(responseTMDFF.body);
-            //
-            //   //  await FirebaseFirestore.instance.collection("moreInfoSeries").doc(seriedID).set({"fullSeries":responseTMDFF.body});
-            //
-            //   return jsonDecode(responseTMDFF.body);
-            // }else{
-            //   String tvSHowTMDBFull = "https://api.themoviedb.org/3/movie/414906?api_key=103096910bbe8842c151f7cce00ab218";
-            //   print(tvSHowTMDBFull);
-            //   TMDB = tmdbId;
-            //   var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
-            //   print(responseTMDFF.body);
-            //
-            //   //  await FirebaseFirestore.instance.collection("moreInfoSeries").doc(seriedID).set({"fullSeries":responseTMDFF.body});
-            //
-            //   return jsonDecode(responseTMDFF.body);
-            // }
+            for(int i = 0 ; i < allVodCategory.length; i ++){
 
 
 
 
 
+                try{
+                  List li = allVodCategory[i]["list"];;
+
+                  List<Poster> posters = [];
+
+                  for(int k = 0 ;k < li.length ;k++ ){
 
 
-           List<Genre>gnnn = [];
-            if(li[k]["plot"]!=null){
-              String g = li[k]["plot"];
-              List ggg = g.split(",");
-              for(int i = 0 ; i <ggg.length; i++ ){
-                gnnn.add(Genre(id: k, title: ggg[i]));
-              }
+
+
+                    // String link =SERVER+":$PORT"+"/"+li[k]["stream_type"]+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+li[k]["stream_id"].toString()+"."+li[k]["container_extension"];
+
+                    //  modelS.Source sss = Source(size: "",id: 1, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
+                    //  modelS.Source sss2 = Source(size: "",id: 2, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
+                    //  modelS.Source sss3 = Source(size: "",id: 3, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
+
+                    Poster poster1 = Poster(id:li[k]["series_id"],
+                        title: li[k]["name"],
+                        type: "serie",
+                        label: null,
+                        sublabel: null,
+                        imdb: 0.0,
+                        // imdb: double.parse(movieContents[_selected_genre][i]["rating"]),
+                        downloadas: "1",
+                        comment: false,
+                        playas: "1",
+                        description: li[k]["plot"]??"--",
+                        classification: "--",
+                        year: 000,//releaseDate
+                        duration: "--:--",
+                        // rating: double.parse(movieContents[_selected_genre][i]["rating"]),
+                        rating:0.0,
+                        image: li[k]["cover"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+                        cover: li[k]["cover"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+                        trailer: null,
+                        genres: [Genre(id: i+1, title:  li[k]["genre"])],
+                        sources:[] );
+
+
+                    //
+                    // Poster poster1 = Poster(id:li[k]["stream_id"],
+                    //     title:li[k]["name"],
+                    //     type: "serie",
+                    //     label: null,
+                    //     sublabel: null,
+                    //     imdb: 0.0,
+                    //     // imdb: double.parse(movieContents[_selected_genre][i]["rating"]),
+                    //     downloadas: "1",
+                    //     comment: false,
+                    //     playas: "1",
+                    //     description: link,
+                    //     classification: "--",
+                    //     year: 000,
+                    //     duration: "--:--",
+                    //     // rating: double.parse(movieContents[_selected_genre][i]["rating"]),
+                    //     rating:0.0,
+                    //     image: li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+                    //     cover:li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+                    //     trailer: null,
+                    //     genres: [Genre(id: k, title: qS.docs[i].get("name"))],
+                    //     sources:[sss,sss2,sss3] );
+
+                    posters.add(poster1);
+
+
+
+
+
+                  }
+
+                  Genre gg = Genre(id: i, title: allVodCategory[i]["name"],posters:posters );
+
+                  genres.add(gg);
+                  ItemScrollController controller = new ItemScrollController();
+                  _scrollControllers.add(controller);
+                  _position_x_line_saver.add(0);
+                  _counts_x_line_saver.add(gg.posters!.length);
+                }catch(e){
+                  print(e);
+                  print("Error on adding genre series");
+
+                }
+
+
+
+
 
             }
-
-            String covv = "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png";
-
-            try{
-              covv = li[k]["backdrop_path"][0];
-
-            }catch(e){
-              try{
-                covv =  li[k]["cover"] ;
-
-              }catch(e){
-
-
-
-              }
-            }
-
-
-            Poster poster1 = Poster(id: li[k]["series_id"],
-                title: li[k]["name"],
-                type: "serie",
-                label: null,
-                sublabel: null,
-                imdb: li[k]["rating_5based"!]!=null?li[k]["rating_5based"!].toDouble() : 0.0,
-                // imdb: double.parse(movieContents[_selected_genre][i]["rating"]),
-                downloadas: "1",
-                comment: false,
-                playas: "1",
-                description: li[k]["plot"] ??"--",
-                classification: "--",
-                year: li[k]["releaseDate"]!=null?(int.parse(DateFormat("yyyy").format(DateTime.parse("2019-09-30")))): 000 ,
-                duration: "--:--",
-                // rating: double.parse(movieContents[_selected_genre][i]["rating"]),
-                rating: 0.0,
-                image: li[k]["cover"] ??
-                    "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
-                cover: covv,
-                trailer: null,
-                genres: gnnn,
-                sources: [
-                ]);
-
-            posters.add(poster1);
-
-            // modelS.Source source = modelS.Source(size: "",id: 1, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
-            // Channel channel = model.Channel(id: k, title: li[k]["name"], type: "", label: "", sublabel: "", downloadas: "", comment: false, playas: "", description: "Description", classification: "", duration: "02:02:02", rating: 9.9, image: li[k]["stream_icon"] ??
-            //     "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png", website: "", countries: [], categories: [], sources: [source]);
-
-            // Slide slide = Slide(id: k, title: li[k]["name"], type: "", image: li[k]["stream_icon"] ??
-            //     "https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png", url: "", category: null, genre: Genre(id: k, title: "Recently added",posters: [poster1]), channel: null);
-            // slides.add(slide);
+            print("Loop finished");
+            _showData();
           }
 
-          Genre gg = Genre(id: 0, title: "Recently added",posters:posters );
+          if( await apiRest.checkFile("series.json") == false){
+            List allSeriesCategory =  await apiRest.getSeriesCateDetails();
+            makeMoVieUI(allVodCategory: allSeriesCategory);
+          }else{
 
-          genres.add(gg);
-          ItemScrollController controller = new ItemScrollController();
-          _scrollControllers.add(controller);
-          _position_x_line_saver.add(0);
-          _counts_x_line_saver.add(gg.posters!.length);
+            File f = await apiRest.localFile("series.json");
 
-
-          fire.QuerySnapshot qS = await  fire.FirebaseFirestore.instance.collection("series").get();
-
-
-
-
-          for(int i = 0 ; i < qS.docs.length ; i++){
-
+            String data = await f.readAsString();
             try{
-              String listStr = qS.docs[i].get("list");
-              List li = convert.jsonDecode(listStr);
+              // value = jsonDecode(data);
 
-              List<Poster> posters = [];
-
-              for(int k = 0 ;k < li.length ;k++ ){
-
-
-                String SERVER = "http://connect.proxytx.cloud";
-                String PORT = "80";
-                String EMAIL = "4fe8679c08";
-                String PASSWORD = "2016";
-
-               // String link =SERVER+":$PORT"+"/"+li[k]["stream_type"]+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+li[k]["stream_id"].toString()+"."+li[k]["container_extension"];
-
-              //  modelS.Source sss = Source(size: "",id: 1, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
-              //  modelS.Source sss2 = Source(size: "",id: 2, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
-              //  modelS.Source sss3 = Source(size: "",id: 3, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
-
-                Poster poster1 = Poster(id:li[k]["series_id"],
-                    title: li[k]["name"],
-                    type: "serie",
-                    label: null,
-                    sublabel: null,
-                    imdb: 0.0,
-                    // imdb: double.parse(movieContents[_selected_genre][i]["rating"]),
-                    downloadas: "1",
-                    comment: false,
-                    playas: "1",
-                    description: "--",
-                    classification: "--",
-                    year: 000,
-                    duration: "--:--",
-                    // rating: double.parse(movieContents[_selected_genre][i]["rating"]),
-                    rating:0.0,
-                    image: li[k]["cover"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
-                    cover: li[k]["cover"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
-                    trailer: null,
-                    genres: [Genre(id: i+1, title:  qS.docs[i].get("name"))],
-                    sources:[] );
-
-
-                //
-                // Poster poster1 = Poster(id:li[k]["stream_id"],
-                //     title:li[k]["name"],
-                //     type: "serie",
-                //     label: null,
-                //     sublabel: null,
-                //     imdb: 0.0,
-                //     // imdb: double.parse(movieContents[_selected_genre][i]["rating"]),
-                //     downloadas: "1",
-                //     comment: false,
-                //     playas: "1",
-                //     description: link,
-                //     classification: "--",
-                //     year: 000,
-                //     duration: "--:--",
-                //     // rating: double.parse(movieContents[_selected_genre][i]["rating"]),
-                //     rating:0.0,
-                //     image: li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
-                //     cover:li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
-                //     trailer: null,
-                //     genres: [Genre(id: k, title: qS.docs[i].get("name"))],
-                //     sources:[sss,sss2,sss3] );
-
-                posters.add(poster1);
-
-
-
-
-
-              }
-
-              Genre gg = Genre(id: i, title: qS.docs[i].get("name"),posters:posters );
-
-              genres.add(gg);
-              ItemScrollController controller = new ItemScrollController();
-              _scrollControllers.add(controller);
-              _position_x_line_saver.add(0);
-              _counts_x_line_saver.add(gg.posters!.length);
+              makeMoVieUI(allVodCategory: jsonDecode(data));
             }catch(e){
-              print(e);
-              print("Error on adding genre series");
 
             }
-
-
+            apiRest.getSeriesCateDetails();
           }
+
+
+
         }
 
         //<---------Recently Added starts  ----------->
@@ -968,6 +1005,16 @@ class _HomeState extends ResumableState<SeriesAsHome> {
         context,
         PageRouteBuilder(
           pageBuilder: (context, animation1, animation2) => TVSLING(),
+          transitionDuration: Duration(seconds: 0),
+        ),
+      );
+    }
+
+    if(posty == -2 && postx == 1){
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation1, animation2) => Home(),
           transitionDuration: Duration(seconds: 0),
         ),
       );

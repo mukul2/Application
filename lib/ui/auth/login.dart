@@ -28,8 +28,8 @@ class _LoginState extends State<Login> {
   FocusNode main_focus_node = FocusNode();
   FocusNode username_focus_node= FocusNode();
   FocusNode password_focus_node= FocusNode();
-  TextEditingController usernameController = new TextEditingController();
-  TextEditingController passwordController = new TextEditingController();
+  TextEditingController usernameController = new TextEditingController(text: "Hass_2519");
+  TextEditingController passwordController = new TextEditingController(text: "RWNOPUKD6C");
   bool emailvalide = true;
   bool passwordvalide = true;
   bool loading = false;
@@ -48,134 +48,60 @@ class _LoginState extends State<Login> {
 }
   _login(String email,String password) async{
 
-    Navigator.pushReplacement(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation1, animation2) => Home(),
-        transitionDuration: Duration(seconds: 0),
-      ),
-    );
+    // Navigator.pushReplacement(
+    //   context,
+    //   PageRouteBuilder(
+    //     pageBuilder: (context, animation1, animation2) => Home(),
+    //     transitionDuration: Duration(seconds: 0),
+    //   ),
+    // );
 
-   /*
+
     setState(() {
       loading = true;
       _visibile_error = false;
 
     });
-    var response;
-    var body =  {'username':email, 'password': password};
+    bool response;
 
-    response = await apiRest.loginUser( body);
-    print(response.body);
-    if (response != null) {
-      if (response.statusCode == 200) {
-        var jsonData = convert.jsonDecode(response.body);
-        if(jsonData["code"] == 200){
-          int id_user=0;
-          String name_user="x";
-          String username_user="x";
-          String email_user="";
-          String subscribed_user="FALSE";
-          String salt_user="0";
-          String token_user="0";
-          String type_user="x";
-          String image_user="x";
-          bool enabled = false;
+    response = await apiRest.loginUser( email: email,password: password);
 
-          for(Map i in jsonData["values"]){
-            if(i["name"] == "salt") {
-              salt_user =  i["value"];
-            }
-            if(i["name"] == "token") {
-              token_user = i["value"];
-            }
-            if(i["name"] == "id") {
-              id_user = i["value"];
-            }
-            if(i["name"] == "name") {
-              name_user = i["value"];
-            }
-            if(i["name"] == "type") {
-              type_user = i["value"];
-            }
-            if(i["name"] == "username") {
-              username_user =  i["value"];
-            }
-            if(i["name"] == "url") {
-              image_user  = i["value"] ;
-            }
-            if(i["name"] == "enabled") {
-              enabled = i["value"];
-            }
-
-            if(i["name"] == "subscribed") {
-              subscribed_user = i["value"];
-            }
-
-
-          }
-
-          if (enabled == true ) {
-            SharedPreferences prefs = await SharedPreferences.getInstance();
-
-            prefs.setInt("ID_USER", id_user);
-            prefs.setString("SALT_USER", salt_user);
-            prefs.setString("TOKEN_USER", token_user);
-            prefs.setString("NAME_USER", name_user);
-            prefs.setString("TYPE_USER", type_user);
-            prefs.setString("USERNAME_USER", username_user);
-            prefs.setString("IMAGE_USER", image_user);
-            prefs.setString("EMAIL_USER", email_user);
-            prefs.setString("NEW_SUBSCRIBE_ENABLED", subscribed_user);
-            prefs.setBool("LOGGED_USER", true);
-
-            Fluttertoast.showToast(
-              msg: "You have logged in successfully !",
-              gravity: ToastGravity.BOTTOM,
-              backgroundColor: Colors.green,
-              textColor: Colors.white,
-            );
-            _visibile_error = false;
-
-            Navigator.pop(context);
-          }else{
-            _message_error = jsonData["message"];
-            _visibile_error = true;
-            Fluttertoast.showToast(
-              msg: "Operation has been cancelled !",
-              gravity: ToastGravity.BOTTOM,
-              backgroundColor: Colors.red,
-              textColor: Colors.white,
-            );
-          }
-        }else{
-          _message_error = jsonData["message"];
-          _visibile_error = true;
-          Fluttertoast.showToast(
-            msg: "Operation has been cancelled !",
-            gravity: ToastGravity.BOTTOM,
-            backgroundColor: Colors.red,
-            textColor: Colors.white,
-          );
-
-        }
-      }
-    }else{
-      _message_error =  "Operation has been cancelled !";
-      _visibile_error = true;
+    if(response){
       Fluttertoast.showToast(
-        msg: "Operation has been cancelled !",
+        msg: "You have logged in successfully !",
+        gravity: ToastGravity.BOTTOM,
+        backgroundColor: Colors.green,
+        textColor: Colors.white,
+      );
+      _visibile_error = false;
+
+      Future.delayed(Duration(milliseconds: 200)).then((value) {
+
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => Home(),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
+
+      });
+    }else{
+      Fluttertoast.showToast(
+        msg: "Login Failed",
         gravity: ToastGravity.BOTTOM,
         backgroundColor: Colors.red,
         textColor: Colors.white,
       );
     }
-
     setState(() {
       loading = false;
     });
 
-    */
+
+
+
+
   }
   @override
   Widget build(BuildContext context) {

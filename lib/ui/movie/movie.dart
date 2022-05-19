@@ -30,6 +30,7 @@ import 'package:flutter_app_tv/ui/review/reviews.dart';
 import 'package:flutter_app_tv/ui/serie/serie.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -104,6 +105,16 @@ class _MovieState extends State<Movie> {
   List<Source>  videosOrTrailers = [];
   String tId = "";
   bool imdbVarified = false;
+
+  String movie_plot = "";
+  String image_r = "";
+
+  List gnres_r = [];
+  String gng_r ="";
+  String gng_r2 ="";
+  double rating_r = 0.0;
+  String  duration_r = "";
+  String  release_year_r = "";
   @override
   void initState() {
     // TODO: implement initState
@@ -128,7 +139,11 @@ class _MovieState extends State<Movie> {
   _getMovieDetails() async {
     print("stream id "+widget.movie!.id.toString());
 
-   fire.DocumentSnapshot dS = await fire.FirebaseFirestore.instance.collection("moreInfo").doc(widget.movie!.id.toString()).get();
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+    String SERVER_URL = sharedPreferences.getString("SERVER_URL")!;
+
+   fire.DocumentSnapshot dS = await fire.FirebaseFirestore.instance.collection("moreInfo"+SERVER_URL).doc(widget.movie!.id.toString()).get();
 
    try{
       tId = dS.get("tmdbId");
@@ -136,15 +151,55 @@ class _MovieState extends State<Movie> {
    }catch(e){
      imdbVarified = false;
    }
+   try{
+     Map<String, dynamic> dataMap = dS.data() as Map<String, dynamic>;
+
+     movie_plot = dataMap["info"]["plot"];
+     rating_r = dataMap["info"]["rating"];
+     duration_r = dataMap["info"]["duration"];
+     release_year_r = dataMap["info"]["releasedate"];
+     image_r = dataMap["info"]["movie_image"];
+
+     if( dataMap["info"]["genre"]!=null){
+       String ggg = dataMap["info"]["genre"];
+
+       gnres_r = ggg.split(",");
+
+       if(gnres_r.length>0){
+
+
+         for(String g in gnres_r){
+           gng_r = gng_r + " • "+g;
+
+         }
 
 
 
-    var r  = await apiRest.searchMovieInTMDB(name: widget.movie!.title,rTmdbId: imdbVarified?tId:null);
+
+       }
+
+     }
+   }catch(e){
+   }
+   setState(() {
+
+   });
+
+
+
+    var r  = await apiRest.searchMovieInTMDB(posterID: widget.movie!.id.toString(),name: widget.movie!.title,rTmdbId: imdbVarified?tId:null);
 
     MovieDetails =  r["movie"];
     actorsList.clear();
     actorsList =await apiRest.getMovieCastAndCrew(imdb:  r["tmdb_id"]);
     TMDB =  r["tmdb_id"];
+
+
+
+
+    for(int i = 0 ; i < r["movie"]["genres"].length ; i++){
+      gng_r2  = gng_r2 +  " • "+r["movie"]["genres"][i]["name"];
+    }
 
     print("now getting subtitles");
     availableSubtitles =  await apiRest.getSubtitles(imdb:  TMDB);
@@ -615,7 +670,7 @@ class _MovieState extends State<Movie> {
                                             children: [
                                               Row(
                                                 children: [
-                                                  Text(widget.movie!.title.toUpperCase(),
+                                                  Text(  widget.movie!.title.contains(MovieDetails["title"])?MovieDetails["title"]: widget.movie!.title,
                                                     style: TextStyle(
                                                         color: Colors.white,
                                                         fontSize: 22,
@@ -625,6 +680,10 @@ class _MovieState extends State<Movie> {
                                                   if(imdbVarified)Padding(
                                                     padding: const EdgeInsets.only(left: 10),
                                                     child: Container(decoration: BoxDecoration(shape: BoxShape.circle,color: Colors.redAccent ),child: Center(child:Icon(Icons.done ,color: Colors.white,),),),
+                                                  ),
+                                                  if(imdbVarified == false)Padding(
+                                                    padding: const EdgeInsets.only(left: 10),
+                                                    child: Container(decoration: BoxDecoration(shape: BoxShape.circle,color: Colors.redAccent ),child: Center(child:Icon(Icons.question_mark_outlined ,color: Colors.white,),),),
                                                   )
                                                 ],
                                               ),
@@ -632,17 +691,17 @@ class _MovieState extends State<Movie> {
                                               Row(
                                                 crossAxisAlignment: CrossAxisAlignment.center,
                                                 children: [
-                                                  Text("${widget.movie!.rating}/5", style: TextStyle(
-                                                      color: Colors.white,
-                                                      fontSize: 13,
-                                                      fontWeight: FontWeight.w800
-                                                  ),),
+                                                  // Text("${widget.movie!.rating}/5", style: TextStyle(
+                                                  //     color: Colors.white,
+                                                  //     fontSize: 13,
+                                                  //     fontWeight: FontWeight.w800
+                                                  // ),),
                                                   RatingBar.builder(
-                                                    initialRating: 3.5,
+                                                    initialRating: rating_r>0?rating_r:  MovieDetails["vote_average"],
                                                     minRating: 1,
                                                     direction: Axis.horizontal,
                                                     allowHalfRating: true,
-                                                    itemCount: 5,
+                                                    itemCount: 10,
                                                     itemSize: 15.0,
                                                     ignoreGestures: true,
                                                     unratedColor: Colors.amber.withOpacity(0.4),
@@ -656,7 +715,7 @@ class _MovieState extends State<Movie> {
                                                     },
                                                   ),
                                                   SizedBox(width: 5),
-                                                  Text(" •  ${MovieDetails["vote_average"]} / 10 "
+                                                  Text(" •  ${rating_r>0?rating_r:  MovieDetails["vote_average"]} / 10 "
                                                     , style: TextStyle(
                                                         color: Colors.white,
                                                         fontSize: 11,
@@ -678,19 +737,63 @@ class _MovieState extends State<Movie> {
                                                         fontWeight: FontWeight.w800
                                                     ),
                                                     ),
-                                                  )
+                                                  ) ,
 
+                                                  Container(margin: EdgeInsets.only(left: 10),
+                                                    padding: EdgeInsets.symmetric(vertical: 1,horizontal: 5),
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.green,
+                                                        borderRadius: BorderRadius.circular(5)
+                                                    ),
+                                                    child: Row(
+                                                      children: [
+
+                                                        Icon(Icons.thumb_up,size: 15,color: Colors.white,),
+                                                        Padding(
+                                                          padding:  EdgeInsets.only(left: 5),
+                                                          child: Text( MovieDetails["vote_count"].toString(), style: TextStyle(
+                                                              color: Colors.white,
+                                                              fontSize: 11,
+                                                              fontWeight: FontWeight.w800
+                                                          ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  Container(margin: EdgeInsets.only(left: 10),
+                                                    padding: EdgeInsets.symmetric(vertical: 1,horizontal: 5),
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.green,
+                                                        borderRadius: BorderRadius.circular(5)
+                                                    ),
+                                                    child: Row(
+                                                      children: [
+
+                                                        Icon(Icons.calendar_month,size: 15,color: Colors.white,),
+                                                        Padding(
+                                                          padding:  EdgeInsets.only(left: 5),
+                                                          child: Text(release_year_r.length>0?DateFormat("yyyy").format(DateTime.parse(release_year_r))    : DateFormat("yyyy").format(DateTime.parse( MovieDetails["release_date"].toString())) , style: TextStyle(
+                                                              color: Colors.white,
+                                                              fontSize: 11,
+                                                              fontWeight: FontWeight.w800
+                                                          ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  )
                                                 ],
                                               ),
                                               SizedBox(height: 10),
-                                              Text(" ${MovieDetails["runtime"]} min ${widget.genres}"
+                                              Text(" ${duration_r.length>0?duration_r:    MovieDetails["runtime"]} min ${gng_r.length>0? gng_r:  gng_r2}"
                                                 , style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: 13,
                                                     fontWeight: FontWeight.w900
                                                 ),),
                                               SizedBox(height: 10),
-                                              Text(MovieDetails["overview"]
+                                              Text( movie_plot.length>0? movie_plot:MovieDetails["overview"]
                                                 , style: TextStyle(
                                                     color: Colors.white60,
                                                     fontSize: 11,

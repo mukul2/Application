@@ -33,6 +33,7 @@ import 'package:flutter_app_tv/ui/review/reviews.dart';
 import 'package:flutter_app_tv/ui/serie/seasin_loading_widget.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transparent_image/transparent_image.dart';
@@ -66,7 +67,36 @@ class Serie extends StatefulWidget {
 }
 
 class _SerieState extends State<Serie> {
+
+  dynamic showInfo_tmdb;
+  String gg = "";
+  dynamic show_info ;
+
+  bool noData = false;
   Future<dynamic>  searchMovieInTMDB({required String title}) async {
+
+    String id = widget.serie!.id.toString();
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+    String? server =  sharedPreferences.getString("SERVER_URL");
+    String? port =  sharedPreferences.getString("PORT");
+    String? USER_ID =  sharedPreferences.getString("USER_ID");
+    String? PASSWORD =  sharedPreferences.getString("PASSWORD");
+    String link = "http://$server/player_api.php?username=$USER_ID&password=$PASSWORD&action=get_series_info&series_id=$id";
+    print(link);
+    var url = Uri.parse(link);
+    var responseSeries = await http.get(url, );
+    print(responseSeries.body);
+    dynamic data = jsonDecode(responseSeries.body);
+    show_info = data;
+
+
+
+
+
+
+
+
 
     List alls = title.split("-");
     String second = alls.last;
@@ -111,25 +141,51 @@ class _SerieState extends State<Serie> {
     if(jsonTMDB["total_results"]>0){
 
       tmdbId = jsonTMDB["results"][0]["id"].toString();
+
+
+      for(int i = 0 ; i <jsonTMDB["total_results"] ;i++){
+        //title
+        if( jsonTMDB["results"][i]["name"].toString().contains(title)){
+          tmdbId = jsonTMDB["results"][i]["id"].toString();
+          break;
+        }
+
+
+      }
+
       String tvSHowTMDBFull = "https://api.themoviedb.org/3/tv/$tmdbId?api_key=103096910bbe8842c151f7cce00ab218";
       print(tvSHowTMDBFull);
 
       var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
       print(responseTMDFF.body);
-
+      showInfo_tmdb = jsonDecode(responseTMDFF.body);
       //  await FirebaseFirestore.instance.collection("moreInfoSeries").doc(seriedID).set({"fullSeries":responseTMDFF.body});
+      List genresA = showInfo_tmdb["genres"];
 
-      return jsonDecode(responseTMDFF.body);
+      for(int i = 0 ; i < genresA.length ; i++){
+        gg = gg + " • "+genresA[i]["name"].toString();
+      }
+      setState(() {
+
+      });
+      return showInfo_tmdb;
     }else{
       String tvSHowTMDBFull = "https://api.themoviedb.org/3/tv/81292?api_key=103096910bbe8842c151f7cce00ab218";
       print(tvSHowTMDBFull);
 
       var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
       print(responseTMDFF.body);
+      showInfo_tmdb = jsonDecode(responseTMDFF.body);
+      List genresA = showInfo_tmdb["genres"];
 
+      for(int i = 0 ; i < genresA.length ; i++){
+        gg = gg + " • "+genresA[i]["name"].toString();
+      }
       //  await FirebaseFirestore.instance.collection("moreInfoSeries").doc(seriedID).set({"fullSeries":responseTMDFF.body});
+      setState(() {
 
-      return jsonDecode(responseTMDFF.body);
+      });
+      return showInfo_tmdb;
     }
 
 
@@ -183,6 +239,7 @@ class _SerieState extends State<Serie> {
     super.initState();
     Future.delayed(Duration.zero, () {
         FocusScope.of(context).requestFocus(movie_focus_node);
+        searchMovieInTMDB(title:widget.serie!.title);
         _getRelatedList();
         _getCastList();
         _getSeasons();
@@ -289,14 +346,22 @@ class _SerieState extends State<Serie> {
     });
   }
   void _getSeasons()  async{
+    print("seasongs gety");
     seasons.clear();
     setState(() {
       _visibile_season_loading=true;
     });
-    String SERVER = "http://connect.proxytx.cloud";
-    String PORT = "80";
-    String EMAIL = "4fe8679c08";
-    String PASSWORD = "2016";
+
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? SERVER = "http://"+ sharedPreferences.getString("SERVER_URL")!;
+    String? PORT =  sharedPreferences.getString("PORT");
+    String? EMAIL =  sharedPreferences.getString("USER_ID");
+    String? PASSWORD =  sharedPreferences.getString("PASSWORD");
+
+
+
+   // String SERVER = "http://connect.proxytx.cloud";
+
 
     String id = (widget.serie!.id).toString();
 
@@ -309,25 +374,26 @@ class _SerieState extends State<Serie> {
 
     Map<String, dynamic> ddddd = {};
    try{
+
+     if(moreInfo.exists)
      ddddd = moreInfo.data()! as Map<String, dynamic>;
    }catch(e){
+
+
 
    }
 
     if( moreInfo.exists &&  ddddd.containsKey("xtrInfo")){
-
-     
-
       dynamic tmdbInfo = ddddd["tmdbInfo"];
       dynamic xtrInfo = ddddd["xtrInfo"];
 
 
       dynamic data = xtrInfo;
-
+      show_info = data;
       data["episodes"].forEach((key, value) {
         List<Episode>allEpisodes = [];
         for(int i = 0 ; i < value.length; i++){
-          String  old= SERVER+":$PORT"+"/"+"series"+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+value[i]["id"].toString()+"."+value[i]["container_extension"];
+          String  old= SERVER+":$PORT"+"/"+"series"+"/"+EMAIL!+"/"+PASSWORD.toString() +"/"+value[i]["id"].toString()+"."+value[i]["container_extension"];
 
           Source source = Source(id:  value[i]["episode_num"], type: value[i]["container_extension"], title: value[i]["container_extension"], quality: "HQ", size: "", kind: "", premium: "1", external: true, url: old);
           allEpisodes.add(Episode(id:int.parse(value[i]["id"]), title: value[i]["title"]??"----", downloadas: "", playas: "", description: "", duration:  value[i]["info"]["duration"], image: value[i]["info"]["movie_image"], sources: [source]));
@@ -394,6 +460,8 @@ class _SerieState extends State<Serie> {
         TMDB = tmdbId;
         var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
 
+         showInfo_tmdb = jsonDecode(responseTMDFF.body);
+
         await  fire.FirebaseFirestore.instance.collection("moreInfoSeries").doc(id).set({"tmdbInfo":responseTMDFF.body});
 
 
@@ -407,10 +475,19 @@ class _SerieState extends State<Serie> {
       print(responseSeries.body);
       dynamic data = jsonDecode(responseSeries.body);
 
+      if(data?.isEmpty ?? true){
+
+        setState(() {
+          noData = true;
+        });
+
+      }
+
+      show_info = data;
       data["episodes"].forEach((key, value) {
         List<Episode>allEpisodes = [];
         for(int i = 0 ; i < value.length; i++){
-          String  old= SERVER+":$PORT"+"/"+"series"+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+value[i]["id"].toString()+"."+value[i]["container_extension"];
+          String  old= SERVER!+":$PORT"+"/"+"series"+"/"+EMAIL!+"/"+PASSWORD.toString() +"/"+value[i]["id"].toString()+"."+value[i]["container_extension"];
 
           Source source = Source(id:  value[i]["episode_num"], type: value[i]["container_extension"], title: value[i]["container_extension"], quality: "HQ", size: "", kind: "", premium: "1", external: true, url: old);
           allEpisodes.add(Episode(id:int.parse(value[i]["id"]), title: value[i]["title"]??"----", downloadas: "", playas: "", description: "", duration:  value[i]["info"]["duration"], image: value[i]["info"]["movie_image"], sources: [source]));
@@ -664,7 +741,7 @@ class _SerieState extends State<Serie> {
               }
             }
           },
-          child: Container(
+          child: noData==false? Container(
 
             child: Stack(
               children: [
@@ -719,430 +796,458 @@ class _SerieState extends State<Serie> {
 
 
 
-                                  Expanded(
+                                   Expanded(
                                         flex: 5,
-                                        child: FutureBuilder<dynamic>(
-                                          future: searchMovieInTMDB(title:widget.serie!.title), // async work
-                                          builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-
-                                            if(snapshot.connectionState == ConnectionState.done  && snapshot.hasData){
-
-                                              List genresA = snapshot.data["genres"];
-                                              String gg = "";
-                                              for(int i = 0 ; i < genresA.length ; i++){
-                                                gg = gg + " • "+genresA[i]["name"].toString();
-                                              }
-
-                                              return Container(
-                                                padding: EdgeInsets.only(left: 20),
-                                                child:  Column(
-                                                  mainAxisSize: MainAxisSize.max,
-                                                  mainAxisAlignment: MainAxisAlignment.end,
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(snapshot.data["original_name"],
-                                                      style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 22,
-                                                          fontWeight: FontWeight.w900
-                                                      ),
+                                        child: showInfo_tmdb!=null?  Container(
+                                          padding: EdgeInsets.only(left: 20),
+                                          child:  Column(
+                                            mainAxisSize: MainAxisSize.max,
+                                            mainAxisAlignment: MainAxisAlignment.end,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(showInfo_tmdb["original_name"],
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: MediaQuery.of(context).size.longestSide*0.025,
+                                                    fontWeight: FontWeight.w900
+                                                ),
+                                              ),
+                                              SizedBox(height: 15),
+                                              Row(
+                                                children: [
+                                                  if(false) if(show_info!=null && show_info["rating_5based"]!=null) Text("${show_info["rating_5based"].toString()}/5", style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 13,
+                                                      fontWeight: FontWeight.w800
+                                                  ),),
+                                                  if(false)   if(show_info!=null && show_info["rating"]!=null)   RatingBar.builder(
+                                                    initialRating: double.parse(show_info["rating"]),
+                                                    minRating: 1,
+                                                    direction: Axis.horizontal,
+                                                    allowHalfRating: true,
+                                                    itemCount: 10,
+                                                    itemSize: 15.0,
+                                                    ignoreGestures: true,
+                                                    unratedColor: Colors.amber.withOpacity(0.4),
+                                                    itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
+                                                    itemBuilder: (context, _) => Icon(
+                                                      Icons.star,
+                                                      color: Colors.amber,
                                                     ),
-                                                    SizedBox(height: 15),
-                                                    Row(
-                                                      children: [
-                                                        Text("${widget.serie!.rating}/5", style: TextStyle(
-                                                            color: Colors.white,
-                                                            fontSize: 13,
-                                                            fontWeight: FontWeight.w800
-                                                        ),),
-                                                        RatingBar.builder(
-                                                          initialRating: 3.5,
-                                                          minRating: 1,
-                                                          direction: Axis.horizontal,
-                                                          allowHalfRating: true,
-                                                          itemCount: 5,
-                                                          itemSize: 15.0,
-                                                          ignoreGestures: true,
-                                                          unratedColor: Colors.amber.withOpacity(0.4),
-                                                          itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
-                                                          itemBuilder: (context, _) => Icon(
-                                                            Icons.star,
-                                                            color: Colors.amber,
-                                                          ),
-                                                          onRatingUpdate: (rating) {
-                                                          },
-                                                        ),
-                                                        SizedBox(width: 10),
-                                                        Text(" •  ${widget.serie!.imdb} / 10 ",
-                                                          style: TextStyle(
-                                                              color: Colors.white,
-                                                              fontSize: 11,
-                                                              fontWeight: FontWeight.w800
-                                                          ),
-                                                        )
-                                                        ,
-                                                        Container(
-                                                          padding: EdgeInsets.symmetric(vertical: 2,horizontal: 5),
-                                                          decoration: BoxDecoration(
-                                                              color: Colors.orangeAccent,
-                                                              borderRadius: BorderRadius.circular(5)
-                                                          ),
-                                                          child: Text("IMDb", style: TextStyle(
-                                                              color: Colors.white,
-                                                              fontSize: 11,
-                                                              fontWeight: FontWeight.w800
-                                                          ),
-                                                          ),
-                                                        )
+                                                    onRatingUpdate: (rating) {
+                                                    },
+                                                  ),
+                                                  if(false)   SizedBox(width: 10),
 
+
+
+                                                  Container(
+                                                    padding: EdgeInsets.symmetric(vertical: 2,horizontal: 5),
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.orangeAccent,
+                                                        borderRadius: BorderRadius.circular(5)
+                                                    ),
+                                                    child: Row(
+                                                      children: [
+                                                        Text("IMDb ${showInfo_tmdb["vote_average"].toString()}  ", style: TextStyle(
+                                                            color: Colors.white,
+                                                            fontSize:  MediaQuery.of(context).size.longestSide*0.01,
+                                                            fontWeight: FontWeight.w800
+                                                        ),
+                                                        ),
+                                                        Icon(Icons.star,color: Colors.white,size: MediaQuery.of(context).size.longestSide*0.01,)
                                                       ],
                                                     ),
-                                                    SizedBox(height: 10),
 
-                                                    Text("${snapshot.data["number_of_seasons"]} Seasons • ${snapshot.data["number_of_episodes"]} Episodes •  ${gg}"
-                                                      , style: TextStyle(
-                                                          color: Colors.white,
-                                                          fontSize: 13,
-                                                          fontWeight: FontWeight.w900
-                                                      ),),
-                                                    SizedBox(height: 10),
-                                                    Text(snapshot.data["overview"]
-                                                      , style: TextStyle(
-                                                          color: Colors.white60,
-                                                          fontSize: 11,
-                                                          height: 1.5,
-                                                          fontWeight: FontWeight.normal
-                                                      ),
+                                                  ),
+                                                  Container(margin: EdgeInsets.only(left: MediaQuery.of(context).size.longestSide*0.01),
+                                                    padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.longestSide*0.0001,horizontal: MediaQuery.of(context).size.longestSide*0.001),
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.green,
+                                                        borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.001)
                                                     ),
-                                                    SizedBox(height: 10),
-                                                    Row(
-                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                    child: Row(
                                                       children: [
-                                                        Row(
-                                                          children: [
-                                                            if( seasons.length > 0)
-                                                              if(seasons[0].episodes.length>0)
-                                                                GestureDetector(
 
-                                                                  onTap: (){
+                                                        Icon(Icons.thumb_up,size: MediaQuery.of(context).size.longestSide*0.01,color: Colors.white,),
+                                                        Padding(
+                                                          padding:  EdgeInsets.only(left: MediaQuery.of(context).size.longestSide*0.001),
+                                                          child: Text( showInfo_tmdb["vote_count"].toString(), style: TextStyle(
+                                                              color: Colors.white,
+                                                              fontSize: MediaQuery.of(context).size.longestSide*0.01,
+                                                              fontWeight: FontWeight.w800
+                                                          ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                  if(show_info!=null && show_info["info"]!=null && show_info["info"]["releaseDate"]!=null)Container(margin: EdgeInsets.only(left: MediaQuery.of(context).size.longestSide*0.01),
+                                                    padding: EdgeInsets.symmetric(vertical: 1,horizontal: 5),
+                                                    decoration: BoxDecoration(
+                                                        color: Colors.green,
+                                                        borderRadius: BorderRadius.circular(5)
+                                                    ),
+                                                    child: Row(
+                                                      children: [
+
+                                                        Icon(Icons.calendar_month,size: MediaQuery.of(context).size.longestSide*0.01,color: Colors.white,),
+                                                        Padding(
+                                                          padding:  EdgeInsets.only(left: 5),
+                                                          child: Text(DateFormat("yyyy").format(DateTime.parse(show_info["info"]["releaseDate"])) , style: TextStyle(
+                                                              color: Colors.white,
+                                                              fontSize: MediaQuery.of(context).size.longestSide*0.01,
+                                                              fontWeight: FontWeight.w800
+                                                          ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+
+                                                ],
+                                              ),
+                                              SizedBox(height: MediaQuery.of(context).size.longestSide*0.01),
+
+                                              Text("${showInfo_tmdb["number_of_seasons"]} Seasons • ${showInfo_tmdb["number_of_episodes"]} Episodes •  ${gg}"
+                                                , style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: MediaQuery.of(context).size.longestSide*0.01,
+                                                    fontWeight: FontWeight.w900
+                                                ),),
+                                              SizedBox(height: MediaQuery.of(context).size.longestSide*0.01),
+                                              Text(showInfo_tmdb["overview"]
+                                                , style: TextStyle(
+                                                    color: Colors.white60,
+                                                    fontSize: MediaQuery.of(context).size.longestSide*0.01,
+                                                    height: 1.5,
+                                                    fontWeight: FontWeight.normal
+                                                ),
+                                              ),
+                                              SizedBox(height: MediaQuery.of(context).size.longestSide*0.01),
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      if( seasons.length > 0)
+                                                        if(seasons[0].episodes.length>0)
+                                                          GestureDetector(
+
+                                                            onTap: (){
 
 
-                                                                    setState(() {
-                                                                      posty = 0;
-                                                                      postx =0;
-                                                                      Future.delayed(Duration(milliseconds: 100),(){
-                                                                        _goToPlayer();
-                                                                      });
-                                                                    });
-                                                                  },
-                                                                  child: Container(
-                                                                    height: 35,
-                                                                    padding: EdgeInsets.symmetric(horizontal: 5),
-                                                                    decoration: BoxDecoration(
-                                                                      border: Border.all(color: Colors.white,width: 0.3),
-                                                                      borderRadius: BorderRadius.circular(5),
-                                                                      color: (postx == 0 && posty == 0)? Colors.white:Colors.white30,
-                                                                    ),
-                                                                    child: Row(
-                                                                      children: [
-                                                                        Container(
-                                                                          height: 35,
-                                                                          width: 35,
-                                                                          child: Icon(
-                                                                            Icons.play_arrow,
-                                                                            color: (postx == 0 && posty == 0)? Colors.black:Colors.white,
-                                                                            size: 18,
-                                                                          ),
-                                                                        ),
-                                                                        // Text(
-                                                                        //     seasons[0].title + " | "+ seasons[0].episodes[0].title ,
-                                                                        //     style: TextStyle(
-                                                                        //         color: (postx == 0 && posty == 0)? Colors.black:Colors.white,
-                                                                        //         fontSize: 11,
-                                                                        //         fontWeight: FontWeight.w500
-                                                                        //     )
-                                                                        // ),
-
-                                                                        Text(
-                                                                            seasons[0].title  ,
-                                                                            style: TextStyle(
-                                                                                color: (postx == 0 && posty == 0)? Colors.black:Colors.white,
-                                                                                fontSize: 11,
-                                                                                fontWeight: FontWeight.w500
-                                                                            )
-                                                                        ),
-                                                                        SizedBox(width: 5),
-                                                                      ],
+                                                              setState(() {
+                                                                posty = 0;
+                                                                postx =0;
+                                                                Future.delayed(Duration(milliseconds: 100),(){
+                                                                  _goToPlayer();
+                                                                });
+                                                              });
+                                                            },
+                                                            child: Container(
+                                                              height: MediaQuery.of(context).size.longestSide*0.01,
+                                                              padding: EdgeInsets.symmetric(horizontal: 5),
+                                                              decoration: BoxDecoration(
+                                                                border: Border.all(color: Colors.white,width: 0.3),
+                                                                borderRadius: BorderRadius.circular(5),
+                                                                color: (postx == 0 && posty == 0)? Colors.white:Colors.white30,
+                                                              ),
+                                                              child: Row(
+                                                                children: [
+                                                                  Container(
+                                                                    height: MediaQuery.of(context).size.longestSide*0.01,
+                                                                    width: MediaQuery.of(context).size.longestSide*0.01,
+                                                                    child: Icon(
+                                                                      Icons.play_arrow,
+                                                                      color: (postx == 0 && posty == 0)? Colors.black:Colors.white,
+                                                                      size: MediaQuery.of(context).size.longestSide*0.01,
                                                                     ),
                                                                   ),
-                                                                ),
-                                                            SizedBox(width: 5),
-                                                            GestureDetector(
-                                                              onTap: (){
-                                                                setState(() {
-                                                                  posty = 0;
-                                                                  postx =1;
-                                                                  Future.delayed(Duration(milliseconds: 100),(){
-                                                                    _goToTrailer();
-                                                                  });
-                                                                });
-                                                              },
-                                                              child: Container(
-                                                                height: 35,
-                                                                padding: EdgeInsets.symmetric(horizontal: 5),
-                                                                decoration: BoxDecoration(
-                                                                  border: Border.all(color: Colors.white,width: 0.3),
-                                                                  borderRadius: BorderRadius.circular(5),
-                                                                  color: (postx == 1 && posty == 0)? Colors.white:Colors.white30,
-                                                                ),
-                                                                child: Row(
-                                                                  children: [
-                                                                    Container(
-                                                                      height: 35,
-                                                                      width: 35,
-                                                                      child: Icon(
-                                                                        FontAwesomeIcons.bullhorn,
-                                                                        color: (postx == 1 && posty == 0)? Colors.black:Colors.white,
-                                                                        size: 11,
-                                                                      ),
-                                                                    ),
-                                                                    Text(
-                                                                        "Watch Trailer" ,
-                                                                        style: TextStyle(
-                                                                            color: (postx == 1 && posty == 0)? Colors.black:Colors.white,
-                                                                            fontSize: 11,
-                                                                            fontWeight: FontWeight.w500
-                                                                        )
-                                                                    ),
-                                                                    SizedBox(width: 5)
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ),
-                                                            SizedBox(width: 5),
-                                                            GestureDetector(
-                                                              onTap: (){
-                                                                print(visibileSourcesDialog);
-                                                                setState(() {
+                                                                  // Text(
+                                                                  //     seasons[0].title + " | "+ seasons[0].episodes[0].title ,
+                                                                  //     style: TextStyle(
+                                                                  //         color: (postx == 0 && posty == 0)? Colors.black:Colors.white,
+                                                                  //         fontSize: 11,
+                                                                  //         fontWeight: FontWeight.w500
+                                                                  //     )
+                                                                  // ),
 
-                                                                  posty = 0;
-                                                                  postx = 2;
-                                                                  _addMylist();
-                                                                });
-                                                              },
-                                                              child: Container(
-                                                                height: 35,
-                                                                padding: EdgeInsets.symmetric(horizontal: 5),
-                                                                decoration: BoxDecoration(
-                                                                  border: Border.all(color: Colors.white,width: 0.3),
-                                                                  borderRadius: BorderRadius.circular(3),
-                                                                  color: (postx == 2 && posty == 0)? Colors.white:Colors.white30,
-                                                                ),
-                                                                child: Row(
-                                                                  children: [
-                                                                    (my_list_loading)?
-                                                                    Container(
-                                                                        padding: EdgeInsets.all(9),
-                                                                        height: 28,
-                                                                        width: 28,
-                                                                        child: Container(
-                                                                            child: CircularProgressIndicator(color: Colors.black,strokeWidth: 2,)
-                                                                        )
-                                                                    )
-                                                                        :
-                                                                    Container(
-                                                                      height: 28,
-                                                                      width: 28,
-                                                                      child: Icon(
-                                                                        (added)? FontAwesomeIcons.solidTimesCircle:FontAwesomeIcons.plusCircle,
-                                                                        color: (postx == 2 && posty == 0)? Colors.black:Colors.white,
-                                                                        size: 11,
-                                                                      ),
-                                                                    ),
-                                                                    (my_list_loading)?
-                                                                    Text(
-                                                                        "Loading ..." ,
-                                                                        style: TextStyle(
-                                                                            color: (postx == 2 && posty == 0)? Colors.black:Colors.white,
-                                                                            fontSize: 11,
-                                                                            fontWeight: FontWeight.w500
-                                                                        )
-                                                                    )
-                                                                        :
-                                                                    Text(
-                                                                        (added)?
-                                                                        "Remove from Favourites"
-                                                                            :
-                                                                        "Add to Favourites" ,
-                                                                        style: TextStyle(
-                                                                            color: (postx == 2 && posty == 0)? Colors.black:Colors.white,
-                                                                            fontSize: 11,
-                                                                            fontWeight: FontWeight.w500
-                                                                        )
-                                                                    ),
-                                                                    SizedBox(width: 5)
-                                                                  ],
-                                                                ),
+                                                                  Text(
+                                                                      seasons[0].title  ,
+                                                                      style: TextStyle(
+                                                                          color: (postx == 0 && posty == 0)? Colors.black:Colors.white,
+                                                                          fontSize: MediaQuery.of(context).size.longestSide*0.01,
+                                                                          fontWeight: FontWeight.w500
+                                                                      )
+                                                                  ),
+                                                                  SizedBox(width: 5),
+                                                                ],
                                                               ),
                                                             ),
-                                                            SizedBox(width: 5),
-                                                            GestureDetector(
-                                                              onTap: (){
-                                                                setState(() {
-                                                                  posty = 0;
-                                                                  postx =3;
-                                                                  Future.delayed(Duration(milliseconds: 100),(){
-                                                                    _goToReview();
-                                                                  });
-                                                                });
-                                                              },
-                                                              child: Container(
-                                                                height: 35,
-                                                                padding: EdgeInsets.symmetric(horizontal: 5),
-                                                                decoration: BoxDecoration(
-                                                                  border: Border.all(color: Colors.white,width: 0.3),
-                                                                  borderRadius: BorderRadius.circular(5),
-                                                                  color: (postx == 3 && posty == 0)? Colors.white:Colors.white30,
-                                                                ),
-                                                                child: Row(
-                                                                  children: [
-                                                                    Container(
-                                                                      height: 35,
-                                                                      width: 35,
-                                                                      child: Icon(
-                                                                        FontAwesomeIcons.starHalfAlt,
-                                                                        color: (postx == 3 && posty == 0)? Colors.black:Colors.white,
-                                                                        size: 11,
-                                                                      ),
-                                                                    ),
-                                                                    Text(
-                                                                        "Rate Serie" ,
-                                                                        style: TextStyle(
-                                                                            color: (postx == 3 && posty == 0)? Colors.black:Colors.white,
-                                                                            fontSize: 11,
-                                                                            fontWeight: FontWeight.w500
-                                                                        )
-                                                                    ),
-                                                                    SizedBox(width: 5)
-                                                                  ],
+                                                          ),
+                                                      SizedBox(width: 5),
+                                                      GestureDetector(
+                                                        onTap: (){
+                                                          setState(() {
+                                                            posty = 0;
+                                                            postx =1;
+                                                            Future.delayed(Duration(milliseconds: 100),(){
+                                                              _goToTrailer();
+                                                            });
+                                                          });
+                                                        },
+                                                        child: Container(
+                                                          height: MediaQuery.of(context).size.longestSide*0.01,
+                                                          padding: EdgeInsets.symmetric(horizontal: 5),
+                                                          decoration: BoxDecoration(
+                                                            border: Border.all(color: Colors.white,width: 0.3),
+                                                            borderRadius: BorderRadius.circular(5),
+                                                            color: (postx == 1 && posty == 0)? Colors.white:Colors.white30,
+                                                          ),
+                                                          child: Row(
+                                                            children: [
+                                                              Container(
+                                                                height: MediaQuery.of(context).size.longestSide*0.01,
+                                                                width: MediaQuery.of(context).size.longestSide*0.01,
+                                                                child: Icon(
+                                                                  FontAwesomeIcons.bullhorn,
+                                                                  color: (postx == 1 && posty == 0)? Colors.black:Colors.white,
+                                                                  size: 11,
                                                                 ),
                                                               ),
-                                                            ),
-                                                          ],
+                                                              Text(
+                                                                  "Watch Trailer" ,
+                                                                  style: TextStyle(
+                                                                      color: (postx == 1 && posty == 0)? Colors.black:Colors.white,
+                                                                      fontSize: MediaQuery.of(context).size.longestSide*0.01,
+                                                                      fontWeight: FontWeight.w500
+                                                                  )
+                                                              ),
+                                                              SizedBox(width: 5)
+                                                            ],
+                                                          ),
                                                         ),
-                                                        Row(
-                                                          children: [
-                                                            GestureDetector(
-                                                              onTap: (){
-                                                                setState(() {
-                                                                  posty = 0;
-                                                                  postx =4;
-                                                                  Future.delayed(Duration(milliseconds: 250),(){
-                                                                    _goToComments();
-                                                                  });
-                                                                });
-                                                              },
-                                                              child: AnimatedContainer(
-                                                                duration: Duration(milliseconds: 200),
-                                                                height: 35,
-                                                                width: (postx == 4 && posty == 0)? 98:35.6,
-                                                                decoration: BoxDecoration(
-                                                                  border: Border.all(color: Colors.white,width: 0.3),
-                                                                  borderRadius: BorderRadius.circular(5),
-                                                                  color: (postx == 4 && posty == 0)? Colors.white:Colors.white30,
+                                                      ),
+                                                      SizedBox(width: 5),
+                                                      GestureDetector(
+                                                        onTap: (){
+                                                          print(visibileSourcesDialog);
+                                                          setState(() {
+
+                                                            posty = 0;
+                                                            postx = 2;
+                                                            _addMylist();
+                                                          });
+                                                        },
+                                                        child: Container(
+                                                          height: MediaQuery.of(context).size.longestSide*0.01,
+                                                          padding: EdgeInsets.symmetric(horizontal: 5),
+                                                          decoration: BoxDecoration(
+                                                            border: Border.all(color: Colors.white,width: 0.3),
+                                                            borderRadius: BorderRadius.circular(3),
+                                                            color: (postx == 2 && posty == 0)? Colors.white:Colors.white30,
+                                                          ),
+                                                          child: Row(
+                                                            children: [
+                                                              (my_list_loading)?
+                                                              Container(
+                                                                  padding: EdgeInsets.all(9),
+                                                                  height: 28,
+                                                                  width: 28,
+                                                                  child: Container(
+                                                                      child: CircularProgressIndicator(color: Colors.black,strokeWidth: 2,)
+                                                                  )
+                                                              )
+                                                                  :
+                                                              Container(
+                                                                height: 28,
+                                                                width: 28,
+                                                                child: Icon(
+                                                                  (added)? FontAwesomeIcons.solidTimesCircle:FontAwesomeIcons.plusCircle,
+                                                                  color: (postx == 2 && posty == 0)? Colors.black:Colors.white,
+                                                                  size: 11,
                                                                 ),
-                                                                child: Row(
-                                                                  children: [
-                                                                    Container(
-                                                                      height: 35,
-                                                                      width: 35,
-                                                                      child: Icon(
-                                                                        FontAwesomeIcons.comments,
+                                                              ),
+                                                              (my_list_loading)?
+                                                              Text(
+                                                                  "Loading ..." ,
+                                                                  style: TextStyle(
+                                                                      color: (postx == 2 && posty == 0)? Colors.black:Colors.white,
+                                                                      fontSize: 11,
+                                                                      fontWeight: FontWeight.w500
+                                                                  )
+                                                              )
+                                                                  :
+                                                              Text(
+                                                                  (added)?
+                                                                  "Remove from Favourites"
+                                                                      :
+                                                                  "Add to Favourites" ,
+                                                                  style: TextStyle(
+                                                                      color: (postx == 2 && posty == 0)? Colors.black:Colors.white,
+                                                                      fontSize: 11,
+                                                                      fontWeight: FontWeight.w500
+                                                                  )
+                                                              ),
+                                                              SizedBox(width: 5)
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                      SizedBox(width: 5),
+                                                      GestureDetector(
+                                                        onTap: (){
+                                                          setState(() {
+                                                            posty = 0;
+                                                            postx =3;
+                                                            Future.delayed(Duration(milliseconds: 100),(){
+                                                              _goToReview();
+                                                            });
+                                                          });
+                                                        },
+                                                        child: Container(
+                                                          height: 35,
+                                                          padding: EdgeInsets.symmetric(horizontal: 5),
+                                                          decoration: BoxDecoration(
+                                                            border: Border.all(color: Colors.white,width: 0.3),
+                                                            borderRadius: BorderRadius.circular(5),
+                                                            color: (postx == 3 && posty == 0)? Colors.white:Colors.white30,
+                                                          ),
+                                                          child: Row(
+                                                            children: [
+                                                              Container(
+                                                                height: 35,
+                                                                width: 35,
+                                                                child: Icon(
+                                                                  FontAwesomeIcons.starHalfAlt,
+                                                                  color: (postx == 3 && posty == 0)? Colors.black:Colors.white,
+                                                                  size: 11,
+                                                                ),
+                                                              ),
+                                                              Text(
+                                                                  "Rate Serie" ,
+                                                                  style: TextStyle(
+                                                                      color: (postx == 3 && posty == 0)? Colors.black:Colors.white,
+                                                                      fontSize: 11,
+                                                                      fontWeight: FontWeight.w500
+                                                                  )
+                                                              ),
+                                                              SizedBox(width: 5)
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  Row(
+                                                    children: [
+                                                      GestureDetector(
+                                                        onTap: (){
+                                                          setState(() {
+                                                            posty = 0;
+                                                            postx =4;
+                                                            Future.delayed(Duration(milliseconds: 250),(){
+                                                              _goToComments();
+                                                            });
+                                                          });
+                                                        },
+                                                        child: AnimatedContainer(
+                                                          duration: Duration(milliseconds: 200),
+                                                          height: 35,
+                                                          width: (postx == 4 && posty == 0)? 98:35.6,
+                                                          decoration: BoxDecoration(
+                                                            border: Border.all(color: Colors.white,width: 0.3),
+                                                            borderRadius: BorderRadius.circular(5),
+                                                            color: (postx == 4 && posty == 0)? Colors.white:Colors.white30,
+                                                          ),
+                                                          child: Row(
+                                                            children: [
+                                                              Container(
+                                                                height: 35,
+                                                                width: 35,
+                                                                child: Icon(
+                                                                  FontAwesomeIcons.comments,
+                                                                  color: (postx == 4 && posty == 0)? Colors.black:Colors.white,
+                                                                  size: 11,
+                                                                ),
+                                                              ),
+                                                              Flexible(
+                                                                child: Visibility(
+                                                                  visible: (postx == 4 && posty == 0),
+                                                                  child: Text(
+                                                                    "Comments" ,
+                                                                    style: TextStyle(
                                                                         color: (postx == 4 && posty == 0)? Colors.black:Colors.white,
-                                                                        size: 11,
-                                                                      ),
+                                                                        fontSize: 11,
+                                                                        fontWeight: FontWeight.w500
                                                                     ),
-                                                                    Flexible(
-                                                                      child: Visibility(
-                                                                        visible: (postx == 4 && posty == 0),
-                                                                        child: Text(
-                                                                          "Comments" ,
-                                                                          style: TextStyle(
-                                                                              color: (postx == 4 && posty == 0)? Colors.black:Colors.white,
-                                                                              fontSize: 11,
-                                                                              fontWeight: FontWeight.w500
-                                                                          ),
-                                                                          overflow: TextOverflow.ellipsis,
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ],
+                                                                    overflow: TextOverflow.ellipsis,
+                                                                  ),
                                                                 ),
                                                               ),
-                                                            ),
-                                                            SizedBox(width: 5),
-                                                            GestureDetector(
-                                                              onTap: (){
-                                                                setState(() {
-                                                                  posty = 0;
-                                                                  postx =5;
-                                                                  Future.delayed(Duration(milliseconds: 250),(){
-                                                                    _goToReviews();
-                                                                  });
-                                                                });
-                                                              },
-                                                              child: AnimatedContainer(
-                                                                duration: Duration(milliseconds: 200),
-                                                                height: 35,
-                                                                width: (postx == 5 && posty == 0)? 88:35.6,
-                                                                decoration: BoxDecoration(
-                                                                  border: Border.all(color: Colors.white,width: 0.3),
-                                                                  borderRadius: BorderRadius.circular(5),
-                                                                  color: (postx == 5 && posty == 0)? Colors.white:Colors.white30,
-                                                                ),
-                                                                child: Row(
-                                                                  children: [
-                                                                    Container(
-                                                                      height: 35,
-                                                                      width: 35,
-                                                                      child: Icon(
-                                                                        FontAwesomeIcons.star,
-                                                                        color: (postx == 5 && posty == 0)? Colors.black:Colors.white,
-                                                                        size: 11,
-                                                                      ),
-                                                                    ),
-                                                                    Flexible(
-                                                                      child: Visibility(
-                                                                        visible: (postx == 5 && posty == 0),
-                                                                        child: Text(
-                                                                          "Reviews" ,
-                                                                          style: TextStyle(
-                                                                            color: (postx == 5 && posty == 0)? Colors.black:Colors.white,
-                                                                            fontSize: 11,
-                                                                            fontWeight: FontWeight.w500,
-                                                                          ),
-                                                                          overflow: TextOverflow.ellipsis,
-                                                                        ),
-                                                                      ),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ),
-                                                          ],
+                                                            ],
+                                                          ),
                                                         ),
-                                                      ],
-                                                    )
-                                                  ],
-                                                ),
-                                              );
-                                            }else{
-                                              return Text('Loading....');
-                                            }
+                                                      ),
+                                                      SizedBox(width: 5),
+                                                      GestureDetector(
+                                                        onTap: (){
+                                                          setState(() {
+                                                            posty = 0;
+                                                            postx =5;
+                                                            Future.delayed(Duration(milliseconds: 250),(){
+                                                              _goToReviews();
+                                                            });
+                                                          });
+                                                        },
+                                                        child: AnimatedContainer(
+                                                          duration: Duration(milliseconds: 200),
+                                                          height: 35,
+                                                          width: (postx == 5 && posty == 0)? 88:35.6,
+                                                          decoration: BoxDecoration(
+                                                            border: Border.all(color: Colors.white,width: 0.3),
+                                                            borderRadius: BorderRadius.circular(5),
+                                                            color: (postx == 5 && posty == 0)? Colors.white:Colors.white30,
+                                                          ),
+                                                          child: Row(
+                                                            children: [
+                                                              Container(
+                                                                height: 35,
+                                                                width: 35,
+                                                                child: Icon(
+                                                                  FontAwesomeIcons.star,
+                                                                  color: (postx == 5 && posty == 0)? Colors.black:Colors.white,
+                                                                  size: 11,
+                                                                ),
+                                                              ),
+                                                              Flexible(
+                                                                child: Visibility(
+                                                                  visible: (postx == 5 && posty == 0),
+                                                                  child: Text(
+                                                                    "Reviews" ,
+                                                                    style: TextStyle(
+                                                                      color: (postx == 5 && posty == 0)? Colors.black:Colors.white,
+                                                                      fontSize: 11,
+                                                                      fontWeight: FontWeight.w500,
+                                                                    ),
+                                                                    overflow: TextOverflow.ellipsis,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                        ):Center(child: CupertinoActivityIndicator(),),
+                                      ) ,
 
-                                          },
-                                        ),
-                                      )
                                     ],
                                   ),
                                 );
@@ -1442,7 +1547,7 @@ class _SerieState extends State<Serie> {
                 }),
               ],
             ),
-          ),
+          ):Center(child: Text("No Data found",style: TextStyle(color: Colors.white),),),
         ),
       ),
     );

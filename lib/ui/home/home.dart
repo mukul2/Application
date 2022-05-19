@@ -1,4 +1,5 @@
 
+import 'dart:convert';
 import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
@@ -136,7 +137,7 @@ class _HomeState extends ResumableState<Home> {
 
         bool showSlide = true;
 
-        if(showSlide){
+        if(false){
           fire.QuerySnapshot recentMovies = await  fire.FirebaseFirestore.instance.collection("recentMovies").get();
 
           fire.QueryDocumentSnapshot qsS = recentMovies.docs.first;
@@ -305,12 +306,17 @@ class _HomeState extends ResumableState<Home> {
           }
         }
 
+        SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
+        String? server =  sharedPreferences.getString("SERVER_URL");
+        String? port =  sharedPreferences.getString("PORT");
+        String? USER_ID =  sharedPreferences.getString("USER_ID");
+        String? PASSWORD =  sharedPreferences.getString("PASSWORD");
         if(true ){
           //continue watching
 
 
-          fire.QuerySnapshot recentWatch = await  fire.FirebaseFirestore.instance.collection("watchHistory4fe8679c08").where("type",isEqualTo: "movie").get();
+          fire.QuerySnapshot recentWatch = await  fire.FirebaseFirestore.instance.collection("watchHistory"+USER_ID.toString()).where("type",isEqualTo: "movie").get();
 
 
           List<fire.QueryDocumentSnapshot> allData = recentWatch.docs;
@@ -328,12 +334,17 @@ class _HomeState extends ResumableState<Home> {
 
              // String listStr = recentWatch.docs[i].get("data");
              // dynamic li = convert.jsonDecode(listStr);
-                String SERVER = "http://connect.proxytx.cloud";
-                String PORT = "80";
-                String EMAIL = "4fe8679c08";
-                String PASSWORD = "2016";
+              //  String SERVER = "http://connect.proxytx.cloud";
+              //  String PORT = "80";
+              //  String EMAIL = "4fe8679c08";
+              //  String PASSWORD = "2016";
+              SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
-                String link =SERVER+":$PORT"+"/"+dataMap["data"]["stream_type"]+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+dataMap["data"]["stream_id"].toString()+"."+dataMap["data"]["container_extension"];
+              String? server =  sharedPreferences.getString("SERVER_URL");
+              String? port =  sharedPreferences.getString("PORT");
+              String? USER_ID =  sharedPreferences.getString("USER_ID");
+              String? PASSWORD =  sharedPreferences.getString("PASSWORD");
+                String link ="http://$server:$port"+"/"+dataMap["data"]["stream_type"]+"/"+USER_ID!+"/"+PASSWORD.toString() +"/"+dataMap["data"]["stream_id"].toString()+"."+dataMap["data"]["container_extension"];
                 Poster poster1 = Poster(id:dataMap["data"]["stream_id"],
                     title:dataMap["data"]["name"],
                     type: "type",
@@ -375,14 +386,18 @@ class _HomeState extends ResumableState<Home> {
 
           }
 
+          if(posters.length>0){
+            Genre gg = Genre(id: 99, title: "Contiue watching",posters:posters );
 
-          Genre gg = Genre(id: 99, title: "Contiue watching",posters:posters );
+            genres.add(gg);
+            ItemScrollController controller = new ItemScrollController();
+            _scrollControllers.add(controller);
+            _position_x_line_saver.add(0);
+            _counts_x_line_saver.add(gg.posters!.length);
+          }
 
-          genres.add(gg);
-          ItemScrollController controller = new ItemScrollController();
-          _scrollControllers.add(controller);
-          _position_x_line_saver.add(0);
-          _counts_x_line_saver.add(gg.posters!.length);
+
+
 
 
 
@@ -405,30 +420,35 @@ class _HomeState extends ResumableState<Home> {
           // }
         }
 
-        if(true){
+        makeMoVieUI({required List allVodCategory}) async {
 
-          fire.QuerySnapshot qS = await  fire.FirebaseFirestore.instance.collection("movies").limit(1).get();
+          SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
+          String? server =  sharedPreferences.getString("SERVER_URL");
+          String? port =  sharedPreferences.getString("PORT");
+          String? USER_ID =  sharedPreferences.getString("USER_ID");
+          String? PASSWORD =  sharedPreferences.getString("PASSWORD");
 
+          for(int i = 0 ; i < allVodCategory.length; i ++){
 
-
-          for(int i = 0 ; i < qS.docs.length ; i++){
-
+            //  List movies = await apiRest.getMoviesOfCategory(idCategory: allVodCategory[i]["category_id"]);
+            List movies = allVodCategory[i]["list"];
+            print("loop "+movies.length.toString());
             try{
-              String listStr = qS.docs[i].get("list");
-              List li = convert.jsonDecode(listStr);
+              List li = movies;
 
               List<Poster> posters = [];
 
               for(int k = 0 ;k < li.length ;k++ ){
+                print(li[k]);
 
 
-                String SERVER = "http://connect.proxytx.cloud";
-                String PORT = "80";
-                String EMAIL = "4fe8679c08";
-                String PASSWORD = "2016";
+                // String SERVER = "http://connect.proxytx.cloud";
+                // String PORT = "80";
+                // String EMAIL = "4fe8679c08";
+                // String PASSWORD = "2016";
 
-                String link =SERVER+":$PORT"+"/"+li[k]["stream_type"]+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+li[k]["stream_id"].toString()+"."+li[k]["container_extension"];
+               String link ="http://$server:$port/"+li[k]["stream_type"]+"/"+USER_ID!+"/"+PASSWORD.toString() +"/"+li[k]["stream_id"].toString()+"."+li[k]["container_extension"];
 
                 modelS.Source sss = Source(size: "",id: 1, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
                 modelS.Source sss2 = Source(size: "",id: 2, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
@@ -452,7 +472,7 @@ class _HomeState extends ResumableState<Home> {
                     image: li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
                     cover:li[k]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
                     trailer: null,
-                    genres: [Genre(id: k, title: qS.docs[i].get("name"))],
+                    genres: [Genre(id: k, title:  allVodCategory[i]["name"])],
                     sources:[sss,sss2,sss3] );
 
                 posters.add(poster1);
@@ -463,7 +483,7 @@ class _HomeState extends ResumableState<Home> {
 
               }
 
-              Genre gg = Genre(id: i, title: qS.docs[i].get("name"),posters:posters );
+              Genre gg = Genre(id: i, title: allVodCategory[i]["name"],posters:posters );
 
               genres.add(gg);
               ItemScrollController controller = new ItemScrollController();
@@ -471,17 +491,43 @@ class _HomeState extends ResumableState<Home> {
               _position_x_line_saver.add(0);
               _counts_x_line_saver.add(gg.posters!.length);
             }catch(e){
+              print(e);
 
             }
 
+          }
+          print("Loop finished");
+          _showData();
+        }
+
+        if(await  apiRest.checkFile("mc.json") == false){
+
+          List allVodCategory =  await apiRest.getMovCateDetails();
+
+          makeMoVieUI(allVodCategory: allVodCategory);
+
+
+
+        }else{
+
+          File f = await apiRest.localFile("mc.json");
+
+          String data = await f.readAsString();
+          try{
+           // value = jsonDecode(data);
+
+            makeMoVieUI(allVodCategory: jsonDecode(data));
+          }catch(e){
 
           }
+          apiRest.getMovCateDetails();
+
         }
 
         //<---------Recently Added starts  ----------->
 
 
-        _showData();
+
 
       } else {
         _showTryAgain();
@@ -946,6 +992,7 @@ class _HomeState extends ResumableState<Home> {
      });
 
    }catch(e){
+     print(e);
 
    }
   }

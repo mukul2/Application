@@ -1,5 +1,7 @@
 
 
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +10,7 @@ import 'package:flutter_app_tv/key_code.dart';
 import 'package:flutter_app_tv/ui/auth/login.dart';
 import 'package:flutter_app_tv/ui/pages/contact.dart';
 import 'package:flutter_app_tv/ui/pages/privacy.dart';
+import 'package:flutter_app_tv/ui/pages/splash.dart';
 import 'package:flutter_app_tv/ui/setting/setting_subtitbles_widget.dart';
 import 'package:flutter_app_tv/ui/channel/category_widget.dart';
 import 'package:flutter_app_tv/ui/setting/setting_bg_widget.dart';
@@ -16,7 +19,7 @@ import 'package:flutter_app_tv/ui/setting/setting_size_widget.dart';
 import 'package:flutter_app_tv/ui/setting/setting_widget.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_html/shims/dart_ui_real.dart';
-
+import 'package:flutter_app_tv/api/api_rest.dart';
 import 'package:http/http.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -52,6 +55,8 @@ class _SettingsState extends State<Settings> {
 
   late SharedPreferences prefs;
 
+
+
   @override
   void initState() {
     // TODO: implement initState
@@ -75,6 +80,34 @@ class _SettingsState extends State<Settings> {
             case KEY_CENTER:
               _goToPrivacyPolicy();
               _goToContactUs();
+              if(pos_y == 6){
+                SharedPreferences.getInstance().then((value) {
+                  value.setBool("auth", false).then((value) async {
+                 // File  fileTV = await apiRest.localFile("mc.json");
+                 try{
+                   File f = await apiRest.localFile("mc.json");
+                   f.delete();
+                 }catch(e){
+
+                 }
+                 try{
+                   File f = await apiRest.localFile("series.json");
+                   f.delete();
+                 }catch(e){
+
+                 }
+                    Navigator.pushReplacement(context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation1, animation2) => Splash(),
+                        transitionDuration: Duration(seconds: 0),
+                      ),
+                    );
+
+
+                  });
+
+                });
+              }
               break;
             case KEY_UP:
               if(pos_y > 0) {
@@ -82,7 +115,7 @@ class _SettingsState extends State<Settings> {
               }
               break;
             case KEY_DOWN:
-              if(pos_y < 5) {
+              if(pos_y < 6) {
                 pos_y ++;
               }
               break;
@@ -249,7 +282,15 @@ class _SettingsState extends State<Settings> {
                                   });
                                   _goToContactUs();
                                 }),
-                                SettingWidget(icon: Icons.info,title: "Versions",isFocused: (pos_y == 6),subtitle: "2.3", action: (){}),
+                                SettingWidget(icon: Icons.info,title: "Logout",isFocused: (pos_y == 6),subtitle: "", action: (){
+                                  setState(() {
+                                    pos_y = 6;
+                                  });
+
+
+
+
+                                }),
                               ],
                             ),
                           ),

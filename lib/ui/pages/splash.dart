@@ -102,17 +102,31 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
         _p_12= true;
       });
     });
-    Future.delayed(Duration(milliseconds: 5000),(){
+    Future.delayed(Duration(milliseconds: 5000),() async {
       //redirect();
 
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      bool? auth = prefs.getBool("auth");
 
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => Login(),
-          transitionDuration: Duration(seconds: 0),
-        ),
-      );
+      if(auth!=null && auth == true){
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => Home(),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
+      }else{
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => Login(),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
+      }
+
+
     });
   }
   Future<String>  _check() async{

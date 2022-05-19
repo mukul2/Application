@@ -32,8 +32,60 @@ class ChannelsWidget extends StatefulWidget {
 class _ChannelsWidgetState extends State<ChannelsWidget> {
   @override
   Widget build(BuildContext context) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          padding: EdgeInsets.only(left: MediaQuery.of(context).size.longestSide*0.027,bottom: MediaQuery.of(context).size.longestSide*0.004),
+
+          child: Text(
+            widget.title,
+            style: TextStyle(
+                color: (widget.jndex == widget.posty)?Colors.white:Colors.white,
+                fontSize: widget.size,
+                fontWeight: FontWeight.w900
+            ),
+          ),
+        ),
+        Container(
+          height:  MediaQuery.of(context).size.longestSide*0.06,
+          child:  ScrollConfiguration(
+            behavior: MyBehavior(),   // From this behaviour you can change the behaviour
+            child: ScrollablePositionedList.builder(
+              itemCount: widget.channels.length,
+              itemScrollController:widget.scrollController,
+              scrollDirection: Axis.horizontal,
+              itemBuilder: (context, index) {
+                return Padding(
+                  padding:  EdgeInsets.only(left:(0==index)?MediaQuery.of(context).size.longestSide*0.018:0),
+                  child: GestureDetector(
+                      onTap: (){
+                        setState(() {
+                          widget.posty = widget.jndex;
+                          widget.postx =index;
+                          Future.delayed(Duration(milliseconds: 250),(){
+                            Navigator.push(
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder: (context, animation1, animation2) => ChannelDetail(channel: widget.channels[index]),
+                                transitionDuration: Duration(seconds: 0),
+                              ),
+                            );
+                          });
+                        });
+                      },
+                      child: ChannelWidget(isFocus:  ((widget.posty == widget.jndex && widget.postx == index)),channel: widget.channels[index])
+                  ),
+                );
+              },
+            ),
+          ),
+        )
+      ],
+    );
     return Container(
-      height: MediaQuery.of(context).size.longestSide*0.18,
+      height: MediaQuery.of(context).size.longestSide*0.15,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,

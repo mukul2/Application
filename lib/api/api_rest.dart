@@ -3,7 +3,8 @@
 
 
 import 'dart:convert';
-
+import 'dart:io';
+import 'dart:io' as io;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_app_tv/api/api_config.dart';
 import 'package:flutter_app_tv/model/actor.dart';
@@ -11,13 +12,31 @@ import 'package:flutter_app_tv/model/poster.dart';
 import 'package:flutter_app_tv/model/source.dart' as ss;
 import 'package:flutter_app_tv/model/subtitle.dart';
 import 'package:http/http.dart' as http;
-
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:path_provider/path_provider.dart';
 class apiRest{
-  static String EMAIL = "4fe8679c08";
 
   static String no_image = "https://upload.wikimedia.org/wikipedia/commons/1/14/No_Image_Available.jpg?20200913095930";
 
+  static  checkFile(String name) async {
+   try{
+     final directory = await getApplicationDocumentsDirectory();
+     final path = await directory.path;
+     // bool d = await File('$path/$name').exists();
+     // print(name+"  "+d.toString());
+     print('$path/$name');
+     return await io.File('$path/$name').exists();
 
+   }catch(e){
+     print(name+"  missing");
+     return false;
+   }
+  }
+  static  localFile(String name) async {
+    final directory = await getApplicationDocumentsDirectory();
+    final path = await directory.path;
+    return File('$path/$name');
+  }
   static get_epg_full () async {
     try{
       //String castLink = "http://connect.proxytx.cloud/xmltv.php?username=4fe8679c08&password=2016";
@@ -32,25 +51,195 @@ class apiRest{
     }
   }
 
+  static getMovies () async {
+
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? server =  sharedPreferences.getString("SERVER_URL");
+    String? port =  sharedPreferences.getString("PORT");
+    String? USER_ID =  sharedPreferences.getString("USER_ID");
+    String? PASSWORD =  sharedPreferences.getString("PASSWORD");
+    try{
+      
+     // String gc_link = "https://us-central1-sflix-edc5e.cloudfunctions.net/live";
+     // String gc_link = "https://sflix-edc5e.uc.r.appspot.com/playlist";
+      //String castLink = "http://connect.proxytx.cloud/xmltv.php?username=4fe8679c08&password=2016";
+      String mov_category = "http://$server:$port/player_api.php?username=$USER_ID&password=$PASSWORD&action=get_vod_categories";
+      //print(mov_category);
+
+
+      var b =  jsonEncode(<String, String>{"link":"$server:$port","user":USER_ID!,"password":PASSWORD!,"action":"get_vod_categories"});
+      var responseCast = await http.get(Uri.parse(mov_category));
+      print("get_vod_categories response");
+      print(responseCast.body);
+      return jsonDecode(responseCast.body);
+    }catch(e){
+      print(e);
+      print("Empty subtitle");
+      return "";
+    }
+  }
+
+  static getMovCateDetails () async {
+    print("going to download from cloud");
+
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? server =  sharedPreferences.getString("SERVER_URL");
+    String? port =  sharedPreferences.getString("PORT");
+    String? USER_ID =  sharedPreferences.getString("USER_ID");
+    String? PASSWORD =  sharedPreferences.getString("PASSWORD");
+    try{
+
+     // String gc_link = "https://us-central1-sflix-edc5e.cloudfunctions.net/live";
+     // String gc_link = "https://sflix-edc5e.uc.r.appspot.com/playlist";
+      //String castLink = "http://connect.proxytx.cloud/xmltv.php?username=4fe8679c08&password=2016";
+      String mov_category = "http://$server:$port/player_api.php?username=$USER_ID&password=$PASSWORD&action=get_vod_categories";
+      //print(mov_category);
+
+      String g_link = "https://europe-west2-staht-connect-322113.cloudfunctions.net/testM";
+
+
+      //var b =  jsonEncode(<String, String>{"link":"$server:$port","user":USER_ID!,"password":PASSWORD!,"action":"get_vod_categories"});
+      var b =  jsonEncode(<String, String>{"link":"http://$server","user":USER_ID!,"password":PASSWORD!});
+
+      print(b);
+      var responseCast = await http.post(Uri.parse(g_link),body: b,headers: { 'Content-type': 'application/json'});
+      print("get_vod_categories response");
+      print(responseCast.body);
+
+      List l = jsonDecode(responseCast.body);
+      if(l.length>0){
+        final fileTV = await localFile("mc.json");
+        await fileTV.writeAsString(responseCast.body);
+      }
+      return l;
+
+    }catch(e){
+      print(e);
+      print("Empty subtitle");
+      return "";
+    }
+  }
+  static getSeriesCateDetails () async {
+    print("getting series from cloud");
+
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? server =  sharedPreferences.getString("SERVER_URL");
+    String? port =  sharedPreferences.getString("PORT");
+    String? USER_ID =  sharedPreferences.getString("USER_ID");
+    String? PASSWORD =  sharedPreferences.getString("PASSWORD");
+    try{
+
+      // String gc_link = "https://us-central1-sflix-edc5e.cloudfunctions.net/live";
+      // String gc_link = "https://sflix-edc5e.uc.r.appspot.com/playlist";
+      //String castLink = "http://connect.proxytx.cloud/xmltv.php?username=4fe8679c08&password=2016";
+      String mov_category = "http://$server/player_api.php?username=$USER_ID&password=$PASSWORD&action=get_vod_categories";
+      //print(mov_category);
+
+      String g_link = "https://europe-west2-staht-connect-322113.cloudfunctions.net/testS";
+
+
+      //var b =  jsonEncode(<String, String>{"link":"$server:$port","user":USER_ID!,"password":PASSWORD!,"action":"get_vod_categories"});
+      var b =  jsonEncode(<String, String>{"link":"http://$server","user":USER_ID!,"password":PASSWORD!});
+      var responseCast = await http.post(Uri.parse(g_link),body: b,headers: { 'Content-type': 'application/json'});
+      print(" response");
+      print(responseCast.body);
+
+      List ll = jsonDecode(responseCast.body);
+
+      if(ll.length>0){
+        final fileTV = await localFile("series.json");
+        await fileTV.writeAsString(responseCast.body);
+      }
+
+
+      return ll;
+    }catch(e){
+      print(e);
+      print("Empty subtitle");
+      return "";
+    }
+  }
+
+  static getTVCateDetails () async {
+    print("getting tv from cloud");
+
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? server =  sharedPreferences.getString("SERVER_URL");
+    String? port =  sharedPreferences.getString("PORT");
+    String? USER_ID =  sharedPreferences.getString("USER_ID");
+    String? PASSWORD =  sharedPreferences.getString("PASSWORD");
+    try{
+
+      // String gc_link = "https://us-central1-sflix-edc5e.cloudfunctions.net/live";
+      // String gc_link = "https://sflix-edc5e.uc.r.appspot.com/playlist";
+      //String castLink = "http://connect.proxytx.cloud/xmltv.php?username=4fe8679c08&password=2016";
+      String mov_category = "http://$server/player_api.php?username=$USER_ID&password=$PASSWORD&action=get_vod_categories";
+      //print(mov_category);
+
+      String g_link = "https://europe-west2-staht-connect-322113.cloudfunctions.net/test";
+
+
+      //var b =  jsonEncode(<String, String>{"link":"$server:$port","user":USER_ID!,"password":PASSWORD!,"action":"get_vod_categories"});
+      var b =  jsonEncode(<String, String>{"link":"http://$server","user":USER_ID!,"password":PASSWORD!});
+      var responseCast = await http.post(Uri.parse(g_link),body: b,headers: { 'Content-type': 'application/json'});
+      print(" response");
+      print(responseCast.body);
+
+      List ll = jsonDecode(responseCast.body);
+
+      if(ll.length>0){
+        final fileTV = await localFile("tv.json");
+        await fileTV.writeAsString(responseCast.body);
+      }
+
+
+      return ll;
+    }catch(e){
+      print(e);
+      print("Empty subtitle");
+      return "";
+    }
+  }
+
+  static getMoviesOfCategory ({required String idCategory}) async {
+
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String? server =  sharedPreferences.getString("SERVER_URL");
+    String? port =  sharedPreferences.getString("PORT");
+    String? USER_ID =  sharedPreferences.getString("USER_ID");
+    String? PASSWORD =  sharedPreferences.getString("PASSWORD");
+    try{
+
+     // String gc_link = "https://us-central1-sflix-edc5e.cloudfunctions.net/live";
+      //String castLink = "http://connect.proxytx.cloud/xmltv.php?username=4fe8679c08&password=2016";
+      String mov_category = "http://$server:$port/player_api.php?username=$USER_ID&password=$PASSWORD&action=get_vod_streams&category_id="+idCategory;
+      print(mov_category);
+      var responseCast = await http.get(Uri.parse(mov_category));
+      return jsonDecode(responseCast.body);
+    }catch(e){
+      print(e);
+      print("Empty subtitle");
+      return "";
+    }
+  }
 
   static pushWatch({required int durationSeconds,dynamic data}) async {
     FirebaseFirestore  firestore =  FirebaseFirestore.instance;
-
-    firestore.collection("watchHistory"+EMAIL).where("stream_id",isEqualTo: data["stream_id"]).get().then((value) {
-      print("fff1");
-      if(value.docs.length>0){
-        print("fff222");
-        value.docs.first.reference.update({"time":DateTime.now().millisecondsSinceEpoch,"duration":durationSeconds}).then((value) {
-          print("fff333");
-        });
-      }else{
-        firestore.collection("watchHistory"+EMAIL).add({"stream_id":data["stream_id"],"time":DateTime.now().millisecondsSinceEpoch,"type":"movie","duration":durationSeconds,"data":data}).then((value) => print("firebase note added"));
-
-      }
-
-    });
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
 
+    String? USER_ID =  sharedPreferences.getString("USER_ID");
+    var value =    await firestore.collection("watchHistory"+USER_ID!).where("stream_id",isEqualTo: data["stream_id"]).get();
+
+    if(value.docs.length>0){
+
+      await value.docs.first.reference.update({"time":DateTime.now().millisecondsSinceEpoch,"duration":durationSeconds});
+      return;
+    }else{
+      await firestore.collection("watchHistory"+USER_ID).add({"stream_id":data["stream_id"],"time":DateTime.now().millisecondsSinceEpoch,"type":"movie","duration":durationSeconds,"data":data}).then((value) => print("firebase note added"));
+      return;
+
+    }
 
   }
   static getMovieCastAndCrew ({required String imdb}) async {
@@ -187,8 +376,27 @@ class apiRest{
 
   }
 
-  static searchMovieInTMDB({required String name,String? rTmdbId})async{
+  static searchMovieInTMDB({required String name,String? rTmdbId,required String posterID})async{
     dynamic MovieDetails;
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+    String? server =  sharedPreferences.getString("SERVER_URL");
+    String? port =  sharedPreferences.getString("PORT");
+    String? USER_ID =  sharedPreferences.getString("USER_ID");
+    String? PASSWORD =  sharedPreferences.getString("PASSWORD");
+    String  LinkMovieInfo = "http://$server/player_api.php?username=$USER_ID&password=$PASSWORD&action=get_vod_info&vod_id="+posterID;
+
+    http.get(Uri.parse(LinkMovieInfo), ).then((value) {
+
+      FirebaseFirestore.instance.collection("moreInfo"+server!).add(jsonDecode(value.body));
+
+    });
+
+
+
+
+
+
 
     String TMDB = "";
     if(rTmdbId!=null){
@@ -246,6 +454,18 @@ class apiRest{
       if(jsonTMDB["total_results"]>0){
 
         tmdbId = jsonTMDB["results"][0]["id"].toString();
+
+        for(int i  = 0 ; i < jsonTMDB["total_results"] ; i++){
+
+          if(jsonTMDB["title"].toString().contains(name)){
+            tmdbId = jsonTMDB["results"][i]["id"].toString();
+            print("choosing "+i.toString());
+            break;
+          }
+
+        }
+
+
         String tvSHowTMDBFull = "https://api.themoviedb.org/3/movie/$tmdbId?api_key=103096910bbe8842c151f7cce00ab218";
         print(tvSHowTMDBFull);
         TMDB = tmdbId;
@@ -343,8 +563,55 @@ class apiRest{
   static registerUser(var data) async{
     return configPost("/user/register/",data) ;
   }
-  static loginUser(var data) async{
-    return configPost("/user/login/",data) ;
+  static loginUser({required String email,required String password}) async{
+ //  var url = Uri.parse('http://line.liveott.ru/player_api.php?username=$email&password=$password');
+    var url = Uri.parse('http://line.myprotv.net/player_api.php?username=$email&password=$password');
+    http.Response response;
+    response = await http.get( url, );
+    print(response.body);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    Map<String,dynamic> r =  jsonDecode(response.body);
+
+    if(r.containsKey("user_info")){
+      Map<String,dynamic> user_info =  r["user_info"];
+
+      if( user_info.containsKey("status")){
+        if( user_info["status"]=="Active"){
+          print("success");
+
+
+
+
+
+
+          prefs.setString("SERVER_URL", r["server_info"]["url"]);
+          prefs.setString("USER_ID", email);
+          prefs.setString("PASSWORD", password);
+          prefs.setString("PORT", r["server_info"]["port"]);
+          prefs.setBool("auth", true);
+
+          return true;
+
+
+
+
+
+
+
+        }else{
+          prefs.setBool("auth", false);
+          return false;
+          print("fail");
+        }
+      }else{
+        prefs.setBool("auth", false);
+        return false;
+      }
+    }else{
+      prefs.setBool("auth", false);
+      return false;
+    }
+    //return configPost("/user/login/",data) ;
   }
   static addCommentPoster(var data) async{
 

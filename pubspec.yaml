@@ -102,6 +102,15 @@ flutter:
     - family: Poppins
       fonts:
         - asset: assets/fonts/poppins.otf
+    - family: SF Mono
+      fonts:
+        - asset: assets/fonts/sf_mono.otf
+    - family: SF Pro
+      fonts:
+        - asset: assets/fonts/sf_pro.otf
+    - family: SF Pro M
+      fonts:
+        - asset: assets/fonts/sf_pro_m.otf
   #   - family: Trajan Pro
   #     fonts:
   #       - asset: fonts/TrajanPro.ttf

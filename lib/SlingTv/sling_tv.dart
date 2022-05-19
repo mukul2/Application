@@ -53,7 +53,7 @@ class TVSLING extends StatefulWidget {
 
 
 class _MoviesState extends ResumableState<TVSLING> {
-  int postx = 0;
+  int postx = 2;
   int posty = -2;
 
 
@@ -126,6 +126,8 @@ class _MoviesState extends ResumableState<TVSLING> {
   download();
   }
 Future download() async {
+
+
 
   String castLink = "http://line.liveott.ru/player_api.php?username=4fe8679c08&password=2016&action=get_live_categories";
   print(castLink);
@@ -217,13 +219,17 @@ Future download() async {
 
   if(sportsGroup.length>0){
     for(int i = 0 ; i < sportsGroup.length ; i++){
-      String link2 = "http://line.liveott.ru/player_api.php?username=4fe8679c08&password=2016&action=get_live_streams&category_id="+sportsGroup[i]["category_id"];
+      try{
+        String link2 = "http://line.liveott.ru/player_api.php?username=4fe8679c08&password=2016&action=get_live_streams&category_id="+sportsGroup[i]["category_id"];
 
-      var responseCast = await http.get(Uri.parse(link2), );
+        var responseCast = await http.get(Uri.parse(link2), );
 
-      List allChannels = convert.jsonDecode(responseCast.body);
+        List allChannels = convert.jsonDecode(responseCast.body);
 
-      sportsChannel.addAll(allChannels);
+        sportsChannel.addAll(allChannels);
+      }catch(e){
+
+      }
 
 
     }
@@ -245,17 +251,29 @@ Future download() async {
   getData() async {
 
     List epgs = [];
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
+    String? server =  sharedPreferences.getString("SERVER_URL");
+    String? port =  sharedPreferences.getString("PORT");
+    String? USER_ID =  sharedPreferences.getString("USER_ID");
+    String? PASSWORD =  sharedPreferences.getString("PASSWORD");
 
-    String castLink = "http://connect.proxytx.cloud/player_api.php?username=4fe8679c08&password=2016&action=get_short_epg&stream_id="+newsChannels[index]["stream_id"].toString()+"&limit=1";
+    String castLink = "http://$server/player_api.php?username=$USER_ID&password=$PASSWORD&action=get_short_epg&stream_id="+newsChannels[index]["stream_id"].toString()+"&limit=1";
 
     var responseEPG = await http.get(Uri.parse(castLink), );
-    dynamic dd  =  jsonDecode(responseEPG.body);
-    print(responseEPG.body);
-    epgs  =dd["epg_listings"];
+
+   try{
+     dynamic dd  =  jsonDecode(responseEPG.body);
+     print(responseEPG.body);
+     epgs  =dd["epg_listings"];
+   }catch(e){
+     print(castLink);
+     print(e);
+
+   }
 
     if(epgs.length>0){
-      String m3 = "http://connect.proxytx.cloud:80/live/4fe8679c08/2016/"+newsChannels[index]["stream_id"].toString()+".m3u8";
+      String m3 = "http://$server:80/live/$USER_ID/$PASSWORD/"+newsChannels[index]["stream_id"].toString()+".m3u8";
       print(m3);
       epgOne = epgs[0];
      // String image = "https://us-central1-sflix-edc5e.cloudfunctions.net/takeScreenShot?link="+"https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4";
@@ -274,23 +292,24 @@ Future download() async {
      // }
 
 
-      setState(() {
 
-      });
 
       var cha = newsChannels[index];
       cha["epgs"] = epgOne;
 
       selectedTopNews.add(cha);
+      setState(() {
+
+      });
       index++;
-      if(index<newsChannels.length-1 && countNews<6){
+      if(index<newsChannels.length-1 && selectedTopNews.length<1){
         getData();
       }
 
       print(epgs);
     }else{
       index++;
-      if(index<newsChannels.length-1 && countNews<6){
+      if(index<newsChannels.length-1 && selectedTopNews.length<1){
         getData();
       }
     }
@@ -298,7 +317,7 @@ Future download() async {
   }
 
 
-  if(index<newsChannels.length-1 && countNews<6){
+  if(index<newsChannels.length-1 && selectedTopNews.length<1){
     getData();
   }
 
@@ -389,6 +408,12 @@ Future download() async {
     // }
   }
   void _getList()  async{
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+    String? server =  sharedPreferences.getString("SERVER_URL");
+    String? port =  sharedPreferences.getString("PORT");
+    String? USER_ID =  sharedPreferences.getString("USER_ID");
+    String? PASSWORD =  sharedPreferences.getString("PASSWORD");
     movies.clear();
     page =0;
     _showLoading();
@@ -402,12 +427,12 @@ Future download() async {
 
 
     for(int i = 0 ; i < movieContents[genres[_selected_genre].id].length ; i++){
-      String SERVER = "http://connect.proxytx.cloud";
-      String PORT = "80";
-      String EMAIL = "4fe8679c08";
-      String PASSWORD = "2016";
+      // String SERVER = "http://connect.proxytx.cloud";
+      // String PORT = "80";
+      // String EMAIL = "4fe8679c08";
+      // String PASSWORD = "2016";
 
-      String link =SERVER+":$PORT"+"/"+movieContents[_selected_genre][i]["stream_type"]+"/"+EMAIL+"/"+PASSWORD.toString() +"/"+movieContents[_selected_genre][i]["stream_id"].toString()+"."+movieContents[_selected_genre][i]["container_extension"];
+      String link ="http://$server+:$port"+"/"+movieContents[_selected_genre][i]["stream_type"]+"/"+USER_ID!+"/"+PASSWORD.toString() +"/"+movieContents[_selected_genre][i]["stream_id"].toString()+"."+movieContents[_selected_genre][i]["container_extension"];
       print( movieContents[_selected_genre]);
       Poster poster1 = Poster(id:movieContents[_selected_genre][i]["stream_id"],
           title: movieContents[_selected_genre][i]["name"],
@@ -707,7 +732,7 @@ Future download() async {
                             );
 
 
-                          }):CupertinoActivityIndicator()),
+                          }):CupertinoActivityIndicator(color: Colors.red,)),
                 ),
               ),
               NavigationWidget(postx:postx,posty:posty,selectedItem : 2,image : image, logged : logged),
