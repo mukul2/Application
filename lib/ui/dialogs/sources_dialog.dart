@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -47,23 +49,23 @@ class _SourcesDialogState extends State<SourcesDialog> {
   }
   @override
   Widget build(BuildContext context) {
-     Shortcuts(shortcuts: <LogicalKeySet, Intent>{
-      LogicalKeySet(LogicalKeyboardKey.select): ActivateIntent(),
-    }, child: MaterialApp(
-      title: 'SFlix',debugShowCheckedModeBanner: false,
-      home: Scaffold(body: Stack(
-        children: [
-          Align(alignment: Alignment.centerRight,child: Container(width: MediaQuery.of(context).size.width/3,height: MediaQuery.of(context).size.height ,child:ListView.builder(shrinkWrap: true,
-            itemCount: sTitles.length,
-            itemBuilder: (context, index) {
-              return InkWell(focusColor: Colors.red.withOpacity(0.5),onTap: (){
-
-              },child: Text(sTitles[index]),);
-            },
-          ) ,),)
-        ],
-      ),),
-    ));
+    //  Shortcuts(shortcuts: <LogicalKeySet, Intent>{
+    //   LogicalKeySet(LogicalKeyboardKey.select): ActivateIntent(),
+    // }, child: MaterialApp(
+    //   title: 'SFlix',debugShowCheckedModeBanner: false,
+    //   home: Scaffold(body: Stack(
+    //     children: [
+    //       Align(alignment: Alignment.centerRight,child: Container(width: MediaQuery.of(context).size.width/3,height: MediaQuery.of(context).size.height ,child:ListView.builder(shrinkWrap: true,
+    //         itemCount: sTitles.length,
+    //         itemBuilder: (context, index) {
+    //           return InkWell(focusColor: Colors.red.withOpacity(0.5),onTap: (){
+    //
+    //           },child: Text(sTitles[index]),);
+    //         },
+    //       ) ,),)
+    //     ],
+    //   ),),
+    // ));
 
     return Positioned(
       left: 0,
@@ -73,7 +75,7 @@ class _SourcesDialogState extends State<SourcesDialog> {
       child: Visibility(
           visible: widget.visibileSourcesDialog,
           child: Container(
-            color: Colors.black87,
+            color: Colors.transparent,
             child: Stack(
                 children: [
                   Positioned(
@@ -95,108 +97,112 @@ class _SourcesDialogState extends State<SourcesDialog> {
                       right: 0,
                       bottom: 0,
                       child: Container(
-                        width: MediaQuery.of(context).size.width/3,
-                        decoration: BoxDecoration(
-                          color: Colors.blueGrey,
-                          boxShadow: [
-                            BoxShadow(
-                                color:Colors.black,
-                                offset: Offset(0,0),
-                                blurRadius: 5
-                            ),
-                          ],
-                        ),
-                        child:  Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Container(
-                              color: Colors.black45,
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 80.0,left: 10,bottom: 10),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.closed_caption,color: Colors.white70,size: 35),
-                                    SizedBox(width: 10),
-                                    Text(
-                                      "Select subtitle",
-                                      style: TextStyle(
-                                          fontSize: MediaQuery.of(context).size.longestSide*0.025,
-                                          fontWeight: FontWeight.w800,
-                                          color: Colors.white70
-                                      ),
+                        width: MediaQuery.of(context).size.width/2,
+                        // decoration: BoxDecoration(
+                        //   color: Colors.transparent,
+                        //   boxShadow: [
+                        //     BoxShadow(
+                        //         color:Colors.black,
+                        //         offset: Offset(0,0),
+                        //         blurRadius: 5
+                        //     ),
+                        //   ],
+                        // ),
+                        child:  ClipRect(
+                          child: BackdropFilter( filter: new ImageFilter.blur(sigmaX: 20.0, sigmaY: 20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                Container(
+                                  color: Colors.transparent,
+                                  child: Padding(
+                                    padding:  EdgeInsets.only(top:MediaQuery.of(context).viewPadding.top+ MediaQuery.of(context).size.longestSide*0.01,left: MediaQuery.of(context).size.longestSide*0.01,bottom: MediaQuery.of(context).size.longestSide*0.01),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.closed_caption,color: Colors.white70,size: MediaQuery.of(context).size.longestSide*0.03),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          "Select subtitle",
+                                          style: TextStyle(
+                                              fontSize: MediaQuery.of(context).size.longestSide*0.025,
+                                              fontWeight: FontWeight.w800,
+                                              color: Colors.white70
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
+                                  ),
                                 ),
-                              ),
-                            ),
 
-                            Expanded(child:
-                            // Container(
-                            //   color: Colors.black.withOpacity(0.7),
-                            //   child:  ScrollConfiguration(
-                            //     behavior: MyBehavior(),   // From this behaviour you can change the behaviour
-                            //     child: ScrollablePositionedList.builder(
-                            //       itemCount: widget.sourcesList.length,
-                            //       itemScrollController: widget.sourcesScrollController2,
-                            //       scrollDirection: Axis.vertical,
-                            //       itemBuilder: (context, index) {
-                            //         return  GestureDetector(
-                            //             onTap: (){
-                            //               widget.select(index);
-                            //             },
-                            //             child: SourceWidget(isFocused: (index == widget.focused_source),source:widget.sourcesList[index])
-                            //         );
-                            //       },
-                            //     ),
-                            //   ),
-                            // ) ,
-                              Container(
-                              color: Colors.black.withOpacity(0.7),
-                              child:  ScrollConfiguration(
-                                behavior: MyBehavior(),   // From this behaviour you can change the behaviour
-                                child: ScrollablePositionedList.builder(
-                                  itemCount: widget.subtitleList!.length,
-                                  itemScrollController: widget.sourcesScrollController,
-                                  scrollDirection: Axis.vertical,
-                                  itemBuilder: (context, index) {
-                                    return  GestureDetector(
-                                        onTap: (){
-                                          print("setting subtitles");
-                                          widget.subtitleSelect!(index);
-                                        },
-                                        child:false?Text(widget.subtitleList![index].toString()): SubtitleTileSourceWidget(isFocused: (index == widget.focused_source),subtitleSource:widget.subtitleList![index])
-                                    );
-                                  },
+                                Expanded(child:
+                                // Container(
+                                //   color: Colors.black.withOpacity(0.7),
+                                //   child:  ScrollConfiguration(
+                                //     behavior: MyBehavior(),   // From this behaviour you can change the behaviour
+                                //     child: ScrollablePositionedList.builder(
+                                //       itemCount: widget.sourcesList.length,
+                                //       itemScrollController: widget.sourcesScrollController2,
+                                //       scrollDirection: Axis.vertical,
+                                //       itemBuilder: (context, index) {
+                                //         return  GestureDetector(
+                                //             onTap: (){
+                                //               widget.select(index);
+                                //             },
+                                //             child: SourceWidget(isFocused: (index == widget.focused_source),source:widget.sourcesList[index])
+                                //         );
+                                //       },
+                                //     ),
+                                //   ),
+                                // ) ,
+                                  Container(
+                                  color: Colors.black.withOpacity(0.1),
+                                  child:  ScrollConfiguration(
+                                    behavior: MyBehavior(),   // From this behaviour you can change the behaviour
+                                    child: ScrollablePositionedList.builder(
+                                      itemCount: widget.subtitleList!.length,
+                                      itemScrollController: widget.sourcesScrollController,
+                                      scrollDirection: Axis.vertical,
+                                      itemBuilder: (context, index) {
+                                        return  GestureDetector(
+                                            onTap: (){
+                                              print("setting subtitles");
+                                              widget.subtitleSelect!(index);
+                                            },
+                                            child:false?Text(widget.subtitleList![index].toString()): SubtitleTileSourceWidget(isFocused: (index == widget.focused_source),subtitleSource:widget.subtitleList![index])
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                )
+
+
                                 ),
-                              ),
-                            )
 
-
+                            // if(false)   Expanded(child:
+                            //     Container(
+                            //       color: Colors.black.withOpacity(0.7),
+                            //       child:  ScrollConfiguration(
+                            //         behavior: MyBehavior(),   // From this behaviour you can change the behaviour
+                            //         child: ScrollablePositionedList.builder(
+                            //           itemCount: widget.sourcesList.length,
+                            //           itemScrollController: widget.sourcesScrollController,
+                            //           scrollDirection: Axis.vertical,
+                            //           itemBuilder: (context, index) {
+                            //             return  GestureDetector(
+                            //                 onTap: (){
+                            //                     widget.select(index);
+                            //                 },
+                            //                 child: SourceWidget(isFocused: (index == widget.focused_source),source:widget.sourcesList[index])
+                            //             );
+                            //           },
+                            //         ),
+                            //       ),
+                            //     ))
+                              ],
                             ),
-
-                        // if(false)   Expanded(child:
-                        //     Container(
-                        //       color: Colors.black.withOpacity(0.7),
-                        //       child:  ScrollConfiguration(
-                        //         behavior: MyBehavior(),   // From this behaviour you can change the behaviour
-                        //         child: ScrollablePositionedList.builder(
-                        //           itemCount: widget.sourcesList.length,
-                        //           itemScrollController: widget.sourcesScrollController,
-                        //           scrollDirection: Axis.vertical,
-                        //           itemBuilder: (context, index) {
-                        //             return  GestureDetector(
-                        //                 onTap: (){
-                        //                     widget.select(index);
-                        //                 },
-                        //                 child: SourceWidget(isFocused: (index == widget.focused_source),source:widget.sourcesList[index])
-                        //             );
-                        //           },
-                        //         ),
-                        //       ),
-                        //     ))
-                          ],
+                          ),
                         ),
                       )
                   )

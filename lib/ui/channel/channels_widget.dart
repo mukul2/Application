@@ -10,6 +10,8 @@ import 'package:flutter_app_tv/ui/channel/channel_widget.dart';
 import 'package:intl/intl.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:http/http.dart' as http;
+
+import '../player/video_player.dart';
 class ChannelsWidget extends StatefulWidget {
 
   List<Channel> channels = [];
@@ -65,13 +67,21 @@ class _ChannelsWidgetState extends State<ChannelsWidget> {
                           widget.posty = widget.jndex;
                           widget.postx =index;
                           Future.delayed(Duration(milliseconds: 250),(){
+
                             Navigator.push(
                               context,
                               PageRouteBuilder(
-                                pageBuilder: (context, animation1, animation2) => ChannelDetail(channel: widget.channels[index]),
+                                pageBuilder: (context, animation1, animation2) => VideoPlayer(subtitles: [],sourcesList: widget.channels[index].sources,selected_source:0,focused_source: 0,channel:widget.channels[index]),
                                 transitionDuration: Duration(seconds: 0),
                               ),
                             );
+                            // Navigator.push(
+                            //   context,
+                            //   PageRouteBuilder(
+                            //     pageBuilder: (context, animation1, animation2) => ChannelDetail(channel: widget.channels[index]),
+                            //     transitionDuration: Duration(seconds: 0),
+                            //   ),
+                            // );
                           });
                         });
                       },

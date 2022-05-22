@@ -28,8 +28,8 @@ class _LoginState extends State<Login> {
   FocusNode main_focus_node = FocusNode();
   FocusNode username_focus_node= FocusNode();
   FocusNode password_focus_node= FocusNode();
-  TextEditingController usernameController = new TextEditingController(text: "Hass_2519");
-  TextEditingController passwordController = new TextEditingController(text: "RWNOPUKD6C");
+  TextEditingController usernameController = new TextEditingController(text: "4fe8679c08");
+  TextEditingController passwordController = new TextEditingController(text: "2016");
   bool emailvalide = true;
   bool passwordvalide = true;
   bool loading = false;

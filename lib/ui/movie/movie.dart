@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:ui';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' as fire;
@@ -206,7 +207,12 @@ class _MovieState extends State<Movie> {
 
     print("now getting subtitles");
     availableSubtitles =  await apiRest.getSubtitles(imdb:  TMDB);
-
+    Fluttertoast.showToast(
+      msg: availableSubtitles.length.toString()+" subtitles",
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor: Colors.green,
+      textColor: Colors.white,
+    );
     print(availableSubtitles);
     var videosResponse  = await apiRest.getVidoesFromTMDB(id: TMDB);
 
@@ -637,7 +643,7 @@ class _MovieState extends State<Movie> {
                               case 0:
 
                                 return Container(
-                                  padding: EdgeInsets.only(left: 50,right: 50,bottom: 20,top: 100),
+                                  padding: EdgeInsets.only(left: MediaQuery.of(context).size.longestSide*0.01,right:  MediaQuery.of(context).size.longestSide*0.01,bottom:  MediaQuery.of(context).size.longestSide*0.01,top:  MediaQuery.of(context).size.longestSide*0.01+MediaQuery.of(context).viewPadding.top),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.max,
                                     mainAxisAlignment: MainAxisAlignment.start,
@@ -649,11 +655,11 @@ class _MovieState extends State<Movie> {
                                           child: Column(
                                             mainAxisSize: MainAxisSize.max,
                                             mainAxisAlignment: MainAxisAlignment.end,
-                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.end,
                                             children: [
                                               ClipRRect(
                                                   borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width*0.01),
-                                                  child: CachedNetworkImage(
+                                                  child: CachedNetworkImage(height:MediaQuery.of(context).size.width*0.15 ,width: MediaQuery.of(context).size.width*0.11,
                                                     imageUrl:MovieDetails["backdrop_path"]!=null?("https://image.tmdb.org/t/p/w500/"+MovieDetails["backdrop_path"]):(MovieDetails["poster_path"]!=null?  "https://image.tmdb.org/t/p/w500/"+MovieDetails["poster_path"]:widget.movie!.cover),
                                                     errorWidget: (context, url, error) => Icon(Icons.error),
                                                     fit: BoxFit.cover,
@@ -679,7 +685,7 @@ class _MovieState extends State<Movie> {
                                                   Text(  widget.movie!.title.contains(MovieDetails["title"])?(MovieDetails["title"].length>30?MovieDetails["title"].substring(0,33):MovieDetails["title"]): (widget.movie!.title.length>33?widget.movie!.title.substring(0,33):widget.movie!.title),
                                                     style: TextStyle(
                                                         color: Colors.white,
-                                                        fontSize: MediaQuery.of(context).size.width*0.05,
+                                                        fontSize: MediaQuery.of(context).size.longestSide*0.030,
                                                         fontWeight: FontWeight.w900
                                                     ),
                                                   ),
@@ -693,7 +699,7 @@ class _MovieState extends State<Movie> {
                                                   )
                                                 ],
                                               ),
-                                              SizedBox(height: 15),
+                                              SizedBox(height: MediaQuery.of(context).size.longestSide*0.0030),
                                               Row(
                                                 crossAxisAlignment: CrossAxisAlignment.center,
                                                 children: [
@@ -791,16 +797,16 @@ class _MovieState extends State<Movie> {
                                                   )
                                                 ],
                                               ),
-                                              SizedBox(height: 10),
+                                              SizedBox(height: MediaQuery.of(context).size.longestSide*0.0030),
                                               Text(" ${duration_r.length>0?duration_r:    MovieDetails["runtime"]} min ${gng_r.length>0? gng_r:  gng_r2}"
                                                 , style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: MediaQuery.of(context).size.width*0.012,
                                                     fontWeight: FontWeight.w900
                                                 ),),
-                                              SizedBox(height: 10),
+                                              SizedBox(height: 0),
                                               Text( movie_plot.length>0? movie_plot:MovieDetails["overview"]
-                                                , style: TextStyle(
+                                                , maxLines: 3,style: TextStyle(
                                                     color: Colors.white60,
                                                     fontSize: MediaQuery.of(context).size.width*0.013,
                                                     height: 1.5,
@@ -829,18 +835,32 @@ class _MovieState extends State<Movie> {
                                                           setState(() {
                                                             posty = 0;
                                                             postx =0;
-                                                            Future.delayed(Duration(milliseconds: 100),(){
-                                                              // _goToPlayer();
+                                                            if(availableSubtitles.length>0){
+                                                              visibileSourcesDialog = true;
+                                                            }else{
+                                                              _selected_source = 0;
+                                                              _selected_subtitle_source = _focused_source;
+                                                              // SharedPreferences prefs = await SharedPreferences.getInstance();
 
                                                               _playSource();
 
-                                                              Navigator.push(
-                                                                context,
-                                                                PageRouteBuilder(
-                                                                  pageBuilder: (context, animation1, animation2) => VideoPlayer(subtitles: availableSubtitles,selected_subtitle: _focused_source,sourcesList: widget.movie!.sources,selected_source:_focused_source,focused_source: _focused_source,poster: widget.movie),
-                                                                  transitionDuration: Duration(seconds: 0),
-                                                                ),
-                                                              );
+                                                            }
+
+
+                                                            Future.delayed(Duration(milliseconds: 100),(){
+                                                             // _openSource();
+                                                              // _goToPlayer();
+                                                           //   visibileSourcesDialog = true ;
+
+                                                              // _playSource();
+                                                              //
+                                                              // Navigator.push(
+                                                              //   context,
+                                                              //   PageRouteBuilder(
+                                                              //     pageBuilder: (context, animation1, animation2) => VideoPlayer(subtitles: availableSubtitles,selected_subtitle: _focused_source,sourcesList: widget.movie!.sources,selected_source:_focused_source,focused_source: _focused_source,poster: widget.movie),
+                                                              //     transitionDuration: Duration(seconds: 0),
+                                                              //   ),
+                                                              // );
 
 
                                                             });
@@ -942,6 +962,8 @@ class _MovieState extends State<Movie> {
                                                               return  GestureDetector(
                                                                 onTap: (){
 
+                                                                  _addMylist();
+
                                                                   print("button pressed");
                                                                   // print(visibileSourcesDialog);
 
@@ -1042,152 +1064,10 @@ class _MovieState extends State<Movie> {
 
 
 
-                                                      SizedBox(width: 5),
-                                                      GestureDetector(
-                                                        onTap: (){
-                                                          setState(() {
-                                                            posty = 0;
-                                                            postx =3;
-                                                            Future.delayed(Duration(milliseconds: 100),(){
-                                                              _goToReview();
-                                                            });
-                                                          });
-                                                        },
-                                                        child: Container(
-                                                          height: 35,
-                                                          padding: EdgeInsets.symmetric(horizontal: 5),
-                                                          decoration: BoxDecoration(
-                                                            border: Border.all(color: Colors.white,width: 0.3),
-                                                            borderRadius: BorderRadius.circular(3),
-                                                            color: (postx == 3 && posty == 0)? Colors.white:Colors.white30,
-                                                          ),
-                                                          child: Row(
-                                                            children: [
-                                                              Container(
-                                                                height: 28,
-                                                                width: 28,
-                                                                child: Icon(
-                                                                  FontAwesomeIcons.starHalfAlt,
-                                                                  color: (postx == 3 && posty == 0)? Colors.black:Colors.white,
-                                                                  size:  MediaQuery.of(context).size.width*0.015,
-                                                                ),
-                                                              ),
-                                                              Text(
-                                                                  "Rate Movie" ,
-                                                                  style: TextStyle(
-                                                                      color: (postx == 3 && posty == 0)? Colors.black:Colors.white,
-                                                                      fontSize: MediaQuery.of(context).size.width*0.013,
-                                                                      fontWeight: FontWeight.w500
-                                                                  )
-                                                              ),
-                                                              SizedBox(width: 5)
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
+
                                                     ],
                                                   ),
-                                                  Row(
-                                                    children: [
-                                                      GestureDetector(
-                                                        onTap: (){
-                                                          setState(() {
-                                                            posty = 0;
-                                                            postx =4;
-                                                            Future.delayed(Duration(milliseconds: 250),(){
-                                                              _goToComments();
-                                                            });
-                                                          });
-                                                        },
-                                                        child: AnimatedContainer(
-                                                          duration: Duration(milliseconds: 200),
-                                                          height: 35,
-                                                          width: (postx == 4 && posty == 0)? 98:35.6,
-                                                          decoration: BoxDecoration(
-                                                            border: Border.all(color: Colors.white,width: 0.3),
-                                                            borderRadius: BorderRadius.circular(3),
-                                                            color: (postx == 4 && posty == 0)? Colors.white:Colors.white30,
-                                                          ),
-                                                          child: Row(
-                                                            children: [
-                                                              Container(
-                                                                height: 35,
-                                                                width: 35,
-                                                                child: Icon(
-                                                                  FontAwesomeIcons.comments,
-                                                                  color: (postx == 4 && posty == 0)? Colors.black:Colors.white,
-                                                                  size: 11,
-                                                                ),
-                                                              ),
-                                                              Flexible(
-                                                                child: Visibility(
-                                                                  visible: (postx == 4 && posty == 0),
-                                                                  child: Text(
-                                                                    "Comments" ,
-                                                                    style: TextStyle(
-                                                                        color: (postx == 4 && posty == 0)? Colors.black:Colors.white,
-                                                                        fontSize: 11,
-                                                                        fontWeight: FontWeight.w500
-                                                                    ),
-                                                                    overflow: TextOverflow.ellipsis,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      SizedBox(width: 5),
-                                                      GestureDetector(
-                                                        onTap: (){
-                                                          setState(() {
-                                                            posty = 0;
-                                                            postx =5;
-                                                            Future.delayed(Duration(milliseconds: 250),(){
-                                                              _goToReviews();
-                                                            });
-                                                          });
-                                                        },
-                                                        child: AnimatedContainer(
-                                                          duration: Duration(milliseconds: 200),
-                                                          height: 35,
-                                                          width: (postx == 5 && posty == 0)? 88:35.6,
-                                                          decoration: BoxDecoration(
-                                                            border: Border.all(color: Colors.white,width: 0.3),
-                                                            borderRadius: BorderRadius.circular(3),
-                                                            color: (postx == 5 && posty == 0)? Colors.white:Colors.white30,
-                                                          ),
-                                                          child: Row(
-                                                            children: [
-                                                              Container(
-                                                                height: 35,
-                                                                width: 35,
-                                                                child: Icon(
-                                                                  FontAwesomeIcons.star,
-                                                                  color: (postx == 5 && posty == 0)? Colors.black:Colors.white,
-                                                                  size: 11,
-                                                                ),
-                                                              ),
-                                                              Flexible(
-                                                                child: Visibility(
-                                                                  visible: (postx == 5 && posty == 0),
-                                                                  child: Text(
-                                                                    "Reviews" ,
-                                                                    style: TextStyle(
-                                                                      color: (postx == 5 && posty == 0)? Colors.black:Colors.white,
-                                                                      fontSize: 11,
-                                                                      fontWeight: FontWeight.w500,
-                                                                    ),
-                                                                    overflow: TextOverflow.ellipsis,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
+
                                                 ],
                                               )
                                             ],
@@ -1224,7 +1104,7 @@ class _MovieState extends State<Movie> {
                                         )
                                       else
                                         Container(
-                                          height:  MediaQuery.of(context).size.longestSide*0.08,
+                                          height:  MediaQuery.of(context).size.longestSide*0.09,
                                           child: ScrollConfiguration(
                                             behavior: MyBehavior(),   //
                                             child: ScrollablePositionedList.builder(
@@ -1460,20 +1340,23 @@ class _MovieState extends State<Movie> {
     });
   }
   void selectSource(int selected_source_pick){
+    print("should play");
     setState(() {
       _focused_source =  selected_source_pick;
       _selected_subtitle_source = selected_source_pick;
       Future.delayed(Duration(milliseconds: 200),(){
+
        // _openSource();
       });
     });
   }
   void selectSubtitleSource(int selected_subtitle){
+    print("wokr wokr");
     setState(() {
       _focused_source =  selected_subtitle;
       _selected_subtitle_source = selected_subtitle;
       Future.delayed(Duration(milliseconds: 200),(){
-       // _openSource();
+        _openSource();
       });
     });
   }

@@ -803,9 +803,13 @@ class _HomeState extends ResumableState<TvChannelsHome> {
               left: 0,
               right: 0,
               duration: Duration(milliseconds: 200),
-              height: (posty < 0)?(MediaQuery.of(context).size.height/2)  -50:(MediaQuery.of(context).size.height/2)-50,
+              height: MediaQuery.of(context).viewPadding.top ==0?  ((posty < 0)?(MediaQuery.of(context).size.height/2) + 20:(MediaQuery.of(context).size.height/2)+50):(MediaQuery.of(context).size.height/1)-(50+MediaQuery.of(context).viewPadding.top),
+
+            //  height: (posty < 0)?(MediaQuery.of(context).size.height/2)  -50:(MediaQuery.of(context).size.height/2)-50,
               child: Container(
-                height: (posty < 0)?(MediaQuery.of(context).size.height/2) -50:(MediaQuery.of(context).size.height/2)-50,
+                height: MediaQuery.of(context).viewPadding.top ==0?  ((posty < 0)?(MediaQuery.of(context).size.height/2) + 20:(MediaQuery.of(context).size.height/2)+50):(MediaQuery.of(context).size.height/1)-(50+MediaQuery.of(context).viewPadding.top),
+
+                //height: (posty < 0)?(MediaQuery.of(context).size.height/2) -50:(MediaQuery.of(context).size.height/2)-50,
                 child: ScrollConfiguration(
                   behavior: MyBehavior(),   // From this behaviour you can change the behaviour
                   child: ScrollablePositionedList.builder(

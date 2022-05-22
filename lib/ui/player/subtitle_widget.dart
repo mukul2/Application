@@ -47,7 +47,7 @@ class SubtitleWidget extends StatelessWidget {
         ],
       ),
       decoration: BoxDecoration(
-        color:  (isFocused)?Colors.black.withOpacity(0.9):Colors.white.withOpacity(0),
+        color:  (isFocused)?Colors.white.withOpacity(0.5) : Colors.white.withOpacity(0.1),
       ),
     );
   }

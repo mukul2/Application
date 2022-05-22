@@ -157,8 +157,8 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
 
     //  home: EpgActivity(),
-      // home: Splash(),
-       home: SlingTv(),
+       home: Splash(),
+       //home: SlingTv(),
       //home:TvChannelsHome() ,
       routes: {
         "/splash": (context) => Splash(),

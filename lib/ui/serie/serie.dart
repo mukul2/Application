@@ -836,7 +836,7 @@ class _SerieState extends State<Serie> {
                             switch(index){
                               case 0:
                                 return Container(
-                                  padding: EdgeInsets.only(left: 50,right: 50,bottom: 20,top: 100),
+                                  padding: EdgeInsets.only(left: MediaQuery.of(context).size.longestSide*0.05,right:  MediaQuery.of(context).size.longestSide*0.01,bottom:  MediaQuery.of(context).size.longestSide*0.01,top:  MediaQuery.of(context).size.longestSide*0.01+MediaQuery.of(context).viewPadding.top),
                                   child: Row(
                                     mainAxisSize: MainAxisSize.max,
                                     mainAxisAlignment: MainAxisAlignment.start,
@@ -852,7 +852,7 @@ class _SerieState extends State<Serie> {
                                             children: [
                                               ClipRRect(
                                                   borderRadius: BorderRadius.circular(5),
-                                                  child: CachedNetworkImage(
+                                                  child: CachedNetworkImage(height:MediaQuery.of(context).size.width*0.15 ,width: MediaQuery.of(context).size.width*0.15,
                                                     imageUrl: widget.serie!.image,
                                                     errorWidget: (context, url, error) => Icon(Icons.error),
                                                     fit: BoxFit.cover,
@@ -869,7 +869,7 @@ class _SerieState extends State<Serie> {
                                    Expanded(
                                         flex: 5,
                                         child: showInfo_tmdb!=null?  Container(
-                                          padding: EdgeInsets.only(left: 20),
+                                          padding: EdgeInsets.only(left: MediaQuery.of(context).size.width*0.01),
                                           child:  Column(
                                             mainAxisSize: MainAxisSize.max,
                                             mainAxisAlignment: MainAxisAlignment.end,
@@ -1009,6 +1009,7 @@ class _SerieState extends State<Serie> {
                                                             onTap: (){
 
 
+
                                                               setState(() {
                                                                 posty = 0;
                                                                 postx =0;
@@ -1136,11 +1137,11 @@ class _SerieState extends State<Serie> {
                                                                   });
                                                                 },
                                                                 child: Container(
-                                                                  height: MediaQuery.of(context).size.width*0.035,
-                                                                  padding: EdgeInsets.symmetric(horizontal: 5),
+                                                                  height: MediaQuery.of(context).size.longestSide*0.03,
+                                                                  padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.longestSide*0.006),
                                                                   decoration: BoxDecoration(
                                                                     border: Border.all(color: Colors.white,width: 0.3),
-                                                                    borderRadius: BorderRadius.circular(3),
+                                                                    borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.003),
                                                                     color: (postx == 2 && posty == 0)? Colors.white:Colors.white30,
                                                                   ),
                                                                   child: Row(
@@ -1182,7 +1183,7 @@ class _SerieState extends State<Serie> {
                                                                           "Add to Favourites" ,
                                                                           style: TextStyle(
                                                                               color: (postx == 2 && posty == 0)? Colors.black:Colors.white,
-                                                                              fontSize: MediaQuery.of(context).size.width*0.013,
+                                                                              fontSize: MediaQuery.of(context).size.longestSide*0.01,
                                                                               fontWeight: FontWeight.w500
                                                                           )
                                                                       ),
@@ -1208,7 +1209,7 @@ class _SerieState extends State<Serie> {
 
 
                                                           }),
-                                                   if(false)   GestureDetector(
+                                                      if(false)   GestureDetector(
                                                         onTap: (){
                                                           print(visibileSourcesDialog);
                                                           setState(() {
@@ -1274,151 +1275,10 @@ class _SerieState extends State<Serie> {
                                                         ),
                                                       ),
                                                       SizedBox(width: 5),
-                                                      GestureDetector(
-                                                        onTap: (){
-                                                          setState(() {
-                                                            posty = 0;
-                                                            postx =3;
-                                                            Future.delayed(Duration(milliseconds: 100),(){
-                                                              _goToReview();
-                                                            });
-                                                          });
-                                                        },
-                                                        child: Container(
-                                                          height: MediaQuery.of(context).size.longestSide*0.03,
-                                                          padding: EdgeInsets.symmetric(horizontal: 5),
-                                                          decoration: BoxDecoration(
-                                                            border: Border.all(color: Colors.white,width: 0.3),
-                                                            borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.003),
-                                                            color: (postx == 3 && posty == 0)? Colors.white:Colors.white30,
-                                                          ),
-                                                          child: Row(
-                                                            children: [
-                                                              Container(
-                                                                height: 35,
-                                                                width: 35,
-                                                                child: Icon(
-                                                                  FontAwesomeIcons.starHalfAlt,
-                                                                  color: (postx == 3 && posty == 0)? Colors.black:Colors.white,
-                                                                  size: 11,
-                                                                ),
-                                                              ),
-                                                              Text(
-                                                                  "Rate Serie" ,
-                                                                  style: TextStyle(
-                                                                      color: (postx == 3 && posty == 0)? Colors.black:Colors.white,
-                                                                      fontSize: 11,
-                                                                      fontWeight: FontWeight.w500
-                                                                  )
-                                                              ),
-                                                              SizedBox(width: 5)
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
+
                                                     ],
                                                   ),
-                                                  Row(
-                                                    children: [
-                                                      GestureDetector(
-                                                        onTap: (){
-                                                          setState(() {
-                                                            posty = 0;
-                                                            postx =4;
-                                                            Future.delayed(Duration(milliseconds: 250),(){
-                                                              _goToComments();
-                                                            });
-                                                          });
-                                                        },
-                                                        child: AnimatedContainer(
-                                                          duration: Duration(milliseconds: 200),
-                                                          height: 35,
-                                                          width: (postx == 4 && posty == 0)? 98:35.6,
-                                                          decoration: BoxDecoration(
-                                                            border: Border.all(color: Colors.white,width: 0.3),
-                                                            borderRadius: BorderRadius.circular(5),
-                                                            color: (postx == 4 && posty == 0)? Colors.white:Colors.white30,
-                                                          ),
-                                                          child: Row(
-                                                            children: [
-                                                              Container(
-                                                                height: 35,
-                                                                width: 35,
-                                                                child: Icon(
-                                                                  FontAwesomeIcons.comments,
-                                                                  color: (postx == 4 && posty == 0)? Colors.black:Colors.white,
-                                                                  size: 11,
-                                                                ),
-                                                              ),
-                                                              Flexible(
-                                                                child: Visibility(
-                                                                  visible: (postx == 4 && posty == 0),
-                                                                  child: Text(
-                                                                    "Comments" ,
-                                                                    style: TextStyle(
-                                                                        color: (postx == 4 && posty == 0)? Colors.black:Colors.white,
-                                                                        fontSize: 11,
-                                                                        fontWeight: FontWeight.w500
-                                                                    ),
-                                                                    overflow: TextOverflow.ellipsis,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      SizedBox(width: 5),
-                                                      GestureDetector(
-                                                        onTap: (){
-                                                          setState(() {
-                                                            posty = 0;
-                                                            postx =5;
-                                                            Future.delayed(Duration(milliseconds: 250),(){
-                                                              _goToReviews();
-                                                            });
-                                                          });
-                                                        },
-                                                        child: AnimatedContainer(
-                                                          duration: Duration(milliseconds: 200),
-                                                          height: 35,
-                                                          width: (postx == 5 && posty == 0)? 88:35.6,
-                                                          decoration: BoxDecoration(
-                                                            border: Border.all(color: Colors.white,width: 0.3),
-                                                            borderRadius: BorderRadius.circular(5),
-                                                            color: (postx == 5 && posty == 0)? Colors.white:Colors.white30,
-                                                          ),
-                                                          child: Row(
-                                                            children: [
-                                                              Container(
-                                                                height: 35,
-                                                                width: 35,
-                                                                child: Icon(
-                                                                  FontAwesomeIcons.star,
-                                                                  color: (postx == 5 && posty == 0)? Colors.black:Colors.white,
-                                                                  size: 11,
-                                                                ),
-                                                              ),
-                                                              Flexible(
-                                                                child: Visibility(
-                                                                  visible: (postx == 5 && posty == 0),
-                                                                  child: Text(
-                                                                    "Reviews" ,
-                                                                    style: TextStyle(
-                                                                      color: (postx == 5 && posty == 0)? Colors.black:Colors.white,
-                                                                      fontSize: 11,
-                                                                      fontWeight: FontWeight.w500,
-                                                                    ),
-                                                                    overflow: TextOverflow.ellipsis,
-                                                                  ),
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
+
                                                 ],
                                               )
                                             ],
@@ -1460,7 +1320,7 @@ class _SerieState extends State<Serie> {
                                                 child: Container(
                                                   height: MediaQuery.of(context).size.longestSide*0.003,
                                                   padding: EdgeInsets.only(left: MediaQuery.of(context).size.longestSide*0.01,right: MediaQuery.of(context).size.longestSide*0.01),
-                                                  margin: EdgeInsets.only(left: (index == 0)? 50 :5,right: 5),
+                                                  margin: EdgeInsets.only(left: (index == 0)?  MediaQuery.of(context).size.longestSide*0.05 :5,right: 5),
                                                   decoration: BoxDecoration(
                                                       borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.005),
                                                       color: ((postx == index && posty == 1) || selected_season == index)? Colors.white:Colors.white30,
@@ -1489,7 +1349,7 @@ class _SerieState extends State<Serie> {
                                     );
                                  else
                                    return   Padding(
-                                     padding: const EdgeInsets.only(left: 50,bottom: 10),
+                                     padding:  EdgeInsets.only(left:  MediaQuery.of(context).size.longestSide*0.05,bottom: 10),
                                      child: Text("No Seasons Available"
                                        , style: TextStyle(
                                            color: (posty == 1)? Colors.white:Colors.white70,
@@ -1502,7 +1362,7 @@ class _SerieState extends State<Serie> {
                               case 2:
                                 if(seasons.length > 0)
                                   return Container(
-                                  height: 150,
+                                  height: MediaQuery.of(context).size.longestSide*0.2,
                                   margin: EdgeInsets.only(bottom: 20),
                                   child:ScrollConfiguration(
                                     behavior: MyBehavior(),
@@ -1519,7 +1379,24 @@ class _SerieState extends State<Serie> {
                                                 Future.delayed(Duration(milliseconds: 250),(){
                                                   setState(() {
                                                     selected_episode  =  index;
-                                                    _goToPlayerEpisode();
+                                                    _focused_source = 0;
+                                                    _selected_source = 0;
+                                                    selected_episode  = postx;
+                                                    sources = seasons[selected_season].episodes[postx].sources;
+                                                    if (posty == 2) {
+                                                      setState(() {
+                                                        //visibileSourcesDialog = true;
+                                                      });
+                                                    }
+                                                    Navigator.push(
+                                                      context,
+                                                      PageRouteBuilder(
+                                                        pageBuilder: (context, animation1, animation2) => VideoPlayer(subtitles: [],sourcesList: sources,selected_source:0,focused_source: 0,poster: widget.serie,episode:selected_episode!,season: selected_season,seasons:seasons ),
+                                                        transitionDuration: Duration(seconds: 0),
+                                                      ),
+                                                    );
+
+                                                    //_goToPlayerEpisode();
                                                   });
                                                 });
                                               });
@@ -1540,15 +1417,15 @@ class _SerieState extends State<Serie> {
                                                     ),
                                                   ],
                                                 ),
-                                                margin: EdgeInsets.only(left: (index == 0)? 50 :5,right: 5),
+                                                margin: EdgeInsets.only(left: (index == 0)?  MediaQuery.of(context).size.longestSide*0.05 :5,right: 5),
                                                 child: Stack(
                                                   children: [
                                                     
                                                     Positioned(
 
                                                       child: Container(
-                                                        height: 150,
-                                                        width: 250,
+                                                        height:  MediaQuery.of(context).size.longestSide*0.2,
+                                                        width:  MediaQuery.of(context).size.longestSide*0.3,
                                                         decoration: BoxDecoration(
                                                             borderRadius: BorderRadius.circular(5),
                                                         ),
@@ -1573,7 +1450,16 @@ class _SerieState extends State<Serie> {
                                                         child: Container(
                                                           decoration: BoxDecoration(
                                                             borderRadius: BorderRadius.circular(5),
-                                                            color: Colors.black54,
+                                                            gradient: LinearGradient(
+                                                              begin: Alignment.bottomCenter,
+                                                              end: Alignment.topCenter,
+                                                              colors: [
+                                                                Colors.black.withOpacity(0.7),
+                                                                Colors.black.withOpacity(0.4),
+                                                                Colors.transparent,
+                                                              ],
+                                                            )
+                                                           // color: Colors.transparent,
                                                           ),
                                                         )
                                                     ),
@@ -1582,7 +1468,7 @@ class _SerieState extends State<Serie> {
                                                       left:7,
                                                       right:7,
                                                       child: Container(
-                                                        width: 250,
+                                                        width:  MediaQuery.of(context).size.longestSide*0.3,
                                                         child:  Column(
                                                           crossAxisAlignment: CrossAxisAlignment.start,
                                                           children: [
@@ -1635,7 +1521,7 @@ class _SerieState extends State<Serie> {
                                 );
                                 else
                                   return   Padding(
-                                    padding: const EdgeInsets.only(left: 50,bottom: 10),
+                                    padding:  EdgeInsets.only(left:  MediaQuery.of(context).size.longestSide*0.05,bottom: 10),
                                     child: Text("No Episodes Available"
                                       , style: TextStyle(
                                           color: (posty == 2)? Colors.white:Colors.white70,
@@ -1646,6 +1532,8 @@ class _SerieState extends State<Serie> {
                                   );
                                 break;
                               case 3:
+
+                                return Container(height: 0,width: 0,);
                                 return Container(
                                   padding: EdgeInsets.symmetric(vertical: 0),
                                   child: Column(
@@ -1653,7 +1541,7 @@ class _SerieState extends State<Serie> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Padding(
-                                        padding: const EdgeInsets.only(left: 50),
+                                        padding:  EdgeInsets.only(left:  MediaQuery.of(context).size.longestSide*0.05),
                                         child: Text("Full Cast & Crew"
                                           , style: TextStyle(
                                               color: (posty == 3)? Colors.white:Colors.white70,
@@ -1698,6 +1586,7 @@ class _SerieState extends State<Serie> {
                                 );
                                 break;
                               case 4:
+                                return Container(height: 0,width: 0,);
                                 return  Container(
                                   padding: EdgeInsets.only(top: 5,bottom: 20),
                                   child: Column(
@@ -1717,7 +1606,7 @@ class _SerieState extends State<Serie> {
                           }),
                     )
                 ),
-                SourcesDialog(subtitleList: [],sourcesScrollController2: _sourcesScrollController,visibileSourcesDialog: visibileSourcesDialog,focused_source: _focused_source,selected_source: _selected_source,sourcesList: sources,sourcesScrollController: _sourcesScrollController,select: selectSource,close: closeSourceDialog),
+              //  SourcesDialog(subtitleList: [],sourcesScrollController2: _sourcesScrollController,visibileSourcesDialog: visibileSourcesDialog,focused_source: _focused_source,selected_source: _selected_source,sourcesList: sources,sourcesScrollController: _sourcesScrollController,select: selectSource,close: closeSourceDialog),
                 SubscribeDialog(visible:visible_subscribe_dialog ,close:(){
                   setState(() {
                     visible_subscribe_dialog= false;

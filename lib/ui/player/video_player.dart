@@ -590,10 +590,12 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
      //
      //
      //
-     //  setState(() {
-     //    _focused_subtitle = selected_subtitle_pick;
-     //    _applySubtitle();
-     //  });
+      setState(() {
+        _focused_subtitle = selected_subtitle_pick;
+        _applySubtitle();
+        _visibile_subtitles_dialog = false;
+      });
+
   }
   void closeSourceDialog(){
     setState(() {

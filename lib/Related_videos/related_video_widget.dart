@@ -32,7 +32,7 @@ class _MoviesWidgetState extends State<RelatedVideoWidget> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 175,
+      height: MediaQuery.of(context).size.longestSide*0.2,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -40,18 +40,18 @@ class _MoviesWidgetState extends State<RelatedVideoWidget> {
         children: [
           Container(
             padding: EdgeInsets.only(left: 50,bottom: 5),
-            height: 22,
+           // height: 22,
             child: Text(
               widget.title!,
               style: TextStyle(
                   color: (widget.jndex == widget.posty)?Colors.white:Colors.white60,
-                  fontSize: (widget.size == null)? 14: 13,
+                  fontSize: (widget.size == null)? MediaQuery.of(context).size.longestSide*0.018: MediaQuery.of(context).size.longestSide*0.018,
                   fontWeight: FontWeight.w900
               ),
             ),
           ),
           Container(
-            height: MediaQuery.of(context).size.width*0.15,
+            height: MediaQuery.of(context).size.longestSide*0.15,
             width: double.infinity,
             child: ScrollConfiguration(
               behavior: MyBehavior(),   //

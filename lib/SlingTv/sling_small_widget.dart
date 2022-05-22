@@ -12,6 +12,7 @@ import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:http/http.dart' as http;
 
 import '../model/slingChannel.dart';
+import '../ui/player/video_player.dart';
 class SlingWidgetWidget extends StatefulWidget {
 
   List<SlingChannel> channels = [];
@@ -41,7 +42,9 @@ class _ChannelsWidgetState extends State<SlingWidgetWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: EdgeInsets.only(left: MediaQuery.of(context).size.longestSide*0.027,bottom: MediaQuery.of(context).size.longestSide*0.004),
+            padding: EdgeInsets.only(
+                left: MediaQuery.of(context).size.longestSide*0.004,
+                bottom: MediaQuery.of(context).size.longestSide*0.004),
 
             child: Text(
               widget.title,
@@ -63,83 +66,101 @@ class _ChannelsWidgetState extends State<SlingWidgetWidget> {
                 itemBuilder: (context, index) {
 
 
-                  return AnimatedContainer(duration: Duration(milliseconds: 200),height:   ((widget.posty == widget.jndex && widget.postx == index))? (MediaQuery.of(context).size.longestSide*0.15):(MediaQuery.of(context).size.longestSide*0.12) ,width:   ((widget.posty == widget.jndex && widget.postx == index))? (MediaQuery.of(context).size.longestSide*0.3):(MediaQuery.of(context).size.longestSide*0.25), margin: EdgeInsets.all(MediaQuery.of(context).size.longestSide*0.005),
-                    decoration: BoxDecoration(border: Border.all(color: ((widget.posty == widget.jndex && widget.postx == index))?Colors.red: Colors.white),borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.0025),
-                      //color: (jndex2==postx && posty == -1)?Colors.red:Colors.transparent,
+                  return InkWell(onTap: (){
 
-                    ),child: Center(
-                      child: Stack(
-                        children: [
+                    Channel c = Channel(id: widget.channels[index].id, title: widget.channels[index].title, type: widget.channels[index].type, label: widget.channels[index].label,
 
-                          Align(alignment: Alignment.centerRight,child:Image.network( widget.channels[index].thumbBig?? "https://bobsvagene.club/wp-content/uploads/2021/09/sunny_leone_nude_b-7871.jpg",fit: BoxFit.cover,width: ((widget.posty == widget.jndex && widget.postx == index))? (MediaQuery.of(context).size.longestSide*0.3):(MediaQuery.of(context).size.longestSide*0.25) ,) ,),
-                          Align(alignment: Alignment.bottomLeft,child:  Container(decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                                colors: [
-                                  Colors.black,
-                                  Colors.black,
-                                  Colors.black.withOpacity(0.7),
-                                  Colors.black.withOpacity(0.5),
-                                  Colors.black.withOpacity(0.1),
+                        sublabel: widget.channels[index].sublabel, downloadas: widget.channels[index].downloadas, comment: widget.channels[index].comment, playas: widget.channels[index].playas, description:widget.channels[index]. description, classification: widget.channels[index].classification, duration: widget.channels[index].duration, rating:widget.channels[index]. rating, image: widget.channels[index].image, website: widget.channels[index].website, countries:widget.channels[index]. countries, categories:widget.channels[index]. categories, sources:widget.channels[index]. sources);
 
-                                ],
-                              )
-                          ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Column(mainAxisAlignment: MainAxisAlignment.end,crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-
-
-                                   Text(utf8.decode(base64.decode( widget.channels[index].epgs![0]["title"])),maxLines: 1,style: TextStyle(color: Colors.white,fontSize:MediaQuery.of(context).size.longestSide*0.017 ),),
-                                  Text(utf8.decode(base64.decode(widget.channels[index].epgs![0]["description"])),maxLines: 2,style:  TextStyle(color: Colors.white,fontSize:MediaQuery.of(context).size.longestSide*0.015),),
-                                  Row(
-                                    children: [
-                                      Text(DateFormat('hh:mm a').format(DateTime.fromMillisecondsSinceEpoch(60000+int.parse(widget.channels[index].epgs![0]["start_timestamp"])*1000)),maxLines: 2,style:  TextStyle(color: Colors.redAccent,fontSize:MediaQuery.of(context).size.longestSide*0.010),),
-                                      Text(" - ",maxLines: 2,style:  TextStyle(color: Colors.white,fontSize:MediaQuery.of(context).size.longestSide*0.010),),
-                                      Text(DateFormat('hh:mm a').format(DateTime.fromMillisecondsSinceEpoch(60000+int.parse(widget.channels[index].epgs![0]["stop_timestamp"])*1000)),maxLines: 2,style:  TextStyle(color: Colors.redAccent,fontSize:MediaQuery.of(context).size.longestSide*0.010),),
-                                    ],
-                                  ),
-                                  Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          Text( widget.channels[index].title,style: TextStyle(color: Colors.white,fontSize:MediaQuery.of(context).size.longestSide*0.01 ),),
-                                          if( ((widget.posty == widget.jndex && widget.postx == index)))    Container(decoration: BoxDecoration( borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.003),color: Colors.white,),
-                                            margin: EdgeInsets.only(left:MediaQuery.of(context).size.longestSide*0.01), child: Padding(
-                                              padding:  EdgeInsets.only(top: MediaQuery.of(context).size.longestSide*0.005,bottom: MediaQuery.of(context).size.longestSide*0.005,left: MediaQuery.of(context).size.longestSide*0.01,right: MediaQuery.of(context).size.longestSide*0.01),
-                                              child: Row(
-                                                children: [
-                                                  Icon(Icons.tv,color: Colors.black,size:MediaQuery.of(context).size.longestSide*0.01),
-                                                  Padding(
-                                                    padding:  EdgeInsets.only(left: MediaQuery.of(context).size.longestSide*0.01),
-                                                    child: Text("Watch",style: TextStyle(color: Colors.black,fontSize:MediaQuery.of(context).size.longestSide*0.01 ),),
-                                                  ),
-
-                                                ],
-                                              ),
-                                            ),),
-                                        ],
-                                      ),
-
-                                      CachedNetworkImage(height:MediaQuery.of(context).size.longestSide*0.03 ,width: MediaQuery.of(context).size.longestSide*0.03,
-                                        imageUrl: widget.channels[index].image,
-                                        errorWidget: (context, url, error) => Icon(Icons.error),
-                                        // fit: !isFocus? BoxFit.cover:BoxFit.none,
-                                      ),
-
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ),
-                          )),
-
-                        ],
+                    Navigator.push(
+                      context,
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation1, animation2) => VideoPlayer(subtitles: [],sourcesList: widget.channels[index].sources,selected_source:0,focused_source: 0,channel:c),
+                        transitionDuration: Duration(seconds: 0),
                       ),
-                    ),
+                    );
 
+
+                  },
+                    child: AnimatedContainer(duration: Duration(milliseconds: 200),height:   ((widget.posty == widget.jndex && widget.postx == index))? (MediaQuery.of(context).size.longestSide*0.15):(MediaQuery.of(context).size.longestSide*0.12) ,
+                      width:   ((widget.posty == widget.jndex && widget.postx == index))? (MediaQuery.of(context).size.longestSide*0.5):(MediaQuery.of(context).size.longestSide*0.45), margin: EdgeInsets.all(MediaQuery.of(context).size.longestSide*0.005),
+                      decoration: BoxDecoration(border: Border.all(color: ((widget.posty == widget.jndex && widget.postx == index))?Colors.red: Colors.white),borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.0025),
+                        //color: (jndex2==postx && posty == -1)?Colors.red:Colors.transparent,
+
+                      ),child: Center(
+                        child: Stack(
+                          children: [
+
+                            Align(alignment: Alignment.centerRight,child:Image.network( widget.channels[index].thumbBig!,fit: BoxFit.cover,width: ((widget.posty == widget.jndex && widget.postx == index))? (MediaQuery.of(context).size.longestSide*0.3):(MediaQuery.of(context).size.longestSide*0.25) ,) ,),
+                            Align(alignment: Alignment.bottomLeft,child:  Container(decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.centerLeft,
+                                  end: Alignment.centerRight,
+                                  colors: [
+                                    Colors.black,
+                                    Colors.black,
+                                    Colors.black.withOpacity(0.7),
+                                    Colors.black.withOpacity(0.5),
+                                    Colors.black.withOpacity(0.1),
+
+                                  ],
+                                )
+                            ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Column(mainAxisAlignment: MainAxisAlignment.end,crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+
+
+                                     Text(utf8.decode(base64.decode( widget.channels[index].epgs![0]["title"])),maxLines: 1,style: TextStyle(color: Colors.white,fontSize:MediaQuery.of(context).size.longestSide*0.017 ),),
+                                    Text(utf8.decode(base64.decode(widget.channels[index].epgs![0]["description"])),maxLines: 2,style:  TextStyle(color: Colors.white60,fontSize:MediaQuery.of(context).size.longestSide*0.015),),
+                                    Row(
+                                      children: [
+                                        Text(DateFormat('hh:mm a').format(DateTime.fromMillisecondsSinceEpoch(60000+int.parse(widget.channels[index].epgs![0]["start_timestamp"])*1000)),maxLines: 2,style:  TextStyle(fontWeight: FontWeight.bold,color: Colors.redAccent,fontSize:MediaQuery.of(context).size.longestSide*0.010),),
+                                        Text(" - ",maxLines: 2,style:  TextStyle(color: Colors.white,fontSize:MediaQuery.of(context).size.longestSide*0.010),),
+                                        Text(DateFormat('hh:mm a').format(DateTime.fromMillisecondsSinceEpoch(60000+int.parse(widget.channels[index].epgs![0]["stop_timestamp"])*1000)),maxLines: 2,style:  TextStyle(fontWeight: FontWeight.bold,color: Colors.redAccent,fontSize:MediaQuery.of(context).size.longestSide*0.010),),
+                                      ],
+                                    ),
+                                    Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            Text( widget.channels[index].title,style: TextStyle(color: Colors.white,fontSize:MediaQuery.of(context).size.longestSide*0.01 ),),
+                                            if( ((widget.posty == widget.jndex && widget.postx == index)))    Container(decoration: BoxDecoration( borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.003),color: Colors.white,),
+                                              margin: EdgeInsets.only(left:MediaQuery.of(context).size.longestSide*0.01), child: Padding(
+                                                padding:  EdgeInsets.only(top: MediaQuery.of(context).size.longestSide*0.005,bottom: MediaQuery.of(context).size.longestSide*0.005,left: MediaQuery.of(context).size.longestSide*0.01,right: MediaQuery.of(context).size.longestSide*0.01),
+                                                child: Row(
+                                                  children: [
+                                                    Icon(Icons.tv,color: Colors.black,size:MediaQuery.of(context).size.longestSide*0.01),
+                                                    Padding(
+                                                      padding:  EdgeInsets.only(left: MediaQuery.of(context).size.longestSide*0.01),
+                                                      child: Text("Watch",style: TextStyle(color: Colors.black,fontSize:MediaQuery.of(context).size.longestSide*0.01 ),),
+                                                    ),
+
+                                                  ],
+                                                ),
+                                              ),),
+                                          ],
+                                        ),
+
+                                        CachedNetworkImage(height:MediaQuery.of(context).size.longestSide*0.03 ,width: MediaQuery.of(context).size.longestSide*0.03,
+                                          imageUrl: widget.channels[index].image,
+                                          errorWidget: (context, url, error) => Icon(Icons.error),
+                                          // fit: !isFocus? BoxFit.cover:BoxFit.none,
+                                        ),
+
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            )),
+
+                          ],
+                        ),
+                      ),
+
+                    ),
                   );
 
 

@@ -888,7 +888,7 @@ class apiRest{
         'Content-Type': 'application/json; charset=UTF-8',
       },
           body: jsonEncode(<String, String>{
-            'DeviceType': "android-tv",
+            'DeviceType': "android-phone",
             'mac_id': _deviceMAC,
           }) );
 
@@ -903,7 +903,7 @@ class apiRest{
     // var url = Uri.parse('http://revteam1.offshorerev.cc:80/player_api.php?username=4529036487475419&password=160417160718');
     http.Response response;
     var body = jsonEncode(<String, String>{
-      'device_type': "android-tv",
+      'device_type': "android-phone",
       'macID': _deviceMAC,
       'AppToken': prefs.getString("token")??"",
       'username': email,
@@ -998,7 +998,7 @@ class apiRest{
     bool? firstLoginDone = prefs.getBool("firstLogin");
 
 
-    if(firstLoginDone!=null && firstLoginDone == true){
+    if(false ||  firstLoginDone!=null && firstLoginDone == true){
 
     }else{
 
@@ -1022,13 +1022,15 @@ class apiRest{
 
       var url = Uri.parse('https://www.sflix.digital/api/CheckAppDevice');
       http.Response response;
+      var bbb = jsonEncode(<String, String>{
+        'DeviceType': "android-phone",
+        'mac_id': _deviceMAC,
+      });
+      print(bbb);
       response = await http.post( url,headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-          body: jsonEncode(<String, String>{
-            'DeviceType': "android-tv",
-            'mac_id': _deviceMAC,
-          }) );
+          body:bbb );
 
       dynamic res = jsonDecode(response.body);
 
@@ -1037,51 +1039,51 @@ class apiRest{
 
     }
 
-    String link2 = "http://line.myprotv.net";
-    var url2 = Uri.parse('$link2/player_api.php?username=$email&password=$password');
-
-    print(url2);
-    http.Response response2;
-    response2 = await http.get( url2, );
-    print(response2.body);
-
-    Map<String,dynamic> r =  jsonDecode(response2.body);
-
-    if(r.containsKey("user_info")){
-      Map<String,dynamic> user_info =  r["user_info"];
-      if( user_info.containsKey("status")){
-        if( user_info["status"]=="Active"){
-
-          int timeZoneNow =r["server_info"] ["timestamp_now"];
-
-          // int timeGap = DateTime.now.
-
-          print("success");
-          prefs.setString("SERVER_URL", r["server_info"]["url"]);
-          prefs.setString("USER_ID", email);
-          prefs.setString("PASSWORD", password);
-          prefs.setString("PORT", r["server_info"]["port"]);
-          prefs.setBool("auth", true);
-          return true;
-        }else{
-         // prefs.setBool("auth", false);
-        //  return false;
-          print("fail");
-        }
-      }else{
-       // prefs.setBool("auth", false);
-       // return false;
-      }
-    }else{
-     // prefs.setBool("auth", false);
-      //return false;
-    }
+    // String link2 = "http://line.myprotv.net";
+    // var url2 = Uri.parse('$link2/player_api.php?username=$email&password=$password');
+    //
+    // print(url2);
+    // http.Response response2;
+    // response2 = await http.get( url2, );
+    // print(response2.body);
+    //
+    // Map<String,dynamic> r =  jsonDecode(response2.body);
+    //
+    // if(r.containsKey("user_info")){
+    //   Map<String,dynamic> user_info =  r["user_info"];
+    //   if( user_info.containsKey("status")){
+    //     if( user_info["status"]=="Active"){
+    //
+    //       int timeZoneNow =r["server_info"] ["timestamp_now"];
+    //
+    //       // int timeGap = DateTime.now.
+    //
+    //       print("success");
+    //       prefs.setString("SERVER_URL", r["server_info"]["url"]);
+    //       prefs.setString("USER_ID", email);
+    //       prefs.setString("PASSWORD", password);
+    //       prefs.setString("PORT", r["server_info"]["port"]);
+    //       prefs.setBool("auth", true);
+    //       return true;
+    //     }else{
+    //      // prefs.setBool("auth", false);
+    //     //  return false;
+    //       print("fail");
+    //     }
+    //   }else{
+    //    // prefs.setBool("auth", false);
+    //    // return false;
+    //   }
+    // }else{
+    //  // prefs.setBool("auth", false);
+    //   //return false;
+    // }
 
     var url = Uri.parse('https://www.sflix.digital/api/applogin');
     // var url = Uri.parse('http://revteam1.offshorerev.cc:80/player_api.php?username=4529036487475419&password=160417160718');
     http.Response response;
     var body = jsonEncode(<String, String>{
-      'device_type': "android-tv",
+      'device_type': "android-phone",
       'macID': _deviceMAC,
       'AppToken': prefs.getString("token")??"",
       'username': email,
@@ -1092,6 +1094,7 @@ class apiRest{
       'Content-Type': 'application/json; charset=UTF-8',
     },
         body: body);
+    print(response.body);
 
     Map<String,dynamic> res = jsonDecode(response.body);
 

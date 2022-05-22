@@ -443,6 +443,7 @@ class _HomeState extends ResumableState<SLING_TV_S> {
           List entertainChannels = [];
           List kidsChannel = [];
           List sportsChannel = [];
+          List MovieChannel = [];
 
 
 
@@ -463,8 +464,13 @@ class _HomeState extends ResumableState<SLING_TV_S> {
               //entertainmentGroup.add(dataMap[i]);
               entertainChannels.addAll(dataMap[i]["list"]);
             }
+            if(dataMap[i]["name"].toString().contains("MOVIE") | dataMap[i]["name"].toString().contains("Movie") | dataMap[i]["name"].toString().contains("Series")| dataMap[i]["name"].toString().contains("Show")| dataMap[i]["name"].toString().contains("SERIES") | dataMap[i]["name"].toString().contains("SHOW")  ){
+              //entertainmentGroup.add(dataMap[i]);
+              MovieChannel.addAll(dataMap[i]["list"]);
+            }
             if(dataMap[i]["category_name"].toString().contains("KIDS")  ){
               // kidsGroup.add(dataMap[i]);
+              print(dataMap[i]["category_name"]);
               kidsChannel.addAll(dataMap[i]["list"]);
             }
 
@@ -477,13 +483,14 @@ class _HomeState extends ResumableState<SLING_TV_S> {
           }
           print(newsChannels.length);
           print(entertainChannels.length);
-          print(kidsChannel.length);
+          print("KIDS channel "+kidsChannel.length.toString());
           print(sportsChannel.length);
 
           newsChannels.shuffle();
           entertainChannels.shuffle();
           kidsChannel.shuffle();
           sportsChannel.shuffle();
+          MovieChannel.shuffle();
 
 
 
@@ -955,6 +962,128 @@ class _HomeState extends ResumableState<SLING_TV_S> {
 
           if(index4<kidsChannel.length-1 && newCollectedCount4<limit){
             getNewsData4(listToWork: kidsChannel);
+          }else{
+            print("did not started");
+            print(kidsChannel.length);
+            print(newCollectedCount4);
+          }
+//---------------
+// --------------
+          int newCollectedCount5 = 0;
+          int index5 = 0;
+          List<SlingChannel> channelsAsSling5 = [];
+          getNewsData5({required List listToWork}) async {
+
+
+            List epgs = [];
+            SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+            String? server =  sharedPreferences.getString("SERVER_URL");
+            String? port =  sharedPreferences.getString("PORT");
+            String? USER_ID =  sharedPreferences.getString("USER_ID");
+            String? PASSWORD =  sharedPreferences.getString("PASSWORD");
+
+            String castLink = "http://$server/player_api.php?username=$USER_ID&password=$PASSWORD&action=get_short_epg&stream_id="+listToWork[index5]["stream_id"].toString()+"&limit=1";
+
+            var responseEPG = await http.get(Uri.parse(castLink), );
+
+            try{
+              dynamic dd  =  jsonDecode(responseEPG.body);
+              //  print(responseEPG.body);
+              epgs  =dd["epg_listings"];
+
+
+              if(epgs.length>0){
+                String m3 = "http://$server:80/live/$USER_ID/$PASSWORD/"+entertainChannels[index5]["stream_id"].toString()+".m3u8";
+                print(m3);
+                String m3uFile = "http://$server:$port/"+listToWork[index5]["stream_type"]+"/"+USER_ID!+"/"+PASSWORD!.toString() +"/"+listToWork[index5]["stream_id"].toString()+".m3u8";
+                print(m3uFile);
+
+                SlingChannel channel = SlingChannel(thumbBig: "https://hips.hearstapps.com/hmg-prod/images/bestteenmovies-1612822987.jpg",epgs: epgs,
+                    countries: [Country(id: 1,title: "UK", image: '')],id: listToWork[index5]["stream_id"],comment: false,title:listToWork[index5]["name"],image:(listToWork[index5]["stream_icon"].toString().length>0)? listToWork[index5]["stream_icon"]: "https://i5.walmartimages.com/asr/74d5a667-7df8-44f2-b9db-81f26878d316_1.c7233452b7b19b699ef96944c8cbbe74.jpeg", categories: [Category(id: 1, title: dataMap[index5]["name"])], duration: '', classification: '', rating: 4.3, sources:
+                    [
+                      Source(id: 1,
+                          type: "LIVE",
+                          title: listToWork[index5]["name"],
+                          size: null,
+                          quality: "FHD",  kind: "both",
+                          premium: "1",
+                          external: false,
+                          url: m3uFile)
+                    ], description: 'Description', sublabel: null, type: '', playas: '', website: '', downloadas: '', label: '' );
+
+                channelsAsSling5.add(channel);
+                newCollectedCount5++;
+
+
+
+
+
+
+
+
+
+
+
+                setState(() {
+
+                });
+                index5++;
+                if(index5<listToWork.length-1 && newCollectedCount5<limit){
+                  getNewsData5(listToWork: listToWork);
+                }else{
+                  print("now setting Movies and TV Shows");
+                  print(channelsAsSling5.length);
+                  GenreAsSlingChannel gg = GenreAsSlingChannel(id: 0, title: "Movies and TV Shows" ,posters:channelsAsSling5 );
+
+                  genresAsC.add(gg);
+                  ItemScrollController controller = new ItemScrollController();
+                  _scrollControllers.add(controller);
+                  _position_x_line_saver.add(0);
+                  _counts_x_line_saver.add(gg.posters!.length);
+                  setState(() {
+
+                  });
+                }
+
+                print(epgs);
+              }else{
+             //   print("epg not found.tryi ng again");
+                index5++;
+                if(index5<listToWork.length-1 && newCollectedCount5<limit){
+                  getNewsData5(listToWork: listToWork);
+                }else{
+                  print("now setting Movies and TV Shows");
+                  print(channelsAsSling5.length);
+                  GenreAsSlingChannel gg = GenreAsSlingChannel(id: 0, title: "Movies and TV Shows" ,posters:channelsAsSling5 );
+
+                  genresAsC.add(gg);
+                  ItemScrollController controller = new ItemScrollController();
+                  _scrollControllers.add(controller);
+                  _position_x_line_saver.add(0);
+                  _counts_x_line_saver.add(gg.posters!.length);
+                  setState(() {
+
+                  });
+                }
+              }
+            }catch(e){
+              print(castLink);
+              print(e);
+              getNewsData5(listToWork: listToWork);
+            }
+
+
+
+          }
+
+
+          if(index5<MovieChannel.length-1 && newCollectedCount5<limit){
+            getNewsData5(listToWork: MovieChannel);
+          }else{
+            print("did not started");
+            print(MovieChannel.length);
+            print(newCollectedCount5);
           }
 //---------------
           print(newsChannels.length);
@@ -1334,7 +1463,7 @@ class _HomeState extends ResumableState<SLING_TV_S> {
 
 
                           // return M_C_Widget(jndex:jndex,posty: posty,postx: postx,scrollController: _scrollControllers[jndex],title: genres[jndex].title,posters : genres[jndex].posters);
-                          return SlingWidgetWidget(jndex:jndex,postx: postx,posty: posty,scrollController: _scrollControllers[jndex],size: MediaQuery.of(context).size.longestSide*0.013,title:genresAsC[jndex].title,channels: genresAsC[jndex].posters!);
+                          return SlingWidgetWidget(jndex:jndex,postx: postx,posty: posty,scrollController: _scrollControllers[jndex],size: MediaQuery.of(context).size.longestSide*0.018,title:genresAsC[jndex].title,channels: genresAsC[jndex].posters!);
                         }else{
                           return Text("NN",style: TextStyle(color: Colors.white),);
                           //   return MoviesWidget(jndex:jndex,posty: posty,postx: postx,scrollController: _scrollControllers[jndex],title: genresAsC[jndex].title,posters : genresAsC[jndex].posters);

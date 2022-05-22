@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_tv/ui/home/home.dart';
@@ -30,7 +32,7 @@ class SubtitlesDialog extends StatelessWidget {
       child: Visibility(
           visible: visibile,
           child: Container(
-            color: Colors.black87,
+            color: Colors.transparent,
             child: Stack(
                 children: [
                   Positioned(
@@ -51,63 +53,69 @@ class SubtitlesDialog extends StatelessWidget {
                       top: 0,
                       right: 0,
                       bottom: 0,
-                      child: Container(
-                        width: MediaQuery.of(context).size.width/3,
-                        decoration: BoxDecoration(
-                          color: Colors.blueGrey,
-                          boxShadow: [
-                            BoxShadow(
-                                color:Colors.black,
-                                offset: Offset(0,0),
-                                blurRadius: 5
+                      child: ClipRect( 
+                        child: BackdropFilter(
+                          filter: new ImageFilter.blur(sigmaX: 10.0, sigmaY: 10.0),
+
+                          child: Container(
+                            width: MediaQuery.of(context).size.width/3,
+                            decoration: BoxDecoration(
+                              color: Colors.transparent,
+                              // boxShadow: [
+                              //   BoxShadow(
+                              //       color:Colors.black,
+                              //       offset: Offset(0,0),
+                              //       blurRadius: 5
+                              //   ),
+                              // ],
                             ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          mainAxisSize: MainAxisSize.max,
-                          children: [
-                            Container(
-                              color: Colors.black45,
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 80.0,left: 10,bottom: 10),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.subtitles,color: Colors.white70,size: 35),
-                                    SizedBox(width: 10),
-                                    Text(
-                                      "select your subtitle",
-                                      style: TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.w800,
-                                          color: Colors.white70
-                                      ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              mainAxisSize: MainAxisSize.max,
+                              children: [
+                                Container(
+                                  color: Colors.transparent,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(top: 80.0,left: 10,bottom: 10),
+                                    child: Row(
+                                      children: [
+                                        Icon(Icons.closed_caption,color: Colors.white70,size: MediaQuery.of(context).size.longestSide*0.03),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          "Select subtitle",
+                                          style: TextStyle(
+                                              fontSize: MediaQuery.of(context).size.longestSide*0.025,
+                                              fontWeight: FontWeight.w800,
+                                              color: Colors.white70
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
+                                  ),
                                 ),
-                              ),
+                                Expanded(child:
+                                Container(
+                                  color: Colors.black.withOpacity(0.0),
+                                  child:  ScrollConfiguration(
+                                    behavior: MyBehavior(),   // From this behaviour you can change the behaviour
+                                    child: ScrollablePositionedList.builder(
+                                      itemCount: subtitlesList.length,
+                                      itemScrollController: subtitlesScrollController,
+                                      scrollDirection: Axis.vertical,
+                                      itemBuilder: (context, index) {
+                                        return  GestureDetector(
+                                            onTap: (){
+                                              select(index);
+                                            },
+                                            child: SubtitleWidget(isFocused: (index == focused_subtitle),subtitle:subtitlesList[index]));
+                                      },
+                                    ),
+                                  ),
+                                ))
+                              ],
                             ),
-                            Expanded(child:
-                            Container(
-                              color: Colors.black.withOpacity(0.7),
-                              child:  ScrollConfiguration(
-                                behavior: MyBehavior(),   // From this behaviour you can change the behaviour
-                                child: ScrollablePositionedList.builder(
-                                  itemCount: subtitlesList.length,
-                                  itemScrollController: subtitlesScrollController,
-                                  scrollDirection: Axis.vertical,
-                                  itemBuilder: (context, index) {
-                                    return  GestureDetector(
-                                        onTap: (){
-                                          select(index);
-                                        },
-                                        child: SubtitleWidget(isFocused: (index == focused_subtitle),subtitle:subtitlesList[index]));
-                                  },
-                                ),
-                              ),
-                            ))
-                          ],
+                          ),
                         ),
                       )
                   )

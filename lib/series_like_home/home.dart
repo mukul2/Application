@@ -968,7 +968,9 @@ class _HomeState extends ResumableState<SeriesAsHome> {
               left: 0,
               right: 0,
               duration: Duration(milliseconds: 200),
-              height: (posty < 0)?(MediaQuery.of(context).size.height/2)  -50:(MediaQuery.of(context).size.height/2)+200,
+              height: MediaQuery.of(context).viewPadding.top ==0?  ((posty < 0)?(MediaQuery.of(context).size.height/2) + 20:(MediaQuery.of(context).size.height/2)+50):(MediaQuery.of(context).size.height/1)-50,
+
+            //  height: (posty < 0)?(MediaQuery.of(context).size.height/2)  -50:(MediaQuery.of(context).size.height/2)+200,
               child: Container(
                 height: (posty < 0)?(MediaQuery.of(context).size.height/2) -50:(MediaQuery.of(context).size.height/2)+200,
                 child: ScrollConfiguration(

@@ -901,24 +901,23 @@ class _HomeState extends ResumableState<Home> {
               left: 0,
               right: 0,
               duration: Duration(milliseconds: 200),
-              height: (posty < 0)?(MediaQuery.of(context).size.height/2)  -50:(MediaQuery.of(context).size.height/2)+200,
-              child: Container(
-                height: (posty < 0)?(MediaQuery.of(context).size.height/2) -50:(MediaQuery.of(context).size.height/2)+200,
-                child: ScrollConfiguration(
-                  behavior: MyBehavior(),   // From this behaviour you can change the behaviour
-                  child: ScrollablePositionedList.builder(
-                    itemCount: genres.length,
-                    scrollDirection: Axis.vertical,
-                    itemScrollController: _scrollController,
-                    itemBuilder: (context, jndex) {
-                      if(genres[jndex].id == -3){
+              height: MediaQuery.of(context).viewPadding.top ==0?  ((posty < 0)?(MediaQuery.of(context).size.height/2) + 20:(MediaQuery.of(context).size.height/2)+50):(MediaQuery.of(context).size.height/1)-(50+MediaQuery.of(context).viewPadding.top),
 
-                        return ChannelsWidget(jndex:jndex,postx: postx,posty: posty,scrollController: _scrollControllers[jndex],size: MediaQuery.of(context).size.longestSide*0.01,title: "TV Channels",channels: channels);
-                      }else{
-                        return MoviesWidget(jndex:jndex,posty: posty,postx: postx,scrollController: _scrollControllers[jndex],title: genres[jndex].title,posters : genres[jndex].posters);
-                      }
-                    },
-                  ),
+           //   height: (posty < 0)?(MediaQuery.of(context).size.height/2)  -50:(MediaQuery.of(context).size.height/2)+200,
+              child: ScrollConfiguration(
+                behavior: MyBehavior(),   // From this behaviour you can change the behaviour
+                child: ScrollablePositionedList.builder(
+                  itemCount: genres.length,
+                  scrollDirection: Axis.vertical,
+                  itemScrollController: _scrollController,
+                  itemBuilder: (context, jndex) {
+                    if(genres[jndex].id == -3){
+
+                      return ChannelsWidget(jndex:jndex,postx: postx,posty: posty,scrollController: _scrollControllers[jndex],size: MediaQuery.of(context).size.longestSide*0.01,title: "TV Channels",channels: channels);
+                    }else{
+                      return MoviesWidget(jndex:jndex,posty: posty,postx: postx,scrollController: _scrollControllers[jndex],title: genres[jndex].title,posters : genres[jndex].posters);
+                    }
+                  },
                 ),
               ),
             ),

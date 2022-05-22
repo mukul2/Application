@@ -36,7 +36,7 @@
         android:usesCleartextTraffic="true"
         android:name="${applicationName}"
         android:banner="@drawable/banner"
-        android:icon="@mipmap/ic_launcher"
+        android:icon="@mipmap/launcher_icon"
         android:label="SmartFlix"
         android:largeHeap="true"
         android:theme="@style/Theme.Leanback">
