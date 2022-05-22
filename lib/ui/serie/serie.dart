@@ -67,11 +67,11 @@ class Serie extends StatefulWidget {
 }
 
 class _SerieState extends State<Serie> {
-
+  String user_id = "";
   dynamic showInfo_tmdb;
   String gg = "";
   dynamic show_info ;
-
+  bool isAdded = false;
   bool noData = false;
   Future<dynamic>  searchMovieInTMDB({required String title}) async {
 
@@ -200,6 +200,7 @@ class _SerieState extends State<Serie> {
 
 
   }
+  fire.DocumentReference? documentReference;
   int postx = 0;
   int posty = 0;
   int selected_season = 0;
@@ -237,7 +238,9 @@ class _SerieState extends State<Serie> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    Future.delayed(Duration.zero, () {
+    Future.delayed(Duration.zero, () async {
+      SharedPreferences sharedPreferences = await  SharedPreferences.getInstance();
+      user_id =  sharedPreferences.getString("USER_ID")!;
         FocusScope.of(context).requestFocus(movie_focus_node);
         searchMovieInTMDB(title:widget.serie!.title);
         _getRelatedList();
@@ -285,46 +288,113 @@ class _SerieState extends State<Serie> {
   }
   void _addMylist() async{
 
-    if(posty ==  0 && postx  ==  2){
-      if(logged == true){
-          setState(() {
-            my_list_loading = true;
-          });
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          int? id_user =  prefs.getInt("ID_USER");
-          String? key_user =  prefs.getString("TOKEN_USER");
-          var data =  {"key":key_user,"user":id_user.toString(),"id": widget.serie?.id.toString(),"type":"poster"};
-          var response =await apiRest.addMyList(data);
-          print(response.body);
+    if( posty ==  0 && postx  ==  2){
 
-          if(response != null){
-            if(response.statusCode == 200){
-              if(response.body.toString() == "200"){
-                setState(() {
-                  added = true;
-                });
-              }else{
-                setState(() {
-                  added = false;
-                });
-              }
-            }
-          }
-          setState(() {
-            my_list_loading = false;
-          });
-        }else{
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation1, animation2) => Auth(),
-              transitionDuration: Duration(seconds: 0),
-            ),
-          );
+
+      if(isAdded==false){
+        fire.FirebaseFirestore.instance.collection("favourites").add({"time":DateTime.now().millisecondsSinceEpoch,"type":"series","raw":widget.serie!.raw_data,"x_id": widget.serie!.id.toString(),"uid": user_id}).then((value) {
+
+          print("Added");
+
+        });
+      }else{
+        print("shourd remove");
+
+
+
+
+        documentReference!.delete().then((value) {
+
+          print("deleted");
+
+        });
       }
+
+
+
+
+
+      // if(logged == true){
+      //     setState(() {
+      //       my_list_loading = true;
+      //     });
+      //     SharedPreferences prefs = await SharedPreferences.getInstance();
+      //     int? id_user =  prefs.getInt("ID_USER");
+      //     String? key_user =  prefs.getString("TOKEN_USER");
+      //     var data =  {"key":key_user,"user":id_user.toString(),"id": widget.movie!.id.toString(),"type":"poster"};
+      //     var response =await apiRest.addMyList(data);
+      //     print(response.body);
+      //
+      //     if(response != null){
+      //       if(response.statusCode == 200){
+      //         if(response.body.toString() == "200"){
+      //           setState(() {
+      //             added = true;
+      //           });
+      //         }else{
+      //           setState(() {
+      //             added = false;
+      //           });
+      //         }
+      //       }
+      //     }
+      //     setState(() {
+      //       my_list_loading = false;
+      //     });
+      //   }else{
+      //     Navigator.push(
+      //       context,
+      //       PageRouteBuilder(
+      //         pageBuilder: (context, animation1, animation2) => Auth(),
+      //         transitionDuration: Duration(seconds: 0),
+      //       ),
+      //     );
+      //   }
     }
 
   }
+  // void _addMylist() async{
+  //
+  //   if(posty ==  0 && postx  ==  2){
+  //     if(logged == true){
+  //         setState(() {
+  //           my_list_loading = true;
+  //         });
+  //         SharedPreferences prefs = await SharedPreferences.getInstance();
+  //         int? id_user =  prefs.getInt("ID_USER");
+  //         String? key_user =  prefs.getString("TOKEN_USER");
+  //         var data =  {"key":key_user,"user":id_user.toString(),"id": widget.serie?.id.toString(),"type":"poster"};
+  //         var response =await apiRest.addMyList(data);
+  //         print(response.body);
+  //
+  //         if(response != null){
+  //           if(response.statusCode == 200){
+  //             if(response.body.toString() == "200"){
+  //               setState(() {
+  //                 added = true;
+  //               });
+  //             }else{
+  //               setState(() {
+  //                 added = false;
+  //               });
+  //             }
+  //           }
+  //         }
+  //         setState(() {
+  //           my_list_loading = false;
+  //         });
+  //       }else{
+  //         Navigator.push(
+  //           context,
+  //           PageRouteBuilder(
+  //             pageBuilder: (context, animation1, animation2) => Auth(),
+  //             transitionDuration: Duration(seconds: 0),
+  //           ),
+  //         );
+  //     }
+  //   }
+  //
+  // }
   void _getRelatedList()  async{
 
     series.clear();
@@ -812,7 +882,7 @@ class _SerieState extends State<Serie> {
                                                     fontWeight: FontWeight.w900
                                                 ),
                                               ),
-                                              SizedBox(height: 15),
+                                              SizedBox(height:  MediaQuery.of(context).size.longestSide*0.005),
                                               Row(
                                                 children: [
                                                   if(false) if(show_info!=null && show_info["rating_5based"]!=null) Text("${show_info["rating_5based"].toString()}/5", style: TextStyle(
@@ -842,10 +912,10 @@ class _SerieState extends State<Serie> {
 
 
                                                   Container(
-                                                    padding: EdgeInsets.symmetric(vertical: 2,horizontal: 5),
+                                                    padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.longestSide*0.005,horizontal: MediaQuery.of(context).size.longestSide*0.005),
                                                     decoration: BoxDecoration(
                                                         color: Colors.orangeAccent,
-                                                        borderRadius: BorderRadius.circular(5)
+                                                        borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.0025)
                                                     ),
                                                     child: Row(
                                                       children: [
@@ -860,18 +930,20 @@ class _SerieState extends State<Serie> {
                                                     ),
 
                                                   ),
-                                                  Container(margin: EdgeInsets.only(left: MediaQuery.of(context).size.longestSide*0.01),
-                                                    padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.longestSide*0.0001,horizontal: MediaQuery.of(context).size.longestSide*0.001),
+                                                  Container(
+
+                                                    margin: EdgeInsets.only(left: MediaQuery.of(context).size.longestSide*0.01),
+                                                    padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.longestSide*0.005,horizontal: MediaQuery.of(context).size.longestSide*0.005),
                                                     decoration: BoxDecoration(
                                                         color: Colors.green,
-                                                        borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.001)
+                                                        borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.0025)
                                                     ),
                                                     child: Row(
                                                       children: [
 
                                                         Icon(Icons.thumb_up,size: MediaQuery.of(context).size.longestSide*0.01,color: Colors.white,),
                                                         Padding(
-                                                          padding:  EdgeInsets.only(left: MediaQuery.of(context).size.longestSide*0.001),
+                                                          padding:  EdgeInsets.only(left: MediaQuery.of(context).size.longestSide*0.005,right:  MediaQuery.of(context).size.longestSide*0.005),
                                                           child: Text( showInfo_tmdb["vote_count"].toString(), style: TextStyle(
                                                               color: Colors.white,
                                                               fontSize: MediaQuery.of(context).size.longestSide*0.01,
@@ -883,10 +955,10 @@ class _SerieState extends State<Serie> {
                                                     ),
                                                   ),
                                                   if(show_info!=null && show_info["info"]!=null && show_info["info"]["releaseDate"]!=null)Container(margin: EdgeInsets.only(left: MediaQuery.of(context).size.longestSide*0.01),
-                                                    padding: EdgeInsets.symmetric(vertical: 1,horizontal: 5),
+                                                    padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.longestSide*0.005,horizontal: MediaQuery.of(context).size.longestSide*0.005),
                                                     decoration: BoxDecoration(
-                                                        color: Colors.green,
-                                                        borderRadius: BorderRadius.circular(5)
+                                                        color: Colors.red,
+                                                        borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.0025)
                                                     ),
                                                     child: Row(
                                                       children: [
@@ -912,14 +984,14 @@ class _SerieState extends State<Serie> {
                                               Text("${showInfo_tmdb["number_of_seasons"]} Seasons • ${showInfo_tmdb["number_of_episodes"]} Episodes •  ${gg}"
                                                 , style: TextStyle(
                                                     color: Colors.white,
-                                                    fontSize: MediaQuery.of(context).size.longestSide*0.01,
+                                                    fontSize: MediaQuery.of(context).size.longestSide*0.015,
                                                     fontWeight: FontWeight.w900
                                                 ),),
                                               SizedBox(height: MediaQuery.of(context).size.longestSide*0.01),
                                               Text(showInfo_tmdb["overview"]
                                                 , style: TextStyle(
                                                     color: Colors.white60,
-                                                    fontSize: MediaQuery.of(context).size.longestSide*0.01,
+                                                    fontSize: MediaQuery.of(context).size.longestSide*0.015,
                                                     height: 1.5,
                                                     fontWeight: FontWeight.normal
                                                 ),
@@ -946,22 +1018,22 @@ class _SerieState extends State<Serie> {
                                                               });
                                                             },
                                                             child: Container(
-                                                              height: MediaQuery.of(context).size.longestSide*0.01,
-                                                              padding: EdgeInsets.symmetric(horizontal: 5),
+                                                              height: MediaQuery.of(context).size.longestSide*0.03,
+                                                              padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.longestSide*0.006),
                                                               decoration: BoxDecoration(
                                                                 border: Border.all(color: Colors.white,width: 0.3),
-                                                                borderRadius: BorderRadius.circular(5),
+                                                                borderRadius: BorderRadius.circular( MediaQuery.of(context).size.longestSide*0.003),
                                                                 color: (postx == 0 && posty == 0)? Colors.white:Colors.white30,
                                                               ),
                                                               child: Row(
                                                                 children: [
                                                                   Container(
-                                                                    height: MediaQuery.of(context).size.longestSide*0.01,
-                                                                    width: MediaQuery.of(context).size.longestSide*0.01,
+                                                                  //  height: MediaQuery.of(context).size.longestSide*0.01,
+                                                                 //   width: MediaQuery.of(context).size.longestSide*0.01,
                                                                     child: Icon(
                                                                       Icons.play_arrow,
                                                                       color: (postx == 0 && posty == 0)? Colors.black:Colors.white,
-                                                                      size: MediaQuery.of(context).size.longestSide*0.01,
+                                                                      size: MediaQuery.of(context).size.longestSide*0.02,
                                                                     ),
                                                                   ),
                                                                   // Text(
@@ -998,22 +1070,22 @@ class _SerieState extends State<Serie> {
                                                           });
                                                         },
                                                         child: Container(
-                                                          height: MediaQuery.of(context).size.longestSide*0.01,
-                                                          padding: EdgeInsets.symmetric(horizontal: 5),
+                                                          height: MediaQuery.of(context).size.longestSide*0.03,
+                                                          padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.longestSide*0.006),
                                                           decoration: BoxDecoration(
                                                             border: Border.all(color: Colors.white,width: 0.3),
-                                                            borderRadius: BorderRadius.circular(5),
+                                                            borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.003),
                                                             color: (postx == 1 && posty == 0)? Colors.white:Colors.white30,
                                                           ),
                                                           child: Row(
                                                             children: [
-                                                              Container(
-                                                                height: MediaQuery.of(context).size.longestSide*0.01,
-                                                                width: MediaQuery.of(context).size.longestSide*0.01,
+                                                              Container(margin: EdgeInsets.only(right:MediaQuery.of(context).size.longestSide*0.01 ),
+                                                               // height: MediaQuery.of(context).size.longestSide*0.01,
+                                                               // width: MediaQuery.of(context).size.longestSide*0.01,
                                                                 child: Icon(
                                                                   FontAwesomeIcons.bullhorn,
                                                                   color: (postx == 1 && posty == 0)? Colors.black:Colors.white,
-                                                                  size: 11,
+                                                                  size:  MediaQuery.of(context).size.longestSide*0.01,
                                                                 ),
                                                               ),
                                                               Text(
@@ -1030,7 +1102,113 @@ class _SerieState extends State<Serie> {
                                                         ),
                                                       ),
                                                       SizedBox(width: 5),
-                                                      GestureDetector(
+                                                      StreamBuilder<fire.QuerySnapshot>(
+                                                          stream:fire.FirebaseFirestore.instance.collection("favourites").where("uid",isEqualTo: user_id).where("x_id",isEqualTo: widget.serie!.id.toString()).snapshots(),
+                                                          builder: (BuildContext context, AsyncSnapshot<fire.QuerySnapshot> snapshot) {
+
+                                                            GestureDetector bR(bool status){
+
+
+                                                              isAdded = status;
+                                                              return  GestureDetector(
+                                                                onTap: (){
+
+                                                                  print("button pressed");
+                                                                  // print(visibileSourcesDialog);
+
+
+                                                                  if(status == false){
+
+                                                                    print("shourd add");
+                                                                    //add to
+
+                                                                  }else{
+                                                                    //remove from
+
+                                                                  }
+
+
+                                                                  setState(() {
+
+                                                                    posty = 0;
+                                                                    postx = 2;
+
+                                                                  });
+                                                                },
+                                                                child: Container(
+                                                                  height: MediaQuery.of(context).size.width*0.035,
+                                                                  padding: EdgeInsets.symmetric(horizontal: 5),
+                                                                  decoration: BoxDecoration(
+                                                                    border: Border.all(color: Colors.white,width: 0.3),
+                                                                    borderRadius: BorderRadius.circular(3),
+                                                                    color: (postx == 2 && posty == 0)? Colors.white:Colors.white30,
+                                                                  ),
+                                                                  child: Row(
+                                                                    children: [
+                                                                      (my_list_loading)?
+                                                                      Container(
+                                                                          padding: EdgeInsets.all(9),
+                                                                          height: 28,
+                                                                          width: 28,
+                                                                          child: Container(
+                                                                              child: CircularProgressIndicator(color: Colors.black,strokeWidth: 2,)
+                                                                          )
+                                                                      )
+                                                                          :
+                                                                      Container(
+                                                                        margin: EdgeInsets.only(left: MediaQuery.of(context).size.width*0.008,right: MediaQuery.of(context).size.width*0.013),
+                                                                        height: MediaQuery.of(context).size.width*0.013,
+                                                                        width: MediaQuery.of(context).size.width*0.013,
+                                                                        child: Icon(
+                                                                          (added)? FontAwesomeIcons.solidTimesCircle:FontAwesomeIcons.plusCircle,
+                                                                          color: (postx == 2 && posty == 0)? Colors.black:Colors.white,
+                                                                          size:  MediaQuery.of(context).size.width*0.015,
+                                                                        ),
+                                                                      ),
+                                                                      (my_list_loading)?
+                                                                      Text(
+                                                                          "Loading ..." ,
+                                                                          style: TextStyle(
+                                                                              color: (postx == 2 && posty == 0)? Colors.black:Colors.white,
+                                                                              fontSize: 11,
+                                                                              fontWeight: FontWeight.w500
+                                                                          )
+                                                                      )
+                                                                          :
+                                                                      Text(
+                                                                          (status)?
+                                                                          "Remove from Favourites"
+                                                                              :
+                                                                          "Add to Favourites" ,
+                                                                          style: TextStyle(
+                                                                              color: (postx == 2 && posty == 0)? Colors.black:Colors.white,
+                                                                              fontSize: MediaQuery.of(context).size.width*0.013,
+                                                                              fontWeight: FontWeight.w500
+                                                                          )
+                                                                      ),
+                                                                      SizedBox(width: 5)
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              );
+                                                            }
+
+                                                            if(snapshot.hasData){
+
+                                                              if(snapshot.data!.docs.length>0){
+                                                                documentReference = snapshot.data!.docs.first.reference;
+                                                                return bR(true);
+
+                                                              }else{
+                                                                return bR(false);
+                                                              }
+                                                            }else{
+                                                              return bR(false);
+                                                            }
+
+
+                                                          }),
+                                                   if(false)   GestureDetector(
                                                         onTap: (){
                                                           print(visibileSourcesDialog);
                                                           setState(() {
@@ -1041,11 +1219,11 @@ class _SerieState extends State<Serie> {
                                                           });
                                                         },
                                                         child: Container(
-                                                          height: MediaQuery.of(context).size.longestSide*0.01,
+                                                          height: MediaQuery.of(context).size.longestSide*0.03,
                                                           padding: EdgeInsets.symmetric(horizontal: 5),
                                                           decoration: BoxDecoration(
                                                             border: Border.all(color: Colors.white,width: 0.3),
-                                                            borderRadius: BorderRadius.circular(3),
+                                                            borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.003),
                                                             color: (postx == 2 && posty == 0)? Colors.white:Colors.white30,
                                                           ),
                                                           child: Row(
@@ -1107,11 +1285,11 @@ class _SerieState extends State<Serie> {
                                                           });
                                                         },
                                                         child: Container(
-                                                          height: 35,
+                                                          height: MediaQuery.of(context).size.longestSide*0.03,
                                                           padding: EdgeInsets.symmetric(horizontal: 5),
                                                           decoration: BoxDecoration(
                                                             border: Border.all(color: Colors.white,width: 0.3),
-                                                            borderRadius: BorderRadius.circular(5),
+                                                            borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.003),
                                                             color: (postx == 3 && posty == 0)? Colors.white:Colors.white30,
                                                           ),
                                                           child: Row(
@@ -1280,11 +1458,11 @@ class _SerieState extends State<Serie> {
                                                   });
                                                 },
                                                 child: Container(
-                                                  height: 40,
-                                                  padding: EdgeInsets.only(left: 20,right: 20),
+                                                  height: MediaQuery.of(context).size.longestSide*0.003,
+                                                  padding: EdgeInsets.only(left: MediaQuery.of(context).size.longestSide*0.01,right: MediaQuery.of(context).size.longestSide*0.01),
                                                   margin: EdgeInsets.only(left: (index == 0)? 50 :5,right: 5),
                                                   decoration: BoxDecoration(
-                                                      borderRadius: BorderRadius.circular(5),
+                                                      borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.005),
                                                       color: ((postx == index && posty == 1) || selected_season == index)? Colors.white:Colors.white30,
                                                       border: (postx == index && posty == 1)?Border.all(color: Colors.purple,width: 2):Border.all(color: Colors.white30,width: 2),
                                                     boxShadow: [
@@ -1300,7 +1478,7 @@ class _SerieState extends State<Serie> {
                                                       seasons[index].title,
                                                         style: TextStyle(
                                                           color: ((postx == index && posty == 1) || selected_season == index)? Colors.black:Colors.white,
-                                                          fontWeight: FontWeight.w900,
+                                                          fontWeight: FontWeight.w900,fontSize: MediaQuery.of(context).size.longestSide*0.015,
                                                         ),
                                                     ),
                                                   ),

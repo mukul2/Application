@@ -40,6 +40,7 @@ import 'dart:convert' as convert;
 import 'package:transparent_image/transparent_image.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../SlingTv/sling_scroll_tv.dart';
 import '../../model/channel.dart';
 import '../../model/country.dart';
 import '../../model/source.dart';
@@ -752,7 +753,7 @@ class _HomeState extends ResumableState<HomeForMovie> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => HomeForMovie(),
+          pageBuilder: (context, animation1, animation2) => SLING_TV_S(),
           transitionDuration: Duration(seconds: 0),
         ),
       );

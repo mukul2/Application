@@ -171,19 +171,6 @@ class _ActivityState extends State<Activity> {
 
     }
 
-    List one = [[sunny,"BBC"],["Sunny leone fucking",20],["Emily Wi",40],["lana",30],];
-    //
-    // shows.add(one);
-    // one = [[sunny,"BBC"],["Sunny leone fucking",30],["Emily Wi",40],["lana",30],];
-    // shows.add(one);
-    // one = [[sunny,"BBC"],["Sunny leone fucking",30],["Emily Wi",40],["lana",30],];
-    // shows.add(one);
-    // one = [[sunny,"BBC"],["Sunny leone fucking",30],["Emily Wi",40],["lana",30],];
-    // shows.add(one);
-    // one = [[sunny,"BBC"],["Sunny leone fucking",30],["Emily Wi",40],["lana",30],];
-    // shows.add(one);
-    // one = [[sunny,"BBC"],["Sunny leone fucking",30],["Emily Wi",40],["lana",30],];
-    // shows.add(one);
 
   }
 

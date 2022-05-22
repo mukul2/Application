@@ -6,6 +6,8 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:io' as io;
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_app_tv/api/api_config.dart';
 import 'package:flutter_app_tv/model/actor.dart';
 import 'package:flutter_app_tv/model/poster.dart';
@@ -182,8 +184,8 @@ class apiRest{
       //var b =  jsonEncode(<String, String>{"link":"$server:$port","user":USER_ID!,"password":PASSWORD!,"action":"get_vod_categories"});
       var b =  jsonEncode(<String, String>{"link":"http://$server","user":USER_ID!,"password":PASSWORD!});
       var responseCast = await http.post(Uri.parse(g_link),body: b,headers: { 'Content-type': 'application/json'});
-      print(" response");
-      print(responseCast.body);
+     // print(" response");
+     // print(responseCast.body);
 
       List ll = jsonDecode(responseCast.body);
 
@@ -223,7 +225,7 @@ class apiRest{
     }
   }
 
-  static pushWatch({required int durationSeconds,dynamic data}) async {
+  static pushWatch({required int durationSeconds,required int totalDuration,dynamic data}) async {
     FirebaseFirestore  firestore =  FirebaseFirestore.instance;
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
@@ -236,10 +238,27 @@ class apiRest{
       await value.docs.first.reference.update({"time":DateTime.now().millisecondsSinceEpoch,"duration":durationSeconds});
       return;
     }else{
-      await firestore.collection("watchHistory"+USER_ID).add({"stream_id":data["stream_id"],"time":DateTime.now().millisecondsSinceEpoch,"type":"movie","duration":durationSeconds,"data":data}).then((value) => print("firebase note added"));
+      await firestore.collection("watchHistory"+USER_ID).add({"stream_id":data["stream_id"],"time":DateTime.now().millisecondsSinceEpoch,"type":"movie","duration":durationSeconds,"total_duration":totalDuration,"data":data}).then((value) => print("firebase note added"));
       return;
 
     }
+
+  }
+  static pushWatchSeries({required String type,required String series_num,required int durationSeconds,required int totalDuration,dynamic data}) async {
+
+    FirebaseFirestore  firestore =  FirebaseFirestore.instance;
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+    String EMAIL =  sharedPreferences.getString("USER_ID")!;
+    firestore.collection("watchHistory"+EMAIL).where("series_id",isEqualTo:data["series"]["series_id"]).where("episode_num",isEqualTo:data["episode"]["episode_num"]).get().then((value){
+      if(value.docs.length>0){
+        value.docs.first.reference.update({"time":DateTime.now().millisecondsSinceEpoch,"duration":durationSeconds});
+      }else{
+        firestore.collection("watchHistory"+EMAIL).add({"series_num":series_num,"series_id":data["series"]["series_id"],"episode_num":data["episode"]["episode_num"],"time":DateTime.now().millisecondsSinceEpoch,"type":type,"duration":durationSeconds,"data":data,"total":totalDuration}).then((value) => print("firebase note added"));
+
+      }
+    });
+
+
 
   }
   static getMovieCastAndCrew ({required String imdb}) async {
@@ -277,28 +296,34 @@ class apiRest{
 
 
       print(castLink);
-      var responseCast = await http.get(Uri.parse(castLink), );
+
+      try{
+        var responseCast = await http.get(Uri.parse(castLink), );
 
 
-      print("subtitle response");
-      print(responseCast.body);
+        print("subtitle response");
+        print(responseCast.body);
 
 
 
 
-      subtitleAvailableList = jsonDecode(responseCast.body);
+        subtitleAvailableList = jsonDecode(responseCast.body);
 
-    //  print(subtitleAvailableList[0]["lang"]);
-     // print(subtitleAvailableList[0]["file_name"]);
+        //  print(subtitleAvailableList[0]["lang"]);
+        // print(subtitleAvailableList[0]["file_name"]);
 
-      if(subtitleAvailableList.length>0){
-        Subtitle? subtitle =new Subtitle(id: -1, type: "", language: "", url: "", image: "");
-        subtitleAvailableListModel.insert(0, subtitle);
-        for(int i = 0 ; i < subtitleAvailableList.length ; i++){
-          subtitleAvailableListModel.add(Subtitle(file_name:subtitleAvailableList[i]["file_name"] ,file_id:subtitleAvailableList[i]["file_id"] ,type: "",id: i,language:subtitleAvailableList[i]["lang"],url: "",image: "https://cdn.britannica.com/44/344-004-494CC2E8/Flag-England.jpg" ));
+        if(subtitleAvailableList.length>0){
+          Subtitle? subtitle =new Subtitle(id: -1, type: "", language: "", url: "", image: "");
+          subtitleAvailableListModel.insert(0, subtitle);
+          for(int i = 0 ; i < subtitleAvailableList.length ; i++){
+            subtitleAvailableListModel.add(Subtitle(file_name:subtitleAvailableList[i]["file_name"] ,file_id:subtitleAvailableList[i]["file_id"] ,type: "",id: i,language:subtitleAvailableList[i]["lang"],url: "",image: "https://cdn.britannica.com/44/344-004-494CC2E8/Flag-England.jpg" ));
+          }
+
         }
-
+      }catch(e){
+        return subtitleAvailableListModel;
       }
+
 
       return subtitleAvailableListModel;
       // _visibile_cast_loading=false;
@@ -338,17 +363,21 @@ class apiRest{
     List<ss.Source> videos = [];
 
 
-    if(jsonTMDB["results"].length>0){
-      for(int i = 0 ; i < jsonTMDB["results"].length ; i ++){
-        String id = jsonTMDB["results"][i]["key"];
+    try{
+      if(jsonTMDB["results"].length>0){
+        for(int i = 0 ; i < jsonTMDB["results"].length ; i ++){
+          String id = jsonTMDB["results"][i]["key"];
 
-        ss.Source source = ss.Source(id: i,title: jsonTMDB["results"][i]["type"],type: "https://img.youtube.com/vi/$id/hqdefault.jpg",quality: "HD",size: "",kind: "1",premium: "1",external: true,url: "https://www.youtube.com/watch?v="+jsonTMDB["results"][i]["key"]);
+          ss.Source source = ss.Source(id: i,title: jsonTMDB["results"][i]["type"],type: "https://img.youtube.com/vi/$id/hqdefault.jpg",quality: "HD",size: "",kind: "1",premium: "1",external: true,url: "https://www.youtube.com/watch?v="+jsonTMDB["results"][i]["key"]);
 
-        videos.add(source);
+          videos.add(source);
+        }
       }
-    }
 
-    return videos;
+      return videos;
+    }catch(e){
+      return videos;
+    }
 
 
   }
@@ -375,8 +404,29 @@ class apiRest{
 
 
   }
+  static searchMovieInTMDBAttempt2({required String name,String? rTmdbId,required String posterID})async{
+    print("original "+name);
+    name = name.replaceAll(RegExp('\\(.*?\\)'), '');
+    List emits = ["DVDRip","XviD","TRUEFRENCH"];
+    print("before");
+    print(name);
 
-  static searchMovieInTMDB({required String name,String? rTmdbId,required String posterID})async{
+    for(int i = 0 ; i < emits.length; i++){
+
+      if(name.contains(emits[i])){
+        name = name.replaceAll(emits[i], "");
+      }
+    }
+
+
+    for(int i = 1900 ; i < 2025; i++){
+      String ye = i.toString();
+      if(name.contains(ye)){
+        name = name.replaceAll(ye, "");
+      }
+    }
+    print("after");
+    print(name);
     dynamic MovieDetails;
     SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
@@ -385,6 +435,7 @@ class apiRest{
     String? USER_ID =  sharedPreferences.getString("USER_ID");
     String? PASSWORD =  sharedPreferences.getString("PASSWORD");
     String  LinkMovieInfo = "http://$server/player_api.php?username=$USER_ID&password=$PASSWORD&action=get_vod_info&vod_id="+posterID;
+    print(LinkMovieInfo);
 
     http.get(Uri.parse(LinkMovieInfo), ).then((value) {
 
@@ -410,35 +461,74 @@ class apiRest{
       MovieDetails =  jsonDecode(responseTMDFF.body);
     }else{
 
+      print("needs to be slip "+name.toString());
+
 
       List alls = name.split("-");
-      String second = alls.last;
-
-      List qq = second.split("(");
-
-      List kk = qq.first.toString().split(" ");
       String key ="" ;
-      for(int i = 0 ; i < kk.length ; i++){
+      if(name.contains("-")  && alls.length>0){
+        print("sceme 1");
+        print(alls);
+        String second = alls.last;
 
-        if(kk[i].toString().trim()!="4K"){
-          if(i==1){
-            if(kk[i].toString().length>0) key = kk[i];
-          }else{
-            if(kk[i].toString().length>0) key = key+"+"+kk[i];
+        List qq = second.split("(");
+
+        List kk = qq.first.toString().split(" ");
+
+        for(int i = 0 ; i < kk.length ; i++){
+
+          if(kk[i].toString().trim()!="4K"){
+            if(i==1){
+              if(kk[i].toString().length>0) key = kk[i];
+            }else{
+              if(kk[i].toString().length>0) key = key+"+"+kk[i];
+            }
           }
-
         }
+        key = key.replaceAll("++", "+");
+        key = key.replaceAll(":", "");
+        key = key.replaceAll("(", "");
+        key = key.replaceAll(")", "");
 
 
 
+      }else{
+        print("sceme 2");
+        print(name);
+        key = name;
+        key.replaceAll(" ", "+");
+
+
+        key = key.replaceAll("++", "+");
+        key = key.replaceAll(":", "");
+        key = key.replaceAll("(", "");
+        key = key.replaceAll(")", "");
+
+        // List kk = key.split(" ");
+        //
+        // String keyR = "";
+        //
+        // for(int i = 0 ; i < kk.length ; i++){
+        //
+        //   if(kk[i].toString().trim()!="4K"){
+        //     if(i==1){
+        //       if(kk[i].toString().length>0) keyR = kk[i];
+        //     }else{
+        //       if(kk[i].toString().length>0) keyR = keyR+"+"+kk[i];
+        //     }
+        //   }
+        // }
+        //
+        // key = keyR;
 
       }
-      print(key);
-      key = key.replaceAll("++", "+");
-      key = key.replaceAll(":", "");
-      key = key.replaceAll("(", "");
-      key = key.replaceAll(")", "");
 
+      print(key);
+
+
+      print(key);
+
+      key =  key.replaceAll(" ", "+");
       print(key);
 
 
@@ -450,8 +540,10 @@ class apiRest{
       var responseTMDB = await http.get(Uri.parse(tvSHowTMDB) );
 
       dynamic jsonTMDB = jsonDecode(responseTMDB.body);
+      print(jsonTMDB);
       String tmdbId="";
       if(jsonTMDB["total_results"]>0){
+
 
         tmdbId = jsonTMDB["results"][0]["id"].toString();
 
@@ -483,6 +575,204 @@ class apiRest{
 
         MovieDetails =  jsonDecode(responseTMDFF.body);
       }else{
+        print("total result is zero..showing default data");
+        String tvSHowTMDBFull = "https://api.themoviedb.org/3/movie/414906?api_key=103096910bbe8842c151f7cce00ab218";
+        print(tvSHowTMDBFull);
+        TMDB = tmdbId;
+        var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
+        print(responseTMDFF.body);
+
+
+        MovieDetails =  jsonDecode(responseTMDFF.body);
+      }
+    }
+
+
+
+    return {"tmdb_id":TMDB,"movie":MovieDetails};
+
+
+  }
+  static searchMovieInTMDB({required String name,String? rTmdbId,required String posterID})async{
+    print("original "+name);
+    name = name.replaceAll("4K", "");
+    name = name.replaceAll("4k", "");
+     name = name.replaceAll(RegExp('\\(.*?\\)'), '');
+     name = name.replaceAll(RegExp('\\|.*?\\|'), '');
+    name = name.trim();
+    List emits = ["DVDRip","XviD","TRUEFRENCH"];
+    print("before");
+    print(name);
+
+    for(int i = 0 ; i < emits.length; i++){
+
+      if(name.contains(emits[i])){
+        name = name.replaceAll(emits[i], "");
+      }
+    }
+
+
+    for(int i = 1900 ; i < 2025; i++){
+      String ye = i.toString();
+      if(name.contains(ye)){
+        name = name.replaceAll(ye, "");
+      }
+    }
+    print("after");
+    print(name);
+    dynamic MovieDetails;
+    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+    String? server =  sharedPreferences.getString("SERVER_URL");
+    String? port =  sharedPreferences.getString("PORT");
+    String? USER_ID =  sharedPreferences.getString("USER_ID");
+    String? PASSWORD =  sharedPreferences.getString("PASSWORD");
+    String  LinkMovieInfo = "http://$server/player_api.php?username=$USER_ID&password=$PASSWORD&action=get_vod_info&vod_id="+posterID;
+    print(LinkMovieInfo);
+
+    http.get(Uri.parse(LinkMovieInfo), ).then((value) {
+
+      FirebaseFirestore.instance.collection("moreInfo"+server!).add(jsonDecode(value.body));
+
+    });
+
+
+
+
+
+
+
+    String TMDB = "";
+    if(rTmdbId!=null){
+      String tvSHowTMDBFull = "https://api.themoviedb.org/3/movie/$rTmdbId?api_key=103096910bbe8842c151f7cce00ab218";
+      print(tvSHowTMDBFull);
+      TMDB = rTmdbId;
+      var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
+      print(responseTMDFF.body);
+
+
+      MovieDetails =  jsonDecode(responseTMDFF.body);
+    }else{
+
+      print("needs to be slip "+name.toString());
+
+
+      List alls = name.split("-");
+      String key ="" ;
+      if(name.contains("-")  && alls.length>0){
+        print("sceme 1");
+        print(alls);
+        String second = alls.last;
+
+        List qq = second.split("(");
+
+        List kk = qq.first.toString().split(" ");
+
+        for(int i = 0 ; i < kk.length ; i++){
+
+          if(kk[i].toString().trim()!="4K"){
+            if(i==1){
+              if(kk[i].toString().length>0) key = kk[i];
+            }else{
+              if(kk[i].toString().length>0) key = key+"+"+kk[i];
+            }
+          }
+        }
+        key = key.replaceAll("++", "+");
+        key = key.replaceAll(":", "");
+        key = key.replaceAll("(", "");
+        key = key.replaceAll(")", "");
+
+
+
+      }else{
+        print("sceme 2");
+        print(name);
+        key = name;
+        key.replaceAll(" ", "+");
+
+
+        key = key.replaceAll("++++", "+");
+        key = key.replaceAll("+++", "+");
+        key = key.replaceAll("++", "+");
+        key = key.replaceAll(":", "");
+        key = key.replaceAll("(", "");
+        key = key.replaceAll(")", "");
+
+        // List kk = key.split(" ");
+        //
+        // String keyR = "";
+        //
+        // for(int i = 0 ; i < kk.length ; i++){
+        //
+        //   if(kk[i].toString().trim()!="4K"){
+        //     if(i==1){
+        //       if(kk[i].toString().length>0) keyR = kk[i];
+        //     }else{
+        //       if(kk[i].toString().length>0) keyR = keyR+"+"+kk[i];
+        //     }
+        //   }
+        // }
+        //
+        // key = keyR;
+
+      }
+
+      print(key);
+
+
+      print(key);
+
+      key =  key.replaceAll(" ", "+");
+      print(key);
+
+
+
+
+      String tvSHowTMDB = "https://api.themoviedb.org/3/search/movie?api_key=103096910bbe8842c151f7cce00ab218&query="+key;
+      print(tvSHowTMDB);
+
+      var responseTMDB = await http.get(Uri.parse(tvSHowTMDB) );
+
+      dynamic jsonTMDB = jsonDecode(responseTMDB.body);
+      print(jsonTMDB);
+      String tmdbId="";
+      if(jsonTMDB["total_results"]>0){
+
+
+        tmdbId = jsonTMDB["results"][0]["id"].toString();
+
+        for(int i  = 0 ; i < jsonTMDB["total_results"] ; i++){
+
+          if(jsonTMDB["title"].toString().contains(name)){
+            tmdbId = jsonTMDB["results"][i]["id"].toString();
+            print("choosing "+i.toString());
+            break;
+          }
+
+        }
+
+
+        String tvSHowTMDBFull = "https://api.themoviedb.org/3/movie/$tmdbId?api_key=103096910bbe8842c151f7cce00ab218";
+        print(tvSHowTMDBFull);
+        TMDB = tmdbId;
+        var responseTMDFF = await http.get(Uri.parse(tvSHowTMDBFull), );
+        print(responseTMDFF.body);
+
+
+
+
+
+
+
+
+        //  await FirebaseFirestore.instance.collection("moreInfoSeries").doc(seriedID).set({"fullSeries":responseTMDFF.body});
+
+        MovieDetails =  jsonDecode(responseTMDFF.body);
+      }else{
+
+       // searchMovieInTMDBAttempt2(name: );
+        print("total result is zero..showing default data");
         String tvSHowTMDBFull = "https://api.themoviedb.org/3/movie/414906?api_key=103096910bbe8842c151f7cce00ab218";
         print(tvSHowTMDBFull);
         TMDB = tmdbId;
@@ -563,54 +853,311 @@ class apiRest{
   static registerUser(var data) async{
     return configPost("/user/register/",data) ;
   }
-  static loginUser({required String email,required String password}) async{
- //  var url = Uri.parse('http://line.liveott.ru/player_api.php?username=$email&password=$password');
-    var url = Uri.parse('http://line.myprotv.net/player_api.php?username=$email&password=$password');
-    http.Response response;
-    response = await http.get( url, );
-    print(response.body);
+  static loginUserS({required String email,required String password,}) async{
+    String _deviceMAC = "";
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    Map<String,dynamic> r =  jsonDecode(response.body);
 
-    if(r.containsKey("user_info")){
-      Map<String,dynamic> user_info =  r["user_info"];
-
-      if( user_info.containsKey("status")){
-        if( user_info["status"]=="Active"){
-          print("success");
+    bool? firstLoginDone = prefs.getBool("firstLogin");
 
 
+    if(firstLoginDone!=null && firstLoginDone == true){
+
+    }else{
 
 
+      try {
+        DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+        if(Platform.isAndroid){
+          var  androidInfo = await deviceInfo.androidInfo;
+          _deviceMAC=  androidInfo!.androidId!;
+          print(androidInfo!.toMap().toString());
+        }
+        if(Platform.isIOS){
+          IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+          _deviceMAC=  iosInfo.identifierForVendor!;
+        }
 
 
-          prefs.setString("SERVER_URL", r["server_info"]["url"]);
-          prefs.setString("USER_ID", email);
-          prefs.setString("PASSWORD", password);
-          prefs.setString("PORT", r["server_info"]["port"]);
-          prefs.setBool("auth", true);
+      } on PlatformException {
+        _deviceMAC = 'Error getting the MAC address.';
+      }
 
-          return true;
+      var url = Uri.parse('https://www.sflix.digital/api/CheckAppDevice');
+      http.Response response;
+      response = await http.post( url,headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+          body: jsonEncode(<String, String>{
+            'DeviceType': "android-tv",
+            'mac_id': _deviceMAC,
+          }) );
 
+      dynamic res = jsonDecode(response.body);
 
+      prefs.setString("token", res["AppToken"]);
+      print(response.body);
 
+    }
 
+    var url = Uri.parse('https://www.sflix.digital/api/applogin');
+    // var url = Uri.parse('http://revteam1.offshorerev.cc:80/player_api.php?username=4529036487475419&password=160417160718');
+    http.Response response;
+    var body = jsonEncode(<String, String>{
+      'device_type': "android-tv",
+      'macID': _deviceMAC,
+      'AppToken': prefs.getString("token")??"",
+      'username': email,
+      'password': password,
+    });
+    print(body);
+    response = await http.post( url,headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+        body: body);
 
+    Map<String,dynamic> res = jsonDecode(response.body);
 
+    if(res.containsKey("status") && res["status"]== "success"){
+      String link = res["streaming_url"];
+      var url = Uri.parse('$link/player_api.php?username=$email&password=$password');
+      http.Response response;
+      response = await http.get( url, );
+      print(response.body);
 
+      Map<String,dynamic> r =  jsonDecode(response.body);
+
+      if(r.containsKey("user_info")){
+        Map<String,dynamic> user_info =  r["user_info"];
+        if( user_info.containsKey("status")){
+          if( user_info["status"]=="Active"){
+
+            int timeZoneNow =r["server_info"] ["timestamp_now"];
+
+            // int timeGap = DateTime.now.
+
+            print("success");
+            prefs.setString("SERVER_URL", r["server_info"]["url"]);
+            prefs.setString("USER_ID", email);
+            prefs.setString("PASSWORD", password);
+            prefs.setString("PORT", r["server_info"]["port"]);
+            prefs.setBool("auth", true);
+            return true;
+          }else{
+            prefs.setBool("auth", false);
+            return false;
+            print("fail");
+          }
         }else{
           prefs.setBool("auth", false);
           return false;
-          print("fail");
         }
       }else{
         prefs.setBool("auth", false);
         return false;
       }
+
+
+      print(r);
     }else{
-      prefs.setBool("auth", false);
       return false;
+
+      //failed
+
+
+
+
     }
+
+    print(res);
+
+    //  var url = Uri.parse('http://line.liveott.ru/player_api.php?username=$email&password=$password');
+
+    var link = "http://revteam1.offshorerev.cc:80";
+    email = "4529036487475419";
+    password = "160417160718";
+    //  var url = Uri.parse('$link/player_api.php?username=$email&password=$password');
+    // // var url = Uri.parse('http://revteam1.offshorerev.cc:80/player_api.php?username=4529036487475419&password=160417160718');
+    //  http.Response response;
+    //  response = await http.get( url, );
+    //  print(response.body);
+    //
+    //  Map<String,dynamic> r =  jsonDecode(response.body);
+    //
+
+    //return configPost("/user/login/",data) ;
+  }
+  static loginUser({required String email,required String password,}) async{
+
+
+
+
+
+    String _deviceMAC = "";
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    bool? firstLoginDone = prefs.getBool("firstLogin");
+
+
+    if(firstLoginDone!=null && firstLoginDone == true){
+
+    }else{
+
+
+      try {
+        DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+        if(Platform.isAndroid){
+          var  androidInfo = await deviceInfo.androidInfo;
+          _deviceMAC=  androidInfo!.androidId!;
+          print(androidInfo!.toMap().toString());
+        }
+        if(Platform.isIOS){
+          IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+          _deviceMAC=  iosInfo.identifierForVendor!;
+        }
+
+
+      } on PlatformException {
+        _deviceMAC = 'Error getting the MAC address.';
+      }
+
+      var url = Uri.parse('https://www.sflix.digital/api/CheckAppDevice');
+      http.Response response;
+      response = await http.post( url,headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+          body: jsonEncode(<String, String>{
+            'DeviceType': "android-tv",
+            'mac_id': _deviceMAC,
+          }) );
+
+      dynamic res = jsonDecode(response.body);
+
+      prefs.setString("token", res["AppToken"]);
+      print(response.body);
+
+    }
+
+    String link2 = "http://line.myprotv.net";
+    var url2 = Uri.parse('$link2/player_api.php?username=$email&password=$password');
+
+    print(url2);
+    http.Response response2;
+    response2 = await http.get( url2, );
+    print(response2.body);
+
+    Map<String,dynamic> r =  jsonDecode(response2.body);
+
+    if(r.containsKey("user_info")){
+      Map<String,dynamic> user_info =  r["user_info"];
+      if( user_info.containsKey("status")){
+        if( user_info["status"]=="Active"){
+
+          int timeZoneNow =r["server_info"] ["timestamp_now"];
+
+          // int timeGap = DateTime.now.
+
+          print("success");
+          prefs.setString("SERVER_URL", r["server_info"]["url"]);
+          prefs.setString("USER_ID", email);
+          prefs.setString("PASSWORD", password);
+          prefs.setString("PORT", r["server_info"]["port"]);
+          prefs.setBool("auth", true);
+          return true;
+        }else{
+         // prefs.setBool("auth", false);
+        //  return false;
+          print("fail");
+        }
+      }else{
+       // prefs.setBool("auth", false);
+       // return false;
+      }
+    }else{
+     // prefs.setBool("auth", false);
+      //return false;
+    }
+
+    var url = Uri.parse('https://www.sflix.digital/api/applogin');
+    // var url = Uri.parse('http://revteam1.offshorerev.cc:80/player_api.php?username=4529036487475419&password=160417160718');
+    http.Response response;
+    var body = jsonEncode(<String, String>{
+      'device_type': "android-tv",
+      'macID': _deviceMAC,
+      'AppToken': prefs.getString("token")??"",
+      'username': email,
+      'password': password,
+    });
+    print(body);
+    response = await http.post( url,headers: <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+    },
+        body: body);
+
+    Map<String,dynamic> res = jsonDecode(response.body);
+
+    if(res.containsKey("status") && res["status"]== "success"){
+      String link = res["streaming_url"];
+      var url = Uri.parse('$link/player_api.php?username=$email&password=$password');
+       http.Response response;
+       response = await http.get( url, );
+       print(response.body);
+
+       Map<String,dynamic> r =  jsonDecode(response.body);
+
+      if(r.containsKey("user_info")){
+        Map<String,dynamic> user_info =  r["user_info"];
+        if( user_info.containsKey("status")){
+          if( user_info["status"]=="Active"){
+
+            int timeZoneNow =r["server_info"] ["timestamp_now"];
+
+           // int timeGap = DateTime.now.
+
+            print("success");
+            prefs.setString("SERVER_URL", r["server_info"]["url"]);
+            prefs.setString("USER_ID", email);
+            prefs.setString("PASSWORD", password);
+            prefs.setString("PORT", r["server_info"]["port"]);
+            prefs.setBool("auth", true);
+            return true;
+          }else{
+            prefs.setBool("auth", false);
+            return false;
+            print("fail");
+          }
+        }else{
+          prefs.setBool("auth", false);
+          return false;
+        }
+      }else{
+        prefs.setBool("auth", false);
+        return false;
+      }
+
+
+       print(r);
+    }else{
+      return false;
+
+      //failed
+    }
+
+    print(res);
+
+ //  var url = Uri.parse('http://line.liveott.ru/player_api.php?username=$email&password=$password');
+
+    var link = "http://revteam1.offshorerev.cc:80";
+    email = "4529036487475419";
+    password = "160417160718";
+   //  var url = Uri.parse('$link/player_api.php?username=$email&password=$password');
+   // // var url = Uri.parse('http://revteam1.offshorerev.cc:80/player_api.php?username=4529036487475419&password=160417160718');
+   //  http.Response response;
+   //  response = await http.get( url, );
+   //  print(response.body);
+   //
+   //  Map<String,dynamic> r =  jsonDecode(response.body);
+   //
+
     //return configPost("/user/login/",data) ;
   }
   static addCommentPoster(var data) async{

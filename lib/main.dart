@@ -44,6 +44,10 @@ void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   Wakelock.enable();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.landscapeRight,
+    DeviceOrientation.landscapeLeft,
+  ]);
   runApp(MyApp());
 }
 
@@ -153,7 +157,8 @@ class _MyAppState extends State<MyApp> {
       debugShowCheckedModeBanner: false,
 
     //  home: EpgActivity(),
-       home: Splash(),
+      // home: Splash(),
+       home: SlingTv(),
       //home:TvChannelsHome() ,
       routes: {
         "/splash": (context) => Splash(),

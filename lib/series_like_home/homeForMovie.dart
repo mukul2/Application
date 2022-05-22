@@ -1,5 +1,6 @@
 
 import 'dart:io';
+import 'package:flutter_app_tv/SlingTv/sling_scroll_tv.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_controller.dart';
@@ -752,7 +753,7 @@ class _HomeState extends ResumableState<HomeForMovie> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => HomeForMovie(),
+          pageBuilder: (context, animation1, animation2) => SLING_TV_S(),
           transitionDuration: Duration(seconds: 0),
         ),
       );

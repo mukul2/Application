@@ -7,6 +7,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_app_tv/SlingTv/sling_scroll_tv.dart';
 import 'package:flutter_app_tv/api/api_config.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
 import 'package:flutter_app_tv/model/genre.dart';
@@ -461,7 +462,7 @@ class _MyListState extends ResumableState<MyList> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => mmm.Movies(),
+          pageBuilder: (context, animation1, animation2) => SLING_TV_S(),
           transitionDuration: Duration(seconds: 0),
         ),
       );

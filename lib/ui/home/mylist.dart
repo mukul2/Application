@@ -39,6 +39,7 @@ import 'dart:convert' as convert;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transparent_image/transparent_image.dart';
 
+import '../../SlingTv/sling_scroll_tv.dart';
 import '../../series_like_home/home.dart';
 import '../channel/channel_as_home.dart';
 
@@ -461,7 +462,7 @@ class _MyListState extends ResumableState<MyList> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => mmm.Movies(),
+          pageBuilder: (context, animation1, animation2) => SLING_TV_S(),
           transitionDuration: Duration(seconds: 0),
         ),
       );

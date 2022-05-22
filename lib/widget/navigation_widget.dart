@@ -14,6 +14,7 @@ import 'package:flutter_app_tv/ui/setting/settings.dart';
 import 'package:need_resume/need_resume.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../SlingTv/sling_scroll_tv.dart';
 import '../SlingTv/sling_tv.dart';
 import '../TvGuide/tvguide.dart';
 import '../series_like_home/home.dart';
@@ -77,13 +78,13 @@ class _NavigationWidgetState extends ResumableState<NavigationWidget> {
       duration: Duration(milliseconds: 200),
       child:  Container(
           child: Container(
-            margin: EdgeInsets.only(left: 50,right: 50,top: 10),
-            height:50,
+            margin: EdgeInsets.only(left: MediaQuery.of(context).size.longestSide*0.05,right: MediaQuery.of(context).size.longestSide*0.05,top: 0+MediaQuery.of(context).viewPadding.top),
+            height:MediaQuery.of(context).size.longestSide*0.05,
             child: Row(
               children: [
                 Expanded(
                   child: Container(
-                    height: 50,
+                    height: MediaQuery.of(context).size.longestSide*0.05,
                     child:   Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -184,7 +185,8 @@ class _NavigationWidgetState extends ResumableState<NavigationWidget> {
                                   Navigator.pushReplacement(
                                     context,
                                     PageRouteBuilder(
-                                      pageBuilder: (context, animation1, animation2) => TVSLING(),
+                                     // pageBuilder: (context, animation1, animation2) => TVSLING(),
+                                      pageBuilder: (context, animation1, animation2) => SLING_TV_S(),
                                       transitionDuration: Duration(seconds: 0),
                                     ),
                                   );

@@ -122,7 +122,10 @@ class _MovieState extends State<Movie> {
 
 
 
-    Future.delayed(Duration.zero, () {
+    Future.delayed(Duration.zero, () async {
+
+      SharedPreferences sharedPreferences =await  SharedPreferences.getInstance();
+      user_id =  sharedPreferences.getString("USER_ID")!;
       FocusScope.of(context).requestFocus(movie_focus_node);
 
       //_checkLogged();
@@ -162,7 +165,7 @@ class _MovieState extends State<Movie> {
 
      if( dataMap["info"]["genre"]!=null){
        String ggg = dataMap["info"]["genre"];
-
+       gng_r = "";
        gnres_r = ggg.split(",");
 
        if(gnres_r.length>0){
@@ -253,13 +256,13 @@ class _MovieState extends State<Movie> {
 
   }
   void _addMylist() async{
+    print("toggle");
 
     if( posty ==  0 && postx  ==  2){
 
 
       if(isAdded==false){
-        fire.FirebaseFirestore.instance.collection("favourites").add({"x_id": widget.movie!.id,"uid": "4fe8679c08"}).then((value) {
-
+        fire.FirebaseFirestore.instance.collection("favourites").add({"time":DateTime.now().millisecondsSinceEpoch,"type":"movie","raw":widget.movie!.raw_data!,"x_id": widget.movie!.id,"uid": user_id}).then((value) {
           print("Added");
 
         });
@@ -366,6 +369,7 @@ class _MovieState extends State<Movie> {
     _visibile_cast_loading=false;
     //  });
   }
+  String user_id = "";
   @override
   Widget build(BuildContext context) {
 
@@ -609,7 +613,9 @@ class _MovieState extends State<Movie> {
 
             child: Stack(
               children: [
-                FadeInImage(placeholder: MemoryImage(kTransparentImage), image: CachedNetworkImageProvider(MovieDetails["backdrop_path"]!=null?("https://image.tmdb.org/t/p/w500/"+MovieDetails["backdrop_path"]):(MovieDetails["poster_path"]!=null?  "https://image.tmdb.org/t/p/w500/"+MovieDetails["poster_path"]:widget.movie!.cover)),fit: BoxFit.cover,height: MediaQuery.of(context).size.height,width: MediaQuery.of(context).size.width),
+                FadeInImage(placeholder: MemoryImage(kTransparentImage), image:
+
+                CachedNetworkImageProvider(MovieDetails["backdrop_path"]!=null?("https://image.tmdb.org/t/p/w500/"+MovieDetails["backdrop_path"]):(MovieDetails["poster_path"]!=null?  "https://image.tmdb.org/t/p/w500/"+MovieDetails["poster_path"]:widget.movie!.cover)),fit: BoxFit.cover,height: MediaQuery.of(context).size.height,width: MediaQuery.of(context).size.width),
                 //ImageFade(image:CachedNetworkImageProvider(widget.movie!.cover),fit: BoxFit.cover,height: MediaQuery.of(context).size.height,width: MediaQuery.of(context).size.width),
                 ClipRRect( // Clip it cleanly.
                   child: BackdropFilter(
@@ -646,9 +652,9 @@ class _MovieState extends State<Movie> {
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
                                               ClipRRect(
-                                                  borderRadius: BorderRadius.circular(5),
+                                                  borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width*0.01),
                                                   child: CachedNetworkImage(
-                                                    imageUrl:widget.movie!.image,
+                                                    imageUrl:MovieDetails["backdrop_path"]!=null?("https://image.tmdb.org/t/p/w500/"+MovieDetails["backdrop_path"]):(MovieDetails["poster_path"]!=null?  "https://image.tmdb.org/t/p/w500/"+MovieDetails["poster_path"]:widget.movie!.cover),
                                                     errorWidget: (context, url, error) => Icon(Icons.error),
                                                     fit: BoxFit.cover,
                                                   )
@@ -668,20 +674,20 @@ class _MovieState extends State<Movie> {
                                             mainAxisAlignment: MainAxisAlignment.end,
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Row(
+                                             Row(
                                                 children: [
-                                                  Text(  widget.movie!.title.contains(MovieDetails["title"])?MovieDetails["title"]: widget.movie!.title,
+                                                  Text(  widget.movie!.title.contains(MovieDetails["title"])?(MovieDetails["title"].length>30?MovieDetails["title"].substring(0,33):MovieDetails["title"]): (widget.movie!.title.length>33?widget.movie!.title.substring(0,33):widget.movie!.title),
                                                     style: TextStyle(
                                                         color: Colors.white,
-                                                        fontSize: 22,
+                                                        fontSize: MediaQuery.of(context).size.width*0.05,
                                                         fontWeight: FontWeight.w900
                                                     ),
                                                   ),
-                                                  if(imdbVarified)Padding(
+                                                  if(false)   if(imdbVarified)Padding(
                                                     padding: const EdgeInsets.only(left: 10),
                                                     child: Container(decoration: BoxDecoration(shape: BoxShape.circle,color: Colors.redAccent ),child: Center(child:Icon(Icons.done ,color: Colors.white,),),),
                                                   ),
-                                                  if(imdbVarified == false)Padding(
+                                                  if(false)     if(imdbVarified == false)Padding(
                                                     padding: const EdgeInsets.only(left: 10),
                                                     child: Container(decoration: BoxDecoration(shape: BoxShape.circle,color: Colors.redAccent ),child: Center(child:Icon(Icons.question_mark_outlined ,color: Colors.white,),),),
                                                   )
@@ -702,7 +708,7 @@ class _MovieState extends State<Movie> {
                                                     direction: Axis.horizontal,
                                                     allowHalfRating: true,
                                                     itemCount: 10,
-                                                    itemSize: 15.0,
+                                                    itemSize:MediaQuery.of(context).size.width*0.02,
                                                     ignoreGestures: true,
                                                     unratedColor: Colors.amber.withOpacity(0.4),
                                                     itemPadding: EdgeInsets.symmetric(horizontal: 4.0),
@@ -715,10 +721,10 @@ class _MovieState extends State<Movie> {
                                                     },
                                                   ),
                                                   SizedBox(width: 5),
-                                                  Text(" •  ${rating_r>0?rating_r:  MovieDetails["vote_average"]} / 10 "
+                                                  Text("${rating_r>0?rating_r:  MovieDetails["vote_average"]} "
                                                     , style: TextStyle(
                                                         color: Colors.white,
-                                                        fontSize: 11,
+                                                        fontSize: MediaQuery.of(context).size.width*0.02,
                                                         fontWeight: FontWeight.w800
                                                     ),
                                                   )
@@ -729,11 +735,11 @@ class _MovieState extends State<Movie> {
                                                     padding: EdgeInsets.symmetric(vertical: 1,horizontal: 5),
                                                     decoration: BoxDecoration(
                                                         color: Colors.orangeAccent,
-                                                        borderRadius: BorderRadius.circular(5)
+                                                        borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width*0.005)
                                                     ),
                                                     child: Text("IMDb", style: TextStyle(
                                                         color: Colors.white,
-                                                        fontSize: 11,
+                                                        fontSize: MediaQuery.of(context).size.width*0.015,
                                                         fontWeight: FontWeight.w800
                                                     ),
                                                     ),
@@ -743,7 +749,7 @@ class _MovieState extends State<Movie> {
                                                     padding: EdgeInsets.symmetric(vertical: 1,horizontal: 5),
                                                     decoration: BoxDecoration(
                                                         color: Colors.green,
-                                                        borderRadius: BorderRadius.circular(5)
+                                                        borderRadius: BorderRadius.circular( MediaQuery.of(context).size.width*0.005)
                                                     ),
                                                     child: Row(
                                                       children: [
@@ -753,7 +759,7 @@ class _MovieState extends State<Movie> {
                                                           padding:  EdgeInsets.only(left: 5),
                                                           child: Text( MovieDetails["vote_count"].toString(), style: TextStyle(
                                                               color: Colors.white,
-                                                              fontSize: 11,
+                                                              fontSize:  MediaQuery.of(context).size.width*0.015,
                                                               fontWeight: FontWeight.w800
                                                           ),
                                                           ),
@@ -765,7 +771,7 @@ class _MovieState extends State<Movie> {
                                                     padding: EdgeInsets.symmetric(vertical: 1,horizontal: 5),
                                                     decoration: BoxDecoration(
                                                         color: Colors.green,
-                                                        borderRadius: BorderRadius.circular(5)
+                                                        borderRadius: BorderRadius.circular(MediaQuery.of(context).size.width*0.005)
                                                     ),
                                                     child: Row(
                                                       children: [
@@ -775,7 +781,7 @@ class _MovieState extends State<Movie> {
                                                           padding:  EdgeInsets.only(left: 5),
                                                           child: Text(release_year_r.length>0?DateFormat("yyyy").format(DateTime.parse(release_year_r))    : DateFormat("yyyy").format(DateTime.parse( MovieDetails["release_date"].toString())) , style: TextStyle(
                                                               color: Colors.white,
-                                                              fontSize: 11,
+                                                              fontSize: MediaQuery.of(context).size.width*0.015,
                                                               fontWeight: FontWeight.w800
                                                           ),
                                                           ),
@@ -789,14 +795,14 @@ class _MovieState extends State<Movie> {
                                               Text(" ${duration_r.length>0?duration_r:    MovieDetails["runtime"]} min ${gng_r.length>0? gng_r:  gng_r2}"
                                                 , style: TextStyle(
                                                     color: Colors.white,
-                                                    fontSize: 13,
+                                                    fontSize: MediaQuery.of(context).size.width*0.012,
                                                     fontWeight: FontWeight.w900
                                                 ),),
                                               SizedBox(height: 10),
                                               Text( movie_plot.length>0? movie_plot:MovieDetails["overview"]
                                                 , style: TextStyle(
                                                     color: Colors.white60,
-                                                    fontSize: 11,
+                                                    fontSize: MediaQuery.of(context).size.width*0.013,
                                                     height: 1.5,
                                                     fontWeight: FontWeight.normal
                                                 ),
@@ -842,7 +848,7 @@ class _MovieState extends State<Movie> {
                                                         },
                                                         child: Container(
                                                           padding: EdgeInsets.symmetric(horizontal: 5),
-                                                          height: 35,
+                                                          height: MediaQuery.of(context).size.width*0.035,
                                                           decoration: BoxDecoration(
                                                             border: Border.all(color: Colors.white,width: 0.3),
                                                             borderRadius: BorderRadius.circular(3),
@@ -850,20 +856,20 @@ class _MovieState extends State<Movie> {
                                                           ),
                                                           child: Row(
                                                             children: [
-                                                              Container(
-                                                                height: 28,
-                                                                width: 28,
+                                                              Container(margin: EdgeInsets.only(left: MediaQuery.of(context).size.width*0.008,right: MediaQuery.of(context).size.width*0.013),
+                                                                height: MediaQuery.of(context).size.width*0.013,
+                                                                width: MediaQuery.of(context).size.width*0.013,
                                                                 child: Icon(
                                                                   FontAwesomeIcons.play,
                                                                   color: (postx == 0 && posty == 0)? Colors.black:Colors.white,
-                                                                  size: 11,
+                                                                  size:  MediaQuery.of(context).size.width*0.015,
                                                                 ),
                                                               ),
                                                               Text(
                                                                   "Play Movie" ,
                                                                   style: TextStyle(
                                                                       color: (postx == 0 && posty == 0)? Colors.black:Colors.white,
-                                                                      fontSize: 11,
+                                                                      fontSize: MediaQuery.of(context).size.width*0.013,
                                                                       fontWeight: FontWeight.w500
                                                                   )
                                                               ),
@@ -884,7 +890,7 @@ class _MovieState extends State<Movie> {
                                                           });
                                                         },
                                                         child: Container(
-                                                          height: 35,
+                                                          height: MediaQuery.of(context).size.width*0.035,
                                                           padding: EdgeInsets.symmetric(horizontal: 5),
                                                           decoration: BoxDecoration(
                                                             border: Border.all(color: Colors.white,width: 0.3),
@@ -894,19 +900,20 @@ class _MovieState extends State<Movie> {
                                                           child: Row(
                                                             children: [
                                                               Container(
-                                                                height: 28,
-                                                                width: 28,
+                                                                margin: EdgeInsets.only(left: MediaQuery.of(context).size.width*0.008,right: MediaQuery.of(context).size.width*0.013),
+                                                                height: MediaQuery.of(context).size.width*0.013,
+                                                                width: MediaQuery.of(context).size.width*0.013,
                                                                 child: Icon(
                                                                   FontAwesomeIcons.bullhorn,
                                                                   color: (postx == 1 && posty == 0)? Colors.black:Colors.white,
-                                                                  size: 11,
+                                                                  size:  MediaQuery.of(context).size.width*0.015,
                                                                 ),
                                                               ),
                                                               Text(
                                                                   "Watch Trailer" ,
                                                                   style: TextStyle(
                                                                       color: (postx == 1 && posty == 0)? Colors.black:Colors.white,
-                                                                      fontSize: 11,
+                                                                      fontSize: MediaQuery.of(context).size.width*0.013,
                                                                       fontWeight: FontWeight.w500
                                                                   )
                                                               ),
@@ -925,7 +932,7 @@ class _MovieState extends State<Movie> {
 
 
                                                       StreamBuilder<fire.QuerySnapshot>(
-                                                          stream:fire.FirebaseFirestore.instance.collection("favourites").where("uid",isEqualTo: "4fe8679c08").where("x_id",isEqualTo: widget.movie!.id).snapshots(),
+                                                          stream:fire.FirebaseFirestore.instance.collection("favourites").where("uid",isEqualTo: user_id).where("x_id",isEqualTo: widget.movie!.id).snapshots(),
                                                           builder: (BuildContext context, AsyncSnapshot<fire.QuerySnapshot> snapshot) {
 
                                                             GestureDetector bR(bool status){
@@ -958,7 +965,7 @@ class _MovieState extends State<Movie> {
                                                                   });
                                                                 },
                                                                 child: Container(
-                                                                  height: 35,
+                                                                  height: MediaQuery.of(context).size.width*0.035,
                                                                   padding: EdgeInsets.symmetric(horizontal: 5),
                                                                   decoration: BoxDecoration(
                                                                     border: Border.all(color: Colors.white,width: 0.3),
@@ -978,12 +985,13 @@ class _MovieState extends State<Movie> {
                                                                       )
                                                                           :
                                                                       Container(
-                                                                        height: 28,
-                                                                        width: 28,
+                                                                        margin: EdgeInsets.only(left: MediaQuery.of(context).size.width*0.008,right: MediaQuery.of(context).size.width*0.013),
+                                                                        height: MediaQuery.of(context).size.width*0.013,
+                                                                        width: MediaQuery.of(context).size.width*0.013,
                                                                         child: Icon(
                                                                           (added)? FontAwesomeIcons.solidTimesCircle:FontAwesomeIcons.plusCircle,
                                                                           color: (postx == 2 && posty == 0)? Colors.black:Colors.white,
-                                                                          size: 11,
+                                                                          size:  MediaQuery.of(context).size.width*0.015,
                                                                         ),
                                                                       ),
                                                                       (my_list_loading)?
@@ -1003,7 +1011,7 @@ class _MovieState extends State<Movie> {
                                                                           "Add to Favourites" ,
                                                                           style: TextStyle(
                                                                               color: (postx == 2 && posty == 0)? Colors.black:Colors.white,
-                                                                              fontSize: 11,
+                                                                              fontSize: MediaQuery.of(context).size.width*0.013,
                                                                               fontWeight: FontWeight.w500
                                                                           )
                                                                       ),
@@ -1061,14 +1069,14 @@ class _MovieState extends State<Movie> {
                                                                 child: Icon(
                                                                   FontAwesomeIcons.starHalfAlt,
                                                                   color: (postx == 3 && posty == 0)? Colors.black:Colors.white,
-                                                                  size: 11,
+                                                                  size:  MediaQuery.of(context).size.width*0.015,
                                                                 ),
                                                               ),
                                                               Text(
                                                                   "Rate Movie" ,
                                                                   style: TextStyle(
                                                                       color: (postx == 3 && posty == 0)? Colors.black:Colors.white,
-                                                                      fontSize: 11,
+                                                                      fontSize: MediaQuery.of(context).size.width*0.013,
                                                                       fontWeight: FontWeight.w500
                                                                   )
                                                               ),
@@ -1203,7 +1211,7 @@ class _MovieState extends State<Movie> {
                                         child: Text("Full Cast & Crew"
                                           , style: TextStyle(
                                               color: (posty == 1)?Colors.white:Colors.white60,
-                                              fontSize: 13,
+                                              fontSize: MediaQuery.of(context).size.longestSide*0.018,
                                               fontWeight: FontWeight.w900
                                           ),
                                         ),
@@ -1216,7 +1224,7 @@ class _MovieState extends State<Movie> {
                                         )
                                       else
                                         Container(
-                                          height: 70,
+                                          height:  MediaQuery.of(context).size.longestSide*0.08,
                                           child: ScrollConfiguration(
                                             behavior: MyBehavior(),   //
                                             child: ScrollablePositionedList.builder(

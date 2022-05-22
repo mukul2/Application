@@ -53,6 +53,7 @@ class _HomeState extends State<MacAddress> {
       _deviceMAC = 'Error getting the MAC address.';
     }
     print("done");
+    print(_deviceMAC);
 
     setState(() {
 

@@ -1,6 +1,7 @@
 
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter_app_tv/SlingTv/sling_scroll_tv.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_controller.dart';
@@ -527,16 +528,11 @@ class _HomeState extends ResumableState<TvChannelsHome> {
             List allSeriesCategory =  await apiRest.getTVCateDetails();
             makeUI(dataMap: allSeriesCategory);
           }else{
-
             File f = await apiRest.localFile("tv.json");
-
             String data = await f.readAsString();
             try{
-              // value = jsonDecode(data);
-
               makeUI(dataMap: jsonDecode(data));
             }catch(e){
-
             }
             apiRest.getTVCateDetails();
           }
@@ -975,7 +971,7 @@ class _HomeState extends ResumableState<TvChannelsHome> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) =>TVSLING(),
+          pageBuilder: (context, animation1, animation2) =>SLING_TV_S(),
           transitionDuration: Duration(seconds: 0),
         ),
       );
@@ -1313,7 +1309,7 @@ class _HomeState extends ResumableState<TvChannelsHome> {
           // Registering a callback for the end of next frame
           // to dispose of an old controller
           // (which won't be used anymore after calling setState)
-          WidgetsBinding.instance!.addPostFrameCallback((_) async {
+            WidgetsBinding.instance!.addPostFrameCallback((_) async {
             await oldcontroller.dispose();
 
             // Initing new controller

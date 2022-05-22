@@ -29,6 +29,7 @@ import 'package:flutter_app_tv/ui/player/video_controller_widget.dart' as ui;
 import 'package:flutter_app_tv/ui/home/home.dart';
 import 'package:flutter_app_tv/key_code.dart';
 import 'package:flutter_app_tv/ui/player/subtitle_widget.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -146,7 +147,10 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
 
    @override
   void initState() {
+  if(widget.selected_subtitle!=null)   _selected_subtitle = widget.selected_subtitle!;
+  if(widget.selected_subtitle!=null)  _focused_subtitle = widget.selected_subtitle!;
      try{
+       print(widget.channel!.sources.first.url);
        print(widget.poster!.sources.first.url);
      }catch(e){
 
@@ -334,12 +338,41 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
         if(widget.poster!=null && widget.episode==null){
           print("save in fb");
 
-          dynamic data =   {"num":0,"name":widget.poster!.title,"stream_type":"movie","stream_id":widget.poster!.id,"stream_icon":widget.poster!.cover,"rating":widget.poster!.rating.toString(),"rating_5based":(widget.poster!.rating/2).roundToDouble(),"added":"1650236100","category_id":"1242","container_extension":widget.poster!.sources[0].type,"custom_sid":null,"direct_source":widget.poster!.sources[0].url};
-           apiRest.pushWatch(durationSeconds:_betterPlayerController!.videoPlayerController!.value.position.inSeconds,data: data);
-          return true;
+          try{
+            dynamic data =   {"num":0,"name":widget.poster!.title,"stream_type":"movie","stream_id":widget.poster!.id,"stream_icon":widget.poster!.cover,"rating":widget.poster!.rating.toString(),"rating_5based":(widget.poster!.rating/2).roundToDouble(),"added":"1650236100","category_id":"1242","container_extension":widget.poster!.sources[0].type,"custom_sid":null,"direct_source":widget.poster!.sources[0].url};
+            apiRest.pushWatch(totalDuration:_betterPlayerController!.videoPlayerController!.value.duration!.inSeconds,durationSeconds:_betterPlayerController!.videoPlayerController!.value.position.inSeconds,data: data);
+            return true;
+          }catch(e){
+            return true;
+          }
         }else{
+          if(widget.episode!=null &&widget.season!=null ){
+            print("save in fb");
+
+
+             // dynamic data =   {"num":0,"name":widget.poster!.title,"stream_type":"series","stream_id":widget.poster!.id,"stream_icon":widget.poster!.cover,"rating":widget.poster!.rating.toString(),"rating_5based":(widget.poster!.rating/2).roundToDouble(),"added":"1650236100","category_id":"1242","container_extension":widget.poster!.sources[0].type,"custom_sid":null,"direct_source":widget.poster!.sources[0].url};
+            //  apiRest.pushWatchSeries(totalDuration:_betterPlayerController!.videoPlayerController!.value.duration!.inSeconds,series_num: widget.poster!.id.toString(),type: "series", durationSeconds: _betterPlayerController!.videoPlayerController!.value.position.inSeconds,data:{"series":widget.seasons![widget.season!],"episode":widget.seasons![widget.season!].episodes[widget.episode!]});
+            //
+            //   FirebaseFirestore  firestore =  FirebaseFirestore.instance;
+            //   SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+            //   String EMAIL =  sharedPreferences.getString("USER_ID")!;
+            //   firestore.collection("watchHistory"+EMAIL).where("series_id",isEqualTo:data["series"]["series_id"]).where("episode_num",isEqualTo:data["episode"]["episode_num"]).get().then((value){
+            //     if(value.docs.length>0){
+            //       value.docs.first.reference.update({"time":DateTime.now().millisecondsSinceEpoch,"duration":durationSeconds});
+            //     }else{
+            //       firestore.collection("watchHistory"+EMAIL).add({"series_num":series_num,"series_id":data["series"]["series_id"],"episode_num":data["episode"]["episode_num"],"time":DateTime.now().millisecondsSinceEpoch,"type":type,"duration":durationSeconds,"data":data,"total":totalDuration}).then((value) => print("firebase note added"));
+            //
+            //     }
+
+              return true;
+
+          }else{
+            print("no save now");
+          }
+
           return true;
         }
+
 
 
         if(visible_subscribe_dialog){
@@ -899,8 +932,22 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
 
      _setupDataSource(widget.selected_source!);
      _hideControllers();
-     if(_subtitle_enabled! == true && widget.subtitles!.length>0 && widget.selected_subtitle!>0){
+     //_subtitle_enabled! == true &&
+     if( widget.subtitles!.length>0 && widget.selected_subtitle!>0){
+       Fluttertoast.showToast(
+         msg: "with subtitle",
+         gravity: ToastGravity.BOTTOM,
+         backgroundColor: Colors.green,
+         textColor: Colors.white,
+       );
        _applySubtitle();
+     }else{
+       Fluttertoast.showToast(
+         msg: "no   subtitle",
+         gravity: ToastGravity.BOTTOM,
+         backgroundColor: Colors.green,
+         textColor: Colors.white,
+       );
      }
 
    }

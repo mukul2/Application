@@ -21,10 +21,15 @@ class Poster{
      String cover ;
      Source? trailer ;
 
+     dynamic raw_data;
+
      bool? fromIsWaching;
 
 
       List<Genre> genres;
+
+      int? resumeAt;
+      int? total;
 
       List<Source> sources;
 
@@ -48,7 +53,11 @@ class Poster{
        required this.cover,
        required this.trailer,
        required  this.genres,
-       required this.sources,this.fromIsWaching
+       required this.sources,
+       this.fromIsWaching,
+       this.resumeAt,
+       this.total,
+       this.raw_data,
      });
 
   factory Poster.fromJson(Map<String, dynamic> parsedJson){

@@ -41,6 +41,7 @@ import 'dart:convert' as convert;
 import 'package:transparent_image/transparent_image.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../SlingTv/sling_scroll_tv.dart';
 import '../../SlingTv/sling_tv.dart';
 import '../../TvGuide/tvguide.dart';
 import '../../model/channel.dart';
@@ -345,10 +346,12 @@ class _HomeState extends ResumableState<Home> {
               String? USER_ID =  sharedPreferences.getString("USER_ID");
               String? PASSWORD =  sharedPreferences.getString("PASSWORD");
                 String link ="http://$server:$port"+"/"+dataMap["data"]["stream_type"]+"/"+USER_ID!+"/"+PASSWORD.toString() +"/"+dataMap["data"]["stream_id"].toString()+"."+dataMap["data"]["container_extension"];
-                Poster poster1 = Poster(id:dataMap["data"]["stream_id"],
+                Poster poster1 = Poster(raw_data:dataMap["data"] ,id:dataMap["data"]["stream_id"],
                     title:dataMap["data"]["name"],
                     type: "type",
                     label: null,fromIsWaching: true,
+                    resumeAt:dataMap["duration"] ,
+                    total:dataMap["total_duration"] ,
                     sublabel: null,
                     imdb: 0.0,
                     // imdb: double.parse(movieContents[_selected_genre][i]["rating"]),
@@ -419,7 +422,117 @@ class _HomeState extends ResumableState<Home> {
           //   }
           // }
         }
+        if(true ){
+          //continue watching
 
+
+          fire.QuerySnapshot recentWatch = await  fire.FirebaseFirestore.instance.collection("favourites").where("type",isEqualTo: "movie").where("uid",isEqualTo: USER_ID).get();
+
+
+          List<fire.QueryDocumentSnapshot> allData = recentWatch.docs;
+
+          allData.sort((a, b) => a.get("time").compareTo(b.get("time")));
+
+          allData = allData.reversed.toList();
+
+
+          List<Poster> posters = [];
+          for(int i = 0 ; i < recentWatch.docs.length ; i++){
+
+            try{
+              Map<String, dynamic> dataMap = allData[i].data() as Map<String, dynamic>;
+              //dataMap = dataMap["raw"];
+
+              // String listStr = recentWatch.docs[i].get("data");
+              // dynamic li = convert.jsonDecode(listStr);
+              //  String SERVER = "http://connect.proxytx.cloud";
+              //  String PORT = "80";
+              //  String EMAIL = "4fe8679c08";
+              //  String PASSWORD = "2016";
+              // SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+              //
+              // String? server =  sharedPreferences.getString("SERVER_URL");
+              // String? port =  sharedPreferences.getString("PORT");
+              // String? USER_ID =  sharedPreferences.getString("USER_ID");
+              // String? PASSWORD =  sharedPreferences.getString("PASSWORD");
+              String link ="http://$server:$port"+"/"+dataMap["raw"]["stream_type"]+"/"+USER_ID!+"/"+PASSWORD.toString() +"/"+dataMap["raw"]["stream_id"].toString()+"."+dataMap["raw"]["container_extension"];
+              Poster poster1 = Poster(raw_data:dataMap["raw"] ,id:dataMap["raw"]["stream_id"],
+                  title:dataMap["raw"]["name"],
+                  type: "type",
+                  label: null,
+                  //fromIsWaching: true,
+                 // resumeAt:dataMap["duration"] ,
+                //  total:dataMap["total_duration"] ,
+                  sublabel: null,
+                  imdb: 0.0,
+                  // imdb: double.parse(movieContents[_selected_genre][i]["rating"]),
+                  downloadas: "1",
+                  comment: false,
+                  playas: "1",
+                  description: link,
+                  classification: "--",
+                  year: 000,
+                  duration: "--:--",
+                  // rating: double.parse(movieContents[_selected_genre][i]["rating"]),
+                  rating:0.0,
+                  image: dataMap["raw"]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+                  cover:dataMap["raw"]["stream_icon"]??"https://upload.wikimedia.org/wikipedia/commons/thumb/6/65/No-Image-Placeholder.svg/330px-No-Image-Placeholder.svg.png",
+                  trailer: null,
+                  genres: [Genre(id: i, title: "My Favourites")],
+                  sources:[Source(size: "",id: 1, type: dataMap["raw"]["container_extension"], title:dataMap["raw"]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link)] );
+
+              posters.add(poster1);
+
+
+
+
+
+
+
+
+            }catch(e){
+
+              print(e);
+              print("cach recent");
+
+            }
+
+
+          }
+
+          if(posters.length>0){
+            Genre gg = Genre(id: 100, title:"My Favourites",posters:posters );
+
+            genres.add(gg);
+            ItemScrollController controller = new ItemScrollController();
+            _scrollControllers.add(controller);
+            _position_x_line_saver.add(0);
+            _counts_x_line_saver.add(gg.posters!.length);
+          }
+
+
+
+
+
+
+
+
+
+
+
+
+
+          // for(Map<String,dynamic> genre_map  in jsonData["genres"]){
+          //   Genre genre = Genre.fromJson(genre_map);
+          //   if(genre.posters!.length >0) {
+          //     genres.add(genre);
+          //     ItemScrollController controller = new ItemScrollController();
+          //     _scrollControllers.add(controller);
+          //     _position_x_line_saver.add(0);
+          //     _counts_x_line_saver.add(genre.posters!.length);
+          //   }
+          // }
+        }
         makeMoVieUI({required List allVodCategory}) async {
 
           SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
@@ -453,7 +566,7 @@ class _HomeState extends ResumableState<Home> {
                 modelS.Source sss = Source(size: "",id: 1, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
                 modelS.Source sss2 = Source(size: "",id: 2, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
                 modelS.Source sss3 = Source(size: "",id: 3, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
-                Poster poster1 = Poster(id:li[k]["stream_id"],
+                Poster poster1 = Poster(raw_data:li[k],id:li[k]["stream_id"],
                     title:li[k]["name"],
                     type: "type",
                     label: null,
@@ -820,7 +933,8 @@ class _HomeState extends ResumableState<Home> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => TVSLING(),
+         // pageBuilder: (context, animation1, animation2) => TVSLING(),
+          pageBuilder: (context, animation1, animation2) => SLING_TV_S(),
           transitionDuration: Duration(seconds: 0),
         ),
       );
@@ -937,6 +1051,19 @@ class _HomeState extends ResumableState<Home> {
   void _goToMovieDetail() {
     if(posty >= 0 ){
       if(genres[posty] != null){
+
+        if(genres[posty].posters![postx].type == "serie"){
+
+        }else{
+          // Fluttertoast.showToast(
+          //   msg: genres[posty].posters![postx].title,
+          //   gravity: ToastGravity.BOTTOM,
+          //   backgroundColor: Colors.green,
+          //   textColor: Colors.white,
+          // );
+        }
+
+
         Navigator.push(
           context,
           PageRouteBuilder(

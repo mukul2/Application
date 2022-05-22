@@ -257,6 +257,10 @@ class _MyCustomWidgetState extends State<MyCustomWidget> {
       },
       child: InkWell(onTap: (){
         print("clicked ");
+        setState(() {
+          _label =  'Focused';
+        });
+        widget.gotfocused(true);
       },
         child: Padding(
           padding:  EdgeInsets.all(MediaQuery.of(context).size.longestSide*0.004),

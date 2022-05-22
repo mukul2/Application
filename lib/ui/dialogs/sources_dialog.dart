@@ -117,10 +117,10 @@ class _SourcesDialogState extends State<SourcesDialog> {
                                 padding: const EdgeInsets.only(top: 80.0,left: 10,bottom: 10),
                                 child: Row(
                                   children: [
-                                    Icon(Icons.high_quality_sharp,color: Colors.white70,size: 35),
+                                    Icon(Icons.closed_caption,color: Colors.white70,size: 35),
                                     SizedBox(width: 10),
                                     Text(
-                                      "Select subtile",
+                                      "Select subtitle",
                                       style: TextStyle(
                                           fontSize: MediaQuery.of(context).size.longestSide*0.025,
                                           fontWeight: FontWeight.w800,

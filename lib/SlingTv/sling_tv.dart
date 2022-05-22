@@ -1,7 +1,9 @@
 
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:intl/intl.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart' as fire;
@@ -98,7 +100,7 @@ class _MoviesState extends ResumableState<TVSLING> {
   bool? logged;
   Image image = Image.asset("assets/images/profile.jpg");
 
-  dynamic epgOne;
+  List epgOne = [];
   Uint8List? memoryImageOne;
 
   List selectedTopNews = [];
@@ -111,14 +113,13 @@ class _MoviesState extends ResumableState<TVSLING> {
       FocusScope.of(context).requestFocus(home_focus_node);
      // _getGenres();
 
-        _scrollControllers.clear();
 
 
-        ItemScrollController controller =  new ItemScrollController();
-        _scrollControllers.add(controller);
-        _position_x_line_saver.add(0);
-        _counts_x_line_saver.add(5);
 
+      // ItemScrollController controller2 =  new ItemScrollController();
+      // _scrollControllers.add(controller2);
+      // _position_x_line_saver.add(0);
+      // _counts_x_line_saver.add(5);
 
      // getLogged();
     });
@@ -127,13 +128,6 @@ class _MoviesState extends ResumableState<TVSLING> {
   }
 Future download() async {
 
-
-
-  String castLink = "http://line.liveott.ru/player_api.php?username=4fe8679c08&password=2016&action=get_live_categories";
-  print(castLink);
-  var responseCast = await http.get(Uri.parse(castLink), );
-
-  List allCategory = convert.jsonDecode(responseCast.body);
 
   List newsGroup = [];
   List entertainmentGroup = [];
@@ -147,102 +141,172 @@ Future download() async {
   List sportsChannel = [];
 
 
-
-  for(int i = 0 ; i < allCategory.length ; i ++){
-    if(allCategory[i]["category_name"].toString().contains("NEWS") ){
-      newsGroup.add(allCategory[i]);
-    }
-    if(allCategory[i]["category_name"].toString().contains("ENTERTAINMENT") | allCategory[i]["category_name"].toString().contains("MOVIES") | allCategory[i]["category_name"].toString().contains("SERIES")| allCategory[i]["category_name"].toString().contains("MUSIC") ){
-      entertainmentGroup.add(allCategory[i]);
-    }
-    if(allCategory[i]["category_name"].toString().contains("KIDS")  ){
-      kidsGroup.add(allCategory[i]);
-    }
-
-    if(allCategory[i]["category_name"].toString().contains("sports")  |allCategory[i]["category_name"].toString().contains("SPORTS")|allCategory[i]["category_name"].toString().contains("ESPN") |allCategory[i]["category_name"].toString().contains("PLAY")|allCategory[i]["category_name"].toString().contains("HOCKEY") |allCategory[i]["category_name"].toString().contains("LEAGUE") ){
-      sportsGroup.add(allCategory[i]);
-    }
-  }
-
-
-  print(newsGroup.length);
-  print(entertainmentGroup.length);
-  print(kidsGroup.length);
-  print(sportsGroup.length);
+  makeTv({required List dataMap}){
 
 
 
 
 
+      for(int i = 0 ; i < dataMap.length ; i ++){
+        if(dataMap[i]["name"].toString().contains("NEWS") ){
+         // newsGroup.add(dataMap[i]);
+          newsChannels.addAll(dataMap[i]["list"]);
+        }
+        if(dataMap[i]["name"].toString().contains("ENTERTAINMENT") | dataMap[i]["name"].toString().contains("MOVIES") | dataMap[i]["name"].toString().contains("SERIES")| dataMap[i]["name"].toString().contains("MUSIC") ){
+          //entertainmentGroup.add(dataMap[i]);
+          entertainChannels.addAll(dataMap[i]["list"]);
+        }
+        if(dataMap[i]["category_name"].toString().contains("KIDS")  ){
+         // kidsGroup.add(dataMap[i]);
+          kidsChannel.addAll(dataMap[i]["list"]);
+        }
 
+        if(dataMap[i]["name"].toString().contains("sports")  |dataMap[i]["name"].toString().contains("SPORTS")|dataMap[i]["name"].toString().contains("ESPN") |dataMap[i]["name"].toString().contains("PLAY")|dataMap[i]["name"].toString().contains("HOCKEY") |dataMap[i]["name"].toString().contains("LEAGUE") ){
+         // sportsGroup.add(dataMap[i]);
+          sportsChannel.addAll(dataMap[i]["list"]);
+        }
 
-  if(newsGroup.length>0){
-    for(int i = 0 ; i < newsGroup.length ; i++){
-      String link2 = "http://line.liveott.ru/player_api.php?username=4fe8679c08&password=2016&action=get_live_streams&category_id="+newsGroup[i]["category_id"];
-
-      var responseCast = await http.get(Uri.parse(link2), );
-
-      List allChannels = convert.jsonDecode(responseCast.body);
-
-      newsChannels.addAll(allChannels);
-
-
-    }
-  }
-
-  if(entertainmentGroup.length>0){
-    for(int i = 0 ; i < entertainmentGroup.length ; i++){
-      String link2 = "http://line.liveott.ru/player_api.php?username=4fe8679c08&password=2016&action=get_live_streams&category_id="+entertainmentGroup[i]["category_id"];
-
-      var responseCast = await http.get(Uri.parse(link2), );
-
-      List allChannels = convert.jsonDecode(responseCast.body);
-
-      entertainChannels.addAll(allChannels);
-
-
-    }
-  }
-  if(kidsGroup.length>0){
-    for(int i = 0 ; i < kidsGroup.length ; i++){
-      String link2 = "http://line.liveott.ru/player_api.php?username=4fe8679c08&password=2016&action=get_live_streams&category_id="+kidsGroup[i]["category_id"];
-
-      var responseCast = await http.get(Uri.parse(link2), );
-
-      List allChannels = convert.jsonDecode(responseCast.body);
-
-      kidsChannel.addAll(allChannels);
-
-
-    }
-  }
-
-  if(sportsGroup.length>0){
-    for(int i = 0 ; i < sportsGroup.length ; i++){
-      try{
-        String link2 = "http://line.liveott.ru/player_api.php?username=4fe8679c08&password=2016&action=get_live_streams&category_id="+sportsGroup[i]["category_id"];
-
-        var responseCast = await http.get(Uri.parse(link2), );
-
-        List allChannels = convert.jsonDecode(responseCast.body);
-
-        sportsChannel.addAll(allChannels);
-      }catch(e){
 
       }
+      print(newsChannels.length);
+      print(entertainChannels.length);
+      print(kidsChannel.length);
+      print(sportsChannel.length);
+
+      newsChannels.shuffle();
+      entertainChannels.shuffle();
+      kidsChannel.shuffle();
+      sportsChannel.shuffle();
+
+
+
 
 
     }
+  if( await apiRest.checkFile("tv.json") == false){
+    List allSeriesCategory =  await apiRest.getTVCateDetails();
+    makeTv(dataMap: allSeriesCategory);
+  }else{
+    File f = await apiRest.localFile("tv.json");
+    String data = await f.readAsString();
+    try{
+      makeTv(dataMap: jsonDecode(data));
+    }catch(e){
+    }
+    apiRest.getTVCateDetails();
   }
-  print(newsChannels.length);
-  print(entertainChannels.length);
-  print(kidsChannel.length);
-  print(sportsChannel.length);
 
-  newsChannels.shuffle();
-  entertainChannels.shuffle();
-  kidsChannel.shuffle();
-  sportsChannel.shuffle();
+
+
+
+
+  //
+  // String castLink = "http://line.liveott.ru/player_api.php?username=4fe8679c08&password=2016&action=get_live_categories";
+  // print(castLink);
+  // var responseCast = await http.get(Uri.parse(castLink), );
+  //
+  // List allCategory = convert.jsonDecode(responseCast.body);
+  //
+  // List newsGroup = [];
+  // List entertainmentGroup = [];
+  // List kidsGroup = [];
+  // List sportsGroup = [];
+  //
+  //
+  // List newsChannels = [];
+  // List entertainChannels = [];
+  // List kidsChannel = [];
+  // List sportsChannel = [];
+  //
+  //
+  //
+  // for(int i = 0 ; i < allCategory.length ; i ++){
+  //   if(allCategory[i]["category_name"].toString().contains("NEWS") ){
+  //     newsGroup.add(allCategory[i]);
+  //   }
+  //   if(allCategory[i]["category_name"].toString().contains("ENTERTAINMENT") | allCategory[i]["category_name"].toString().contains("MOVIES") | allCategory[i]["category_name"].toString().contains("SERIES")| allCategory[i]["category_name"].toString().contains("MUSIC") ){
+  //     entertainmentGroup.add(allCategory[i]);
+  //   }
+  //   if(allCategory[i]["category_name"].toString().contains("KIDS")  ){
+  //     kidsGroup.add(allCategory[i]);
+  //   }
+  //
+  //   if(allCategory[i]["category_name"].toString().contains("sports")  |allCategory[i]["category_name"].toString().contains("SPORTS")|allCategory[i]["category_name"].toString().contains("ESPN") |allCategory[i]["category_name"].toString().contains("PLAY")|allCategory[i]["category_name"].toString().contains("HOCKEY") |allCategory[i]["category_name"].toString().contains("LEAGUE") ){
+  //     sportsGroup.add(allCategory[i]);
+  //   }
+  // }
+  //
+  //
+  // print(newsGroup.length);
+  // print(entertainmentGroup.length);
+  // print(kidsGroup.length);
+  // print(sportsGroup.length);
+  //
+  //
+  //
+  //
+  //
+  //
+  //
+  // if(newsGroup.length>0){
+  //   for(int i = 0 ; i < newsGroup.length ; i++){
+  //     String link2 = "http://line.liveott.ru/player_api.php?username=4fe8679c08&password=2016&action=get_live_streams&category_id="+newsGroup[i]["category_id"];
+  //
+  //     var responseCast = await http.get(Uri.parse(link2), );
+  //
+  //     List allChannels = convert.jsonDecode(responseCast.body);
+  //
+  //     newsChannels.addAll(allChannels);
+  //
+  //
+  //   }
+  // }
+  //
+  // if(entertainmentGroup.length>0){
+  //   for(int i = 0 ; i < entertainmentGroup.length ; i++){
+  //     String link2 = "http://line.liveott.ru/player_api.php?username=4fe8679c08&password=2016&action=get_live_streams&category_id="+entertainmentGroup[i]["category_id"];
+  //
+  //     var responseCast = await http.get(Uri.parse(link2), );
+  //
+  //     List allChannels = convert.jsonDecode(responseCast.body);
+  //
+  //     entertainChannels.addAll(allChannels);
+  //
+  //
+  //   }
+  // }
+  // if(kidsGroup.length>0){
+  //   for(int i = 0 ; i < kidsGroup.length ; i++){
+  //     String link2 = "http://line.liveott.ru/player_api.php?username=4fe8679c08&password=2016&action=get_live_streams&category_id="+kidsGroup[i]["category_id"];
+  //
+  //     var responseCast = await http.get(Uri.parse(link2), );
+  //
+  //     List allChannels = convert.jsonDecode(responseCast.body);
+  //
+  //     kidsChannel.addAll(allChannels);
+  //
+  //
+  //   }
+  // }
+
+  // if(sportsGroup.length>0){
+  //   for(int i = 0 ; i < sportsGroup.length ; i++){
+  //     try{
+  //       String link2 = "http://line.liveott.ru/player_api.php?username=4fe8679c08&password=2016&action=get_live_streams&category_id="+sportsGroup[i]["category_id"];
+  //
+  //       var responseCast = await http.get(Uri.parse(link2), );
+  //
+  //       List allChannels = convert.jsonDecode(responseCast.body);
+  //
+  //       sportsChannel.addAll(allChannels);
+  //     }catch(e){
+  //
+  //     }
+  //
+  //
+  //   }
+  // }
+
 
   int index = 0;
 
@@ -258,24 +322,25 @@ Future download() async {
     String? USER_ID =  sharedPreferences.getString("USER_ID");
     String? PASSWORD =  sharedPreferences.getString("PASSWORD");
 
-    String castLink = "http://$server/player_api.php?username=$USER_ID&password=$PASSWORD&action=get_short_epg&stream_id="+newsChannels[index]["stream_id"].toString()+"&limit=1";
+    String castLink = "http://$server/player_api.php?username=$USER_ID&password=$PASSWORD&action=get_short_epg&stream_id="+entertainChannels[index]["stream_id"].toString()+"&limit=1";
 
     var responseEPG = await http.get(Uri.parse(castLink), );
 
    try{
      dynamic dd  =  jsonDecode(responseEPG.body);
-     print(responseEPG.body);
+   //  print(responseEPG.body);
      epgs  =dd["epg_listings"];
    }catch(e){
      print(castLink);
      print(e);
-
+     getData();
    }
 
     if(epgs.length>0){
-      String m3 = "http://$server:80/live/$USER_ID/$PASSWORD/"+newsChannels[index]["stream_id"].toString()+".m3u8";
+      String m3 = "http://$server:80/live/$USER_ID/$PASSWORD/"+entertainChannels[index]["stream_id"].toString()+".m3u8";
       print(m3);
-      epgOne = epgs[0];
+       epgOne.add(epgs[0]);
+       print("one epg added");
      // String image = "https://us-central1-sflix-edc5e.cloudfunctions.net/takeScreenShot?link="+"https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4";
      // String image = "https://us-central1-sflix-edc5e.cloudfunctions.net/takeScreenShot?link="+m3;
      // print(image);
@@ -294,7 +359,7 @@ Future download() async {
 
 
 
-      var cha = newsChannels[index];
+      var cha = entertainChannels[index];
       cha["epgs"] = epgOne;
 
       selectedTopNews.add(cha);
@@ -302,14 +367,14 @@ Future download() async {
 
       });
       index++;
-      if(index<newsChannels.length-1 && selectedTopNews.length<1){
+      if(index<entertainChannels.length-1 && selectedTopNews.length<3){
         getData();
       }
 
       print(epgs);
     }else{
       index++;
-      if(index<newsChannels.length-1 && selectedTopNews.length<1){
+      if(index<entertainChannels.length-1 && selectedTopNews.length<3){
         getData();
       }
     }
@@ -317,14 +382,18 @@ Future download() async {
   }
 
 
-  if(index<newsChannels.length-1 && selectedTopNews.length<1){
+  if(index<newsChannels.length-1 && selectedTopNews.length<3){
     getData();
   }
 
 
 
 
-
+  _scrollControllers.clear();
+  ItemScrollController controller =  new ItemScrollController();
+  _scrollControllers.add(controller);
+  _position_x_line_saver.add(0);
+  _counts_x_line_saver.add(3);
 
 
 }
@@ -581,19 +650,17 @@ Future download() async {
                   }
                   break;
                 case KEY_DOWN:
-
+                  postx = 0;
                   if(posty==-2){
                     posty++;
-                    postx = 0;
-                    _scrollToIndexXY(postx,0);
+
+                  //  _scrollToIndexXY(postx,posty);
                    // _scrollControllers[0].scrollTo(index: postx,duration: Duration(milliseconds: 500),alignment: 0.04,curve: Curves.fastOutSlowIn);
 
 
 
                   }
                   if(posty==-1){
-
-
 
                   }
 
@@ -620,8 +687,14 @@ Future download() async {
                       if(postx == 0)
                         print("playing sound ");
                       else
-                        postx--;
-                      _scrollToIndexXY(postx,0);
+
+                          if(postx == 0)
+                            print("playing sound ");
+                          else
+                            postx--;
+                          _scrollToIndexXY(postx,posty);
+
+
                        //_scrollControllers[0].scrollTo(index: postx,duration: Duration(milliseconds: 500),alignment: 0.04,curve: Curves.fastOutSlowIn);
 
                       break;
@@ -643,12 +716,26 @@ Future download() async {
                         postx++;
                       break;
 
+
+
+
                       case -1:
-                      if(postx == selectedTopNews.length-1)
-                        print("playing sound ");
-                      else
-                        postx++;
-                        _scrollToIndexXY(postx,0);
+
+
+
+                        if(postx == (selectedTopNews.length-1)){
+                          print("playing sound ws");
+                          print(selectedTopNews.length);
+                        }
+
+                        else{
+                          postx++;
+                          _scrollToIndexXY(postx,posty);
+                        }
+
+
+
+
                        // _scrollControllers[0].scrollTo(index: postx,duration: Duration(milliseconds: 500),alignment: 0.04,curve: Curves.fastOutSlowIn);
 
                       break;
@@ -688,7 +775,7 @@ Future download() async {
                 height: (posty < 0)?(MediaQuery.of(context).size.height/1)  -80:(MediaQuery.of(context).size.height/1)+250,
                 child: Container(
                   height: (posty < 0)?(MediaQuery.of(context).size.height/1) -80:(MediaQuery.of(context).size.height/1)+250,
-                  child: ScrollConfiguration(
+                  child:   ScrollConfiguration(
                       behavior: MyBehavior(),   // From this behaviour you can change the behaviour
                       child: selectedTopNews.length>0? ScrollablePositionedList.builder(
                           itemCount: 1,
@@ -696,32 +783,94 @@ Future download() async {
                           itemScrollController: _scrollController,
                           itemBuilder: (context, jndex) {
 
-                            return  Container(height:MediaQuery.of(context).size.longestSide*0.11,
+
+                            return   Container(height:MediaQuery.of(context).size.longestSide*0.25,
                               child: ScrollConfiguration(
                                   behavior: MyBehavior(),   // From this behaviour you can change the behaviour
                                   child: ScrollablePositionedList.builder(
                                       itemCount: selectedTopNews.length,
                                       scrollDirection: Axis.horizontal,
-                                      itemScrollController: _scrollControllers.first,
+                                      itemScrollController: _scrollControllers[jndex],
                                       itemBuilder: (context, jndex2) {
 
 
 
-                                        return Container(height:(MediaQuery.of(context).size.longestSide*0.23) ,width: (MediaQuery.of(context).size.longestSide*0.3), margin: EdgeInsets.all(MediaQuery.of(context).size.longestSide*0.005),
-                                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.0015),color: (jndex2==postx && posty == -1)?Colors.red:Colors.white,
+                                        return AnimatedContainer(duration: Duration(milliseconds: 200),height:  (jndex2==postx && posty == -1)? (MediaQuery.of(context).size.longestSide*0.25):(MediaQuery.of(context).size.longestSide*0.25) ,width:  (jndex2==postx && posty == -1)? (MediaQuery.of(context).size.longestSide*0.4):(MediaQuery.of(context).size.longestSide*0.3), margin: EdgeInsets.all(MediaQuery.of(context).size.longestSide*0.005),
+                                          decoration: BoxDecoration(border: Border.all(color: (jndex2==postx && posty == -1)?Colors.red: Colors.white),borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.0015),
+                                            //color: (jndex2==postx && posty == -1)?Colors.red:Colors.transparent,
 
-                                        ),child: Center(
-                                          child: Container(color: Colors.black,  margin: EdgeInsets.all(MediaQuery.of(context).size.longestSide*0.001),
-                                            child: Padding(
-                                              padding: const EdgeInsets.all(4.0),
-                                              child: Stack(
-                                                children: [
-                                                 Align(alignment: Alignment.bottomLeft,child:  Text(selectedTopNews[jndex2]["name"],style: TextStyle(color: Colors.white,fontSize:MediaQuery.of(context).size.longestSide*0.012 ),),),
-                                                ],
-                                              ),
+                                          ),child: Center(
+                                            child: Stack(
+                                              children: [
+
+                                                Align(alignment: Alignment.centerRight,child:Image.network("https://bobsvagene.club/wp-content/uploads/2021/09/sunny_leone_nude_b-7871.jpg",fit: BoxFit.cover,width:(jndex2==postx && posty == -1)? (MediaQuery.of(context).size.longestSide*0.4):(MediaQuery.of(context).size.longestSide*0.3) ,) ,),
+                                                Align(alignment: Alignment.bottomLeft,child:  Container(decoration: BoxDecoration(
+                                                    gradient: LinearGradient(
+                                                      begin: Alignment.centerLeft,
+                                                      end: Alignment.centerRight,
+                                                      colors: [
+                                                        Colors.black,
+                                                        Colors.black,
+                                                        Colors.black.withOpacity(0.7),
+                                                        Colors.black.withOpacity(0.5),
+                                                        Colors.black.withOpacity(0.1),
+
+                                                      ],
+                                                    )
+                                                ),
+                                                  child: Padding(
+                                                    padding: const EdgeInsets.all(8.0),
+                                                    child: Column(mainAxisAlignment: MainAxisAlignment.end,crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+
+
+                                                        // Text(epgOne[jndex2]["title"],style: TextStyle(color: Colors.white,fontSize:MediaQuery.of(context).size.longestSide*0.012 ),),
+                                                        Text(utf8.decode(base64.decode(epgOne[jndex2]["title"])),style:  TextStyle(color: Colors.white,fontSize:MediaQuery.of(context).size.height*0.021),),
+                                                        Text(utf8.decode(base64.decode(epgOne[jndex2]["description"])),maxLines: 2,style:  TextStyle(color: Colors.white,fontSize:MediaQuery.of(context).size.height*0.017),),
+                                                        Row(
+                                                          children: [
+                                                            Text(DateFormat('hh:mm a').format(DateTime.fromMillisecondsSinceEpoch(60000+int.parse(epgOne[jndex2]["start_timestamp"])*1000)),maxLines: 2,style:  TextStyle(color: Colors.redAccent,fontSize:MediaQuery.of(context).size.height*0.017),),
+                                                            Text(" - ",maxLines: 2,style:  TextStyle(color: Colors.white,fontSize:MediaQuery.of(context).size.height*0.017),),
+                                                            Text(DateFormat('hh:mm a').format(DateTime.fromMillisecondsSinceEpoch(60000+int.parse(epgOne[jndex2]["stop_timestamp"])*1000)),maxLines: 2,style:  TextStyle(color: Colors.redAccent,fontSize:MediaQuery.of(context).size.height*0.017),),
+                                                          ],
+                                                        ),
+                                                        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,crossAxisAlignment: CrossAxisAlignment.center,
+                                                          children: [
+                                                            Row(
+                                                              children: [
+                                                                Text(selectedTopNews[jndex2]["name"],style: TextStyle(color: Colors.white,fontSize:MediaQuery.of(context).size.longestSide*0.01 ),),
+                                                                if((jndex2==postx && posty == -1))    Container(decoration: BoxDecoration( borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.003),color: Colors.white,),
+                                                                  margin: EdgeInsets.only(left:MediaQuery.of(context).size.longestSide*0.01), child: Padding(
+                                                                    padding:  EdgeInsets.only(top: MediaQuery.of(context).size.longestSide*0.005,bottom: MediaQuery.of(context).size.longestSide*0.005,left: MediaQuery.of(context).size.longestSide*0.01,right: MediaQuery.of(context).size.longestSide*0.01),
+                                                                    child: Row(
+                                                                      children: [
+                                                                        Icon(Icons.tv,color: Colors.black,size:MediaQuery.of(context).size.longestSide*0.01),
+                                                                        Padding(
+                                                                          padding:  EdgeInsets.only(left: MediaQuery.of(context).size.longestSide*0.01),
+                                                                          child: Text("Watch",style: TextStyle(color: Colors.black,fontSize:MediaQuery.of(context).size.longestSide*0.01 ),),
+                                                                        ),
+
+                                                                      ],
+                                                                    ),
+                                                                  ),),
+                                                              ],
+                                                            ),
+                                                            CachedNetworkImage(height:MediaQuery.of(context).size.longestSide*0.03 ,width: MediaQuery.of(context).size.longestSide*0.03,
+                                                              imageUrl: selectedTopNews[jndex2]["stream_icon"],
+                                                              errorWidget: (context, url, error) => Icon(Icons.error),
+                                                              // fit: !isFocus? BoxFit.cover:BoxFit.none,
+                                                            ),
+
+                                                          ],
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                )),
+
+                                              ],
                                             ),
                                           ),
-                                        ),
 
                                         );
 

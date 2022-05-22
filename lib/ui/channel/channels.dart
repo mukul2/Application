@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart' as fire;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_app_tv/SlingTv/sling_scroll_tv.dart';
 import 'package:flutter_app_tv/api/api_rest.dart';
 import 'package:flutter_app_tv/model/category.dart';
 import 'package:flutter_app_tv/model/country.dart';
@@ -1863,7 +1864,7 @@ class _ChannelsState extends ResumableState<Channels> {
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => Movies(),
+          pageBuilder: (context, animation1, animation2) => SLING_TV_S(),
           transitionDuration: Duration(seconds: 0),
         ),
       );

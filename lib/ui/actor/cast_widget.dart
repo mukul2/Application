@@ -24,11 +24,11 @@ class _CastWidgetState extends State<CastWidget> {
       child: Column(
         children: [
           Container(
-            height: 40,
-            width: 40,
+            height:  MediaQuery.of(context).size.longestSide*0.05,
+            width:  MediaQuery.of(context).size.longestSide*0.05,
             child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(50),
+              decoration: BoxDecoration(shape: BoxShape.circle,
+              //  borderRadius: BorderRadius.circular(50),
                 border:(widget.posty == widget.active_y && widget.postx == widget.index)? Border.all(color:Colors.purple,width: 2): Border.all(width: 1,color:Colors.transparent),
                 boxShadow: [
                   BoxShadow(
@@ -43,7 +43,8 @@ class _CastWidgetState extends State<CastWidget> {
               ),
             ),
             decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(50),
+                shape: BoxShape.circle,
+              // borderRadius: BorderRadius.circular(50),
                 boxShadow: [BoxShadow(
                     color: Colors.black54.withOpacity(0.1),
                     offset: Offset(0,0),
@@ -57,7 +58,7 @@ class _CastWidgetState extends State<CastWidget> {
                 widget.actor.name,
                 style: TextStyle(
                     color: Colors.white,
-                    fontSize: 9,
+                    fontSize: MediaQuery.of(context).size.longestSide*0.010,
                     fontWeight: FontWeight.bold
                 )
             ),
@@ -67,7 +68,7 @@ class _CastWidgetState extends State<CastWidget> {
                 widget.actor.role,
                 style: TextStyle(
                     color: Colors.white70,
-                    fontSize: 7,
+                    fontSize:  MediaQuery.of(context).size.longestSide*0.008,
                     fontWeight: FontWeight.normal
                 )
             ),

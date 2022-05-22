@@ -1,7 +1,7 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_app_tv/SlingTv/sling_scroll_tv.dart';
+
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter_app_tv/SlingTv/sling_small_widget.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_controller.dart';
@@ -43,22 +43,19 @@ import 'dart:convert' as convert;
 import 'package:transparent_image/transparent_image.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../SlingTv/sling_tv.dart';
 import '../../model/channel.dart';
 import '../../model/country.dart';
 import '../../model/gnre_as_channel.dart';
 import '../../model/source.dart';
 import '../../series_like_home/home.dart';
-
 import 'package:video_player/video_player.dart' as vP;
 
-import '../SlingTv/sling_tv.dart';
+import '../model/slingChannel.dart';
 import '../ui/channel/channel_as_home.dart';
-
-
-
 /// A [StatelessWidget] which demonstrates
 /// how to consume and interact with a [CounterBloc].
-class TVGUIDE extends StatefulWidget {
+class SLING_TV_S extends StatefulWidget {
   @override
   _HomeState createState() => _HomeState();
 }
@@ -66,22 +63,20 @@ class TVGUIDE extends StatefulWidget {
 
 
 
-class _HomeState extends ResumableState<TVGUIDE> {
+class _HomeState extends ResumableState<SLING_TV_S> {
 
 
   // List<Genre> genres = [];
-  List<GenreAsChannel> genresAsC = [];
+  List<GenreAsSlingChannel> genresAsC = [];
   List<Slide> slides = [];
   List<model.Channel> channels = [];
   bool controllerInited = false;
-
-  List tabs = ["Type 1","Type 2","Type 3","Type 4","Type 5",];
 
   List epgs = [];
 
   String nowInitialingLink = "";
   late vP.VideoPlayerController? _controller;
-  int postx = 5;
+  int postx = 2;
   int posty = -2;
   int side_current = 0;
   CarouselController _carouselController = CarouselController();
@@ -90,11 +85,8 @@ class _HomeState extends ResumableState<TVGUIDE> {
   List<int> _position_x_line_saver = [];
   List<int> _counts_x_line_saver = [];
   FocusNode home_focus_node = FocusNode();
-  model.Channel? selected_poster;
-  model.Channel? selected_channel;
-
-
-  List<model.Channel> fullChannel = [];
+  SlingChannel? selected_poster;
+  SlingChannel? selected_channel;
 
   List<Poster> postersList = [];
 
@@ -141,20 +133,6 @@ class _HomeState extends ResumableState<TVGUIDE> {
   }
 
   void _getList()  async{
-
-    int epgCount = 0 ;
-
-    SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
-
-    String? server =  sharedPreferences.getString("SERVER_URL");
-    String? port =  sharedPreferences.getString("PORT");
-    String? USER_ID =  sharedPreferences.getString("USER_ID");
-    String? PASSWORD =  sharedPreferences.getString("PASSWORD");
-
-
-
-
-
     _counts_x_line_saver.clear();
     _position_x_line_saver.clear();
     _scrollControllers.clear();
@@ -456,54 +434,93 @@ class _HomeState extends ResumableState<TVGUIDE> {
         //   }
         // }
       }
-      Future<List> downloadEPG({required String id}) async {
-
-        List epgs = [];
-        String castLink = "http://$server/player_api.php?username=$USER_ID&password=$PASSWORD&action=get_short_epg&stream_id="+id.toString()+"&limit=10";
-        print(castLink);
-        var responseEPG = await http.get(Uri.parse(castLink), );
-        print("sort epg res "+ responseEPG.body);
-
-        dynamic dd = jsonDecode(responseEPG.body);
-        epgs = dd["epg_listings"];
-
-
-
-        return epgs;
-      }
 
       if(true){
-        fullChannel.clear();
+        makeUI({required List dataMap}) async {
+          int limit = 10;
 
-        makeUI({required List list}) async {
-          //fullChannel.clear();
-          print("Downloading 2");
+          List newsChannels = [];
+          List entertainChannels = [];
+          List kidsChannel = [];
+          List sportsChannel = [];
 
 
-          for(int i = 0 ; i < list.length ; i++){
 
-            Map<String, dynamic> dataMap = list[i];
+          SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
 
-            List someChannelList = dataMap["list"];
+          String? server =  sharedPreferences.getString("SERVER_URL");
+          String? port =  sharedPreferences.getString("PORT");
+          String? USER_ID =  sharedPreferences.getString("USER_ID");
+          String? PASSWORD =  sharedPreferences.getString("PASSWORD");
 
-            List<Channel> oneCategoryChannels = [];
-            for(int j = 0 ; j < someChannelList.length ; j++){
 
-              String m3uFile =  "http://$server"+":$port"+"/"+someChannelList[j]["stream_type"]+"/"+USER_ID!+"/"+PASSWORD.toString() +"/"+someChannelList[j]["stream_id"].toString()+".m3u8";
-              print(m3uFile);
+          for(int i = 0 ; i < dataMap.length ; i ++){
+            if(dataMap[i]["name"].toString().contains("NEWS") | dataMap[i]["name"].toString().contains("DOCUMENTARY") ){
+              // newsGroup.add(dataMap[i]);
+              newsChannels.addAll(dataMap[i]["list"]);
+            }
+            if(dataMap[i]["name"].toString().contains("ENTERTAINMENT") | dataMap[i]["name"].toString().contains("GENERAL") | dataMap[i]["name"].toString().contains("TUDN")| dataMap[i]["name"].toString().contains("LATINO")| dataMap[i]["name"].toString().contains("PRIME VIDEO") | dataMap[i]["name"].toString().contains("PLUTO") | dataMap[i]["name"].toString().contains("MOVIES") | dataMap[i]["name"].toString().contains("SERIES")| dataMap[i]["name"].toString().contains("MUSIC") ){
+              //entertainmentGroup.add(dataMap[i]);
+              entertainChannels.addAll(dataMap[i]["list"]);
+            }
+            if(dataMap[i]["category_name"].toString().contains("KIDS")  ){
+              // kidsGroup.add(dataMap[i]);
+              kidsChannel.addAll(dataMap[i]["list"]);
+            }
 
-              print("going to get epg");
+            if(dataMap[i]["name"].toString().contains("sports") | dataMap[i]["name"].toString().contains("MLB") | dataMap[i]["name"].toString().contains("ESPN") | dataMap[i]["name"].toString().contains("NCAA") | dataMap[i]["name"].toString().contains("NFL")| dataMap[i]["name"].toString().contains("NHL") | dataMap[i]["name"].toString().contains("NBA") | dataMap[i]["name"].toString().contains("NBC NETWORK")  | dataMap[i]["name"].toString().contains("MLS")  | dataMap[i]["name"].toString().contains("PPV")  |dataMap[i]["name"].toString().contains("SPORTS")|dataMap[i]["name"].toString().contains("ESPN") |dataMap[i]["name"].toString().contains("PLAY")|dataMap[i]["name"].toString().contains("HOCKEY") |dataMap[i]["name"].toString().contains("LEAGUE") ){
+              // sportsGroup.add(dataMap[i]);
+              sportsChannel.addAll(dataMap[i]["list"]);
+            }
 
-              List ep = await downloadEPG(id: someChannelList[j]["stream_id"].toString());
-              print("got epg");
 
-              if(ep.length >0){
-                Channel channel = Channel(epgs: ep,
-                    countries: [Country(id: 1,title: "UK", image: '')],id: someChannelList[j]["stream_id"],comment: false,title:someChannelList[j]["name"],image:(someChannelList[j]["stream_icon"].toString().length>0)? someChannelList[j]["stream_icon"]: "https://i5.walmartimages.com/asr/74d5a667-7df8-44f2-b9db-81f26878d316_1.c7233452b7b19b699ef96944c8cbbe74.jpeg", categories: [Category(id: 1, title: "Sports")], duration: '', classification: '', rating: 4.3, sources:
+          }
+          print(newsChannels.length);
+          print(entertainChannels.length);
+          print(kidsChannel.length);
+          print(sportsChannel.length);
+
+          newsChannels.shuffle();
+          entertainChannels.shuffle();
+          kidsChannel.shuffle();
+          sportsChannel.shuffle();
+
+
+
+          int newCollectedCount = 0;
+          int index = 0;
+          List<SlingChannel> channelsAsSling = [];
+          getNewsData({required List listToWork}) async {
+
+
+            List epgs = [];
+            SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+            String? server =  sharedPreferences.getString("SERVER_URL");
+            String? port =  sharedPreferences.getString("PORT");
+            String? USER_ID =  sharedPreferences.getString("USER_ID");
+            String? PASSWORD =  sharedPreferences.getString("PASSWORD");
+
+            String castLink = "http://$server/player_api.php?username=$USER_ID&password=$PASSWORD&action=get_short_epg&stream_id="+listToWork[index]["stream_id"].toString()+"&limit=1";
+
+            var responseEPG = await http.get(Uri.parse(castLink), );
+
+            try{
+              dynamic dd  =  jsonDecode(responseEPG.body);
+              //  print(responseEPG.body);
+              epgs  =dd["epg_listings"];
+              if(epgs.length>0){
+                String m3 = "http://$server:80/live/$USER_ID/$PASSWORD/"+entertainChannels[index]["stream_id"].toString()+".m3u8";
+                print(m3);
+                String m3uFile = "http://$server:$port/"+listToWork[index]["stream_type"]+"/"+USER_ID!+"/"+PASSWORD!.toString() +"/"+listToWork[index]["stream_id"].toString()+".m3u8";
+                print(m3uFile);
+
+                SlingChannel channel = SlingChannel(thumbBig: "https://clarity.global/wp-content/uploads/2018/03/news.jpg",epgs: epgs,
+                    countries: [Country(id: 1,title: "UK", image: '')],id: listToWork[index]["stream_id"],comment: false,title:listToWork[index]["name"],image:(listToWork[index]["stream_icon"].toString().length>0)? listToWork[index]["stream_icon"]: "https://i5.walmartimages.com/asr/74d5a667-7df8-44f2-b9db-81f26878d316_1.c7233452b7b19b699ef96944c8cbbe74.jpeg", categories: [Category(id: 1, title: dataMap[index]["name"])], duration: '', classification: '', rating: 4.3, sources:
                     [
                       Source(id: 1,
                           type: "LIVE",
-                          title: someChannelList[j]["name"],
+                          title: listToWork[index]["name"],
                           size: null,
                           quality: "FHD",  kind: "both",
                           premium: "1",
@@ -511,46 +528,79 @@ class _HomeState extends ResumableState<TVGUIDE> {
                           url: m3uFile)
                     ], description: 'Description', sublabel: null, type: '', playas: '', website: '', downloadas: '', label: '' );
 
-                // allChannel.add(channel);
-                oneCategoryChannels.add(channel);
+                channelsAsSling.add(channel);
+                newCollectedCount++;
 
-                fullChannel.add(channel);
-                epgCount ++;
+                print("one epg added "+channelsAsSling.length.toString()+" "+newCollectedCount.toString());
+                // String image = "https://us-central1-sflix-edc5e.cloudfunctions.net/takeScreenShot?link="+"https://flutter.github.io/assets-for-api-docs/assets/videos/butterfly.mp4";
+                // String image = "https://us-central1-sflix-edc5e.cloudfunctions.net/takeScreenShot?link="+m3;
+                // print(image);
+
+                // try{
+                //   var responseThumb= await http.get(Uri.parse(image), );
+                //   print(responseThumb.body);
+                //   memoryImageOne = base64Decode(responseThumb.body);
+                // }catch(e){
+                //   index++;
+                //   if(index<newsChannels.length-1){
+                //     getData();
+                //   }
+                // }
 
 
-                ItemScrollController controller = new ItemScrollController();
-                _scrollControllers.add(controller);
-                _position_x_line_saver.add(0);
-                _counts_x_line_saver.add(ep.length);
 
-                if(epgCount==10){
 
+
+
+
+
+
+                setState(() {
+
+                });
+                index++;
+                if(index<listToWork.length-1 && newCollectedCount<limit){
+                  getNewsData(listToWork: listToWork);
+                }else{
+                  print("now setting");
+                  print(channelsAsSling.length);
+                  GenreAsSlingChannel gg = GenreAsSlingChannel(id: 0, title: "News" ,posters:channelsAsSling );
+
+                  genresAsC.add(gg);
+                  ItemScrollController controller = new ItemScrollController();
+                  _scrollControllers.add(controller);
+                  _position_x_line_saver.add(0);
+                  _counts_x_line_saver.add(gg.posters!.length);
                   setState(() {
-                    print("setstate for old");
 
                   });
-                  break;
                 }
 
+                print(epgs);
+              }else{
+                //print("epg not found.tryi ng again");
+                index++;
+                if(index<listToWork.length-1 && newCollectedCount<limit){
+                  getNewsData(listToWork: listToWork);
+                }else{
+                  print("now setting");
+                  print(channelsAsSling.length);
+                  GenreAsSlingChannel gg = GenreAsSlingChannel(id: 0, title: "News" ,posters:channelsAsSling );
+
+                  genresAsC.add(gg);
+                  ItemScrollController controller = new ItemScrollController();
+                  _scrollControllers.add(controller);
+                  _position_x_line_saver.add(0);
+                  _counts_x_line_saver.add(gg.posters!.length);
+                  setState(() {
+
+                  });
+                }
               }
-
-
-            }
-            setState(() {
-              print("setstate for old");
-
-            });
-            print("waiting 3 second");
-            await Future.delayed(Duration(seconds: 3));
-            print("waiting finished");
-
-            if(epgCount==10){
-
-              setState(() {
-                print("setstate for old");
-
-              });
-              break;
+            }catch(e){
+              print(castLink);
+              print(e);
+              getNewsData(listToWork: listToWork);
             }
 
 
@@ -558,26 +608,455 @@ class _HomeState extends ResumableState<TVGUIDE> {
           }
 
 
+          if(index<newsChannels.length-1 && newCollectedCount<limit){
+            getNewsData(listToWork: newsChannels);
+          }
+
+          //--------------
+          int newCollectedCount2 = 0;
+          int index2 = 0;
+          List<SlingChannel> channelsAsSling2 = [];
+          getNewsData2({required List listToWork}) async {
+
+
+            List epgs = [];
+            SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+            String? server =  sharedPreferences.getString("SERVER_URL");
+            String? port =  sharedPreferences.getString("PORT");
+            String? USER_ID =  sharedPreferences.getString("USER_ID");
+            String? PASSWORD =  sharedPreferences.getString("PASSWORD");
+
+            String castLink = "http://$server/player_api.php?username=$USER_ID&password=$PASSWORD&action=get_short_epg&stream_id="+listToWork[index2]["stream_id"].toString()+"&limit=1";
+
+            var responseEPG = await http.get(Uri.parse(castLink), );
+
+            try{
+              dynamic dd  =  jsonDecode(responseEPG.body);
+              //  print(responseEPG.body);
+              epgs  =dd["epg_listings"];
+
+
+              if(epgs.length>0){
+                String m3 = "http://$server:80/live/$USER_ID/$PASSWORD/"+entertainChannels[index2]["stream_id"].toString()+".m3u8";
+                print(m3);
+                String m3uFile = "http://$server:$port/"+listToWork[index2]["stream_type"]+"/"+USER_ID!+"/"+PASSWORD!.toString() +"/"+listToWork[index2]["stream_id"].toString()+".m3u8";
+                print(m3uFile);
+
+                SlingChannel channel = SlingChannel(thumbBig: "https://www.e-spincorp.com/wp-content/uploads/2017/10/industry-media-entertainment.jpg",epgs: epgs,
+                    countries: [Country(id: 1,title: "UK", image: '')],id: listToWork[index2]["stream_id"],comment: false,title:listToWork[index2]["name"],image:(listToWork[index2]["stream_icon"].toString().length>0)? listToWork[index2]["stream_icon"]: "https://i5.walmartimages.com/asr/74d5a667-7df8-44f2-b9db-81f26878d316_1.c7233452b7b19b699ef96944c8cbbe74.jpeg", categories: [Category(id: 1, title: dataMap[index2]["name"])], duration: '', classification: '', rating: 4.3, sources:
+                    [
+                      Source(id: 1,
+                          type: "LIVE",
+                          title: listToWork[index2]["name"],
+                          size: null,
+                          quality: "FHD",  kind: "both",
+                          premium: "1",
+                          external: false,
+                          url: m3uFile)
+                    ], description: 'Description', sublabel: null, type: '', playas: '', website: '', downloadas: '', label: '' );
+
+                channelsAsSling2.add(channel);
+                newCollectedCount2++;
+
+                print("one epg added "+channelsAsSling2.length.toString()+" "+newCollectedCount2.toString());
+
+
+
+
+
+
+
+
+
+
+                setState(() {
+
+                });
+                index2++;
+                if(index2<listToWork.length-1 && newCollectedCount2<limit){
+                  getNewsData2(listToWork: listToWork);
+                }else{
+                  print("now setting");
+                  print(channelsAsSling2.length);
+                  GenreAsSlingChannel gg = GenreAsSlingChannel(id: 0, title: "Entertainments" ,posters:channelsAsSling2 );
+
+                  genresAsC.add(gg);
+                  ItemScrollController controller = new ItemScrollController();
+                  _scrollControllers.add(controller);
+                  _position_x_line_saver.add(0);
+                  _counts_x_line_saver.add(gg.posters!.length);
+                  setState(() {
+
+                  });
+                }
+
+                print(epgs);
+              }else{
+               // print("epg not found.tryi ng again");
+                index2++;
+                if(index2<listToWork.length-1 && newCollectedCount2<limit){
+                  getNewsData2(listToWork: listToWork);
+                }else{
+                  print("now setting");
+                  print(channelsAsSling2.length);
+                  GenreAsSlingChannel gg = GenreAsSlingChannel(id: 0, title: "Entertainments" ,posters:channelsAsSling2 );
+
+                  genresAsC.add(gg);
+                  ItemScrollController controller = new ItemScrollController();
+                  _scrollControllers.add(controller);
+                  _position_x_line_saver.add(0);
+                  _counts_x_line_saver.add(gg.posters!.length);
+                  setState(() {
+
+                  });
+                }
+              }
+            }catch(e){
+              print(castLink);
+              print(e);
+              getNewsData2(listToWork: listToWork);
+            }
+
+
+
+          }
+
+
+          if(index2<entertainChannels.length-1 && newCollectedCount2<limit){
+            getNewsData2(listToWork: entertainChannels);
+          }
+//---------------
+          //--------------
+          int newCollectedCount3 = 0;
+          int index3 = 0;
+          List<SlingChannel> channelsAsSling3 = [];
+          getNewsData3({required List listToWork}) async {
+
+
+            List epgs = [];
+            SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+            String? server =  sharedPreferences.getString("SERVER_URL");
+            String? port =  sharedPreferences.getString("PORT");
+            String? USER_ID =  sharedPreferences.getString("USER_ID");
+            String? PASSWORD =  sharedPreferences.getString("PASSWORD");
+
+            String castLink = "http://$server/player_api.php?username=$USER_ID&password=$PASSWORD&action=get_short_epg&stream_id="+listToWork[index3]["stream_id"].toString()+"&limit=1";
+
+            var responseEPG = await http.get(Uri.parse(castLink), );
+
+            try{
+              dynamic dd  =  jsonDecode(responseEPG.body);
+              //  print(responseEPG.body);
+              epgs  =dd["epg_listings"];
+
+
+              if(epgs.length>0){
+                String m3 = "http://$server:80/live/$USER_ID/$PASSWORD/"+entertainChannels[index3]["stream_id"].toString()+".m3u8";
+                print(m3);
+                String m3uFile = "http://$server:$port/"+listToWork[index3]["stream_type"]+"/"+USER_ID!+"/"+PASSWORD!.toString() +"/"+listToWork[index3]["stream_id"].toString()+".m3u8";
+                print(m3uFile);
+
+                SlingChannel channel = SlingChannel(thumbBig: "https://mongooseagency.com/files/3415/9620/1413/Return_of_Sports.jpg",epgs: epgs,
+                    countries: [Country(id: 1,title: "UK", image: '')],id: listToWork[index3]["stream_id"],comment: false,title:listToWork[index3]["name"],image:(listToWork[index3]["stream_icon"].toString().length>0)? listToWork[index3]["stream_icon"]: "https://i5.walmartimages.com/asr/74d5a667-7df8-44f2-b9db-81f26878d316_1.c7233452b7b19b699ef96944c8cbbe74.jpeg", categories: [Category(id: 1, title: dataMap[index3]["name"])], duration: '', classification: '', rating: 4.3, sources:
+                    [
+                      Source(id: 1,
+                          type: "LIVE",
+                          title: listToWork[index3]["name"],
+                          size: null,
+                          quality: "FHD",  kind: "both",
+                          premium: "1",
+                          external: false,
+                          url: m3uFile)
+                    ], description: 'Description', sublabel: null, type: '', playas: '', website: '', downloadas: '', label: '' );
+
+                channelsAsSling3.add(channel);
+                newCollectedCount3++;
+
+                print("one epg added "+channelsAsSling3.length.toString()+" "+newCollectedCount3.toString());
+
+
+
+
+
+
+
+
+
+
+                setState(() {
+
+                });
+                index3++;
+                if(index3<listToWork.length-1 && newCollectedCount3<limit){
+                  getNewsData3(listToWork: listToWork);
+                }else{
+                  print("now setting");
+                  print(channelsAsSling3.length);
+                  GenreAsSlingChannel gg = GenreAsSlingChannel(id: 0, title: "Watch a game" ,posters:channelsAsSling3 );
+
+                  genresAsC.add(gg);
+                  ItemScrollController controller = new ItemScrollController();
+                  _scrollControllers.add(controller);
+                  _position_x_line_saver.add(0);
+                  _counts_x_line_saver.add(gg.posters!.length);
+                  setState(() {
+
+                  });
+                }
+
+                print(epgs);
+              }else{
+               // print("epg not found.tryi ng again");
+                index3++;
+                if(index3<listToWork.length-1 && newCollectedCount3<limit){
+                  getNewsData3(listToWork: listToWork);
+                }else{
+                  print("now setting");
+                  print(channelsAsSling3.length);
+                  GenreAsSlingChannel gg = GenreAsSlingChannel(id: 0, title: "Watch a game" ,posters:channelsAsSling3 );
+
+                  genresAsC.add(gg);
+                  ItemScrollController controller = new ItemScrollController();
+                  _scrollControllers.add(controller);
+                  _position_x_line_saver.add(0);
+                  _counts_x_line_saver.add(gg.posters!.length);
+                  setState(() {
+
+                  });
+                }
+              }
+            }catch(e){
+              print(castLink);
+              print(e);
+              getNewsData3(listToWork: listToWork);
+            }
+
+
+
+          }
+
+
+          if(index3<sportsChannel.length-1 && newCollectedCount3<limit){
+            getNewsData3(listToWork: sportsChannel);
+          }
+//---------------
+
+          //--------------
+          int newCollectedCount4 = 0;
+          int index4 = 0;
+          List<SlingChannel> channelsAsSling4 = [];
+          getNewsData4({required List listToWork}) async {
+
+
+            List epgs = [];
+            SharedPreferences sharedPreferences = await SharedPreferences.getInstance();
+
+            String? server =  sharedPreferences.getString("SERVER_URL");
+            String? port =  sharedPreferences.getString("PORT");
+            String? USER_ID =  sharedPreferences.getString("USER_ID");
+            String? PASSWORD =  sharedPreferences.getString("PASSWORD");
+
+            String castLink = "http://$server/player_api.php?username=$USER_ID&password=$PASSWORD&action=get_short_epg&stream_id="+listToWork[index4]["stream_id"].toString()+"&limit=1";
+
+            var responseEPG = await http.get(Uri.parse(castLink), );
+
+            try{
+              dynamic dd  =  jsonDecode(responseEPG.body);
+              //  print(responseEPG.body);
+              epgs  =dd["epg_listings"];
+
+
+              if(epgs.length>0){
+                String m3 = "http://$server:80/live/$USER_ID/$PASSWORD/"+entertainChannels[index4]["stream_id"].toString()+".m3u8";
+                print(m3);
+                String m3uFile = "http://$server:$port/"+listToWork[index4]["stream_type"]+"/"+USER_ID!+"/"+PASSWORD!.toString() +"/"+listToWork[index4]["stream_id"].toString()+".m3u8";
+                print(m3uFile);
+
+                SlingChannel channel = SlingChannel(epgs: epgs,
+                    countries: [Country(id: 1,title: "UK", image: '')],id: listToWork[index4]["stream_id"],comment: false,title:listToWork[index4]["name"],image:(listToWork[index4]["stream_icon"].toString().length>0)? listToWork[index4]["stream_icon"]: "https://i5.walmartimages.com/asr/74d5a667-7df8-44f2-b9db-81f26878d316_1.c7233452b7b19b699ef96944c8cbbe74.jpeg", categories: [Category(id: 1, title: dataMap[index4]["name"])], duration: '', classification: '', rating: 4.3, sources:
+                    [
+                      Source(id: 1,
+                          type: "LIVE",
+                          title: listToWork[index4]["name"],
+                          size: null,
+                          quality: "FHD",  kind: "both",
+                          premium: "1",
+                          external: false,
+                          url: m3uFile)
+                    ], description: 'Description', sublabel: null, type: '', playas: '', website: '', downloadas: '', label: '' );
+
+                channelsAsSling4.add(channel);
+                newCollectedCount4++;
+
+
+
+
+
+
+
+
+
+
+
+                setState(() {
+
+                });
+                index4++;
+                if(index4<listToWork.length-1 && newCollectedCount4<limit){
+                  getNewsData4(listToWork: listToWork);
+                }else{
+                  print("now setting");
+                  print(channelsAsSling4.length);
+                  GenreAsSlingChannel gg = GenreAsSlingChannel(id: 0, title: "Watch a game" ,posters:channelsAsSling4 );
+
+                  genresAsC.add(gg);
+                  ItemScrollController controller = new ItemScrollController();
+                  _scrollControllers.add(controller);
+                  _position_x_line_saver.add(0);
+                  _counts_x_line_saver.add(gg.posters!.length);
+                  setState(() {
+
+                  });
+                }
+
+                print(epgs);
+              }else{
+             //   print("epg not found.tryi ng again");
+                index4++;
+                if(index4<listToWork.length-1 && newCollectedCount4<limit){
+                  getNewsData4(listToWork: listToWork);
+                }else{
+                  print("now setting");
+                  print(channelsAsSling4.length);
+                  GenreAsSlingChannel gg = GenreAsSlingChannel(id: 0, title: "Watch a game" ,posters:channelsAsSling4 );
+
+                  genresAsC.add(gg);
+                  ItemScrollController controller = new ItemScrollController();
+                  _scrollControllers.add(controller);
+                  _position_x_line_saver.add(0);
+                  _counts_x_line_saver.add(gg.posters!.length);
+                  setState(() {
+
+                  });
+                }
+              }
+            }catch(e){
+              print(castLink);
+              print(e);
+              getNewsData4(listToWork: listToWork);
+            }
+
+
+
+          }
+
+
+          if(index4<kidsChannel.length-1 && newCollectedCount4<limit){
+            getNewsData4(listToWork: kidsChannel);
+          }
+//---------------
+          print(newsChannels.length);
+          print(entertainChannels.length);
+          print(kidsChannel.length);
+          print(sportsChannel.length);
+
+          if(false)  for(int i = 0 ; i < dataMap.length ; i++){
+
+
+
+            //String data = dataMap["data"];
+            //   dynamic d = convert.jsonDecode(data);
+            List someChannelList = [];
+            try{
+              someChannelList = dataMap[i]["list"];
+            }catch(e){
+              print(e);
+              print(dataMap[i]);
+
+            }
+            //  List someChannelList = qS.docs[i].get("list");
+
+            // dynamic da =  convert.jsonDecode(data);
+            List<SlingChannel> oneCategoryChannels = [];
+
+
+
+
+            // String SERVER = "http://connect.proxytx.cloud";
+            // String PORT = "80";
+            // String EMAIL = "4fe8679c08";
+            // String PASSWORD = "2016";
+            // List someChannelList = da["list"];
+
+
+            for(int j = 0 ; j < someChannelList.length ; j++){
+
+              String m3uFile = "http://$server:$port/"+someChannelList[j]["stream_type"]+"/"+USER_ID!+"/"+PASSWORD!.toString() +"/"+someChannelList[j]["stream_id"].toString()+".m3u8";
+              print(m3uFile);
+
+              SlingChannel channel = SlingChannel(
+                  countries: [Country(id: 1,title: "UK", image: '')],id: someChannelList[j]["stream_id"],comment: false,title:someChannelList[j]["name"],image:(someChannelList[j]["stream_icon"].toString().length>0)? someChannelList[j]["stream_icon"]: "https://i5.walmartimages.com/asr/74d5a667-7df8-44f2-b9db-81f26878d316_1.c7233452b7b19b699ef96944c8cbbe74.jpeg", categories: [Category(id: 1, title: dataMap[i]["name"])], duration: '', classification: '', rating: 4.3, sources:
+              [
+                Source(id: 1,
+                    type: "LIVE",
+                    title: someChannelList[j]["name"],
+                    size: null,
+                    quality: "FHD",  kind: "both",
+                    premium: "1",
+                    external: false,
+                    url: m3uFile)
+              ], description: 'Description', sublabel: null, type: '', playas: '', website: '', downloadas: '', label: '' );
+
+              // allChannel.add(channel);
+              oneCategoryChannels.add(channel);
+            }
+
+
+
+
+
+
+
+
+            String name = "";
+            try{
+              name = dataMap[i]["name"]??"--";
+            }catch(e){
+              print(e);
+            }
+            GenreAsSlingChannel gg = GenreAsSlingChannel(id: i, title: name ,posters:oneCategoryChannels );
+
+            genresAsC.add(gg);
+            ItemScrollController controller = new ItemScrollController();
+            _scrollControllers.add(controller);
+            _position_x_line_saver.add(0);
+            _counts_x_line_saver.add(gg.posters!.length);
+
+
+          }
         }
+
 
 
         if( await apiRest.checkFile("tv.json") == false){
           List allSeriesCategory =  await apiRest.getTVCateDetails();
-          makeUI(list: allSeriesCategory);
+          makeUI(dataMap: allSeriesCategory);
         }else{
-
           File f = await apiRest.localFile("tv.json");
-
           String data = await f.readAsString();
           try{
-            // value = jsonDecode(data);
-
-            makeUI(list: jsonDecode(data));
+            makeUI(dataMap: jsonDecode(data));
           }catch(e){
-
           }
           apiRest.getTVCateDetails();
         }
+
+
+
+
+
 
 
 
@@ -587,7 +1066,7 @@ class _HomeState extends ResumableState<TVGUIDE> {
 
       //<---------Recently Added starts  ----------->
 
-print("count "+fullChannel.length.toString());
+
       _showData();
 
     } else {
@@ -617,7 +1096,8 @@ print("count "+fullChannel.length.toString());
                 _goToMovies();
                 _goToSeries();
                 _goToChannels();
-                //_goToMyList();
+                // _goToMyList();
+                _goToTVGUIDE();
                 _goToSettings();
                 _goToProfile();
                 _tryAgain();
@@ -642,7 +1122,7 @@ print("count "+fullChannel.length.toString());
                   print("playing sound ");
                 }else if(posty == -1){
                   posty--;
-                  postx=1;
+                  postx=2;
                 }else if(posty == 0){
                   posty--;
                   postx=0;
@@ -661,11 +1141,11 @@ print("count "+fullChannel.length.toString());
                     print("playing sound ");
                   break;
                 }
-                // if(_visibile_loading){
-                //   print("playing sound ");
-                //   break;
-                // }
-                if(fullChannel.length-1==posty){
+                if(_visibile_loading){
+                  print("playing sound ");
+                  break;
+                }
+                if(genresAsC.length-1==posty){
                   print("playing sound ");
                 }else{
                   posty++;
@@ -692,7 +1172,7 @@ print("count "+fullChannel.length.toString());
                     postx--;
                   }
                 }else if (posty == -1){
-                 // _carouselController.previousPage();
+                  _carouselController.previousPage();
                 }else{
                   if(postx == 0){
                     print("playing sound ");
@@ -710,7 +1190,7 @@ print("count "+fullChannel.length.toString());
                       print("playing sound ");
                       break;
                     }
-                   // _carouselController.nextPage();
+                    _carouselController.nextPage();
                     break;
                   case -2:
                     if(postx == 7)
@@ -758,7 +1238,7 @@ print("count "+fullChannel.length.toString());
         },
         child: Stack(
           children: [
-            if(true)   Positioned(
+           if(false) Positioned(
               right: 0,
               top: 0,
               // left: MediaQuery.of(context).size.width/4,
@@ -839,13 +1319,13 @@ print("count "+fullChannel.length.toString());
                 left: 0,
                 right: 0,
                 duration: Duration(milliseconds: 200),
-                height: (posty < 0)?(MediaQuery.of(context).size.height/1)  -80:(MediaQuery.of(context).size.height/1)-50,
+                height: (posty < 0)?(MediaQuery.of(context).size.height/1)  -(50+MediaQuery.of(context).viewPadding.top):(MediaQuery.of(context).size.height/1)-(50+MediaQuery.of(context).viewPadding.top),
                 child: Container(
-                  height: (posty < 0)?(MediaQuery.of(context).size.height/1) -80:(MediaQuery.of(context).size.height/1)-50,
-                  child:ScrollConfiguration(
+                  height: (posty < 0)?(MediaQuery.of(context).size.height/1) -(50+MediaQuery.of(context).viewPadding.top):(MediaQuery.of(context).size.height/1)-(50+MediaQuery.of(context).viewPadding.top),
+                  child: ScrollConfiguration(
                     behavior: MyBehavior(),   // From this behaviour you can change the behaviour
                     child: ScrollablePositionedList.builder(
-                      itemCount: fullChannel.length,
+                      itemCount: genresAsC.length,
                       scrollDirection: Axis.vertical,
                       itemScrollController: _scrollController,
                       itemBuilder: (context, jndex) {
@@ -853,9 +1333,8 @@ print("count "+fullChannel.length.toString());
 
 
 
-
                           // return M_C_Widget(jndex:jndex,posty: posty,postx: postx,scrollController: _scrollControllers[jndex],title: genres[jndex].title,posters : genres[jndex].posters);
-                          return ChannelsWidgetForEPGUI(channel: fullChannel[jndex],jndex:jndex,postx: postx,posty: posty,scrollController: _scrollControllers[jndex],size: MediaQuery.of(context).size.longestSide*0.013,title:"XXX");
+                          return SlingWidgetWidget(jndex:jndex,postx: postx,posty: posty,scrollController: _scrollControllers[jndex],size: MediaQuery.of(context).size.longestSide*0.013,title:genresAsC[jndex].title,channels: genresAsC[jndex].posters!);
                         }else{
                           return Text("NN",style: TextStyle(color: Colors.white),);
                           //   return MoviesWidget(jndex:jndex,posty: posty,postx: postx,scrollController: _scrollControllers[jndex],title: genresAsC[jndex].title,posters : genresAsC[jndex].posters);
@@ -865,10 +1344,10 @@ print("count "+fullChannel.length.toString());
                   ),
                 ),
               ),
-            NavigationWidget(postx:postx,posty:posty,selectedItem : 5,image : image, logged : logged,),
-            if(false)    if(posty > -1 && genresAsC.length>0) Positioned(bottom: MediaQuery.of(context).size.height*0.45,left: MediaQuery.of(context).size.width*0.027,child: Column(mainAxisAlignment: MainAxisAlignment.end,crossAxisAlignment: CrossAxisAlignment.start,
+            NavigationWidget(postx:postx,posty:posty,selectedItem : 2,image : image, logged : logged),
+          if(false)  if(posty > -1 && genresAsC.length>0) Positioned(bottom: MediaQuery.of(context).size.height*0.45,left: MediaQuery.of(context).size.width*0.027,child: Column(mainAxisAlignment: MainAxisAlignment.end,crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(selected_channel!.title,style: TextStyle(color: Colors.white,fontSize: MediaQuery.of(context).size.longestSide*0.025),),
+                Text(selected_channel!.title,style: TextStyle(color: Colors.white,fontSize: MediaQuery.of(context).size.longestSide*0.020),),
 
                 // if(epgs.length>0)  Row(
                 //   children: [
@@ -1010,7 +1489,7 @@ print("count "+fullChannel.length.toString());
       Navigator.pushReplacement(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => SLING_TV_S(),
+          pageBuilder: (context, animation1, animation2) =>SLING_TV_S(),
           transitionDuration: Duration(seconds: 0),
         ),
       );
@@ -1029,6 +1508,21 @@ print("count "+fullChannel.length.toString());
         ),
       );
       FocusScope.of(context).requestFocus(null);
+    }
+  }
+
+  void  _goToTVGUIDE(){
+    if(posty == -2 && postx == 5){
+
+      Navigator.pushReplacement(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (context, animation1, animation2) => MyList(),
+          transitionDuration: Duration(seconds: 0),
+        ),
+      );
+      FocusScope.of(context).requestFocus(null);
+
     }
   }
   void  _goToMyList(){
@@ -1125,20 +1619,20 @@ print("count "+fullChannel.length.toString());
     // }
   }
   void _goToChannelDetail() {
-    if(selected_channel!=null ){
-      Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => ChannelDetail(channel:selected_channel),
-          transitionDuration: Duration(seconds: 0),
-        ),
-      );
-      FocusScope.of(context).requestFocus(null);
-    }
+    // if(selected_channel!=null ){
+    //   Navigator.push(
+    //     context,
+    //     PageRouteBuilder(
+    //       pageBuilder: (context, animation1, animation2) => ChannelDetail(channel:selected_channel),
+    //       transitionDuration: Duration(seconds: 0),
+    //     ),
+    //   );
+    //   FocusScope.of(context).requestFocus(null);
+    // }
   }
 
   Future _scrollToIndexXY(int x,int y) async {
-    _scrollControllers[y].scrollTo(index: x,duration: Duration(milliseconds: 500),alignment: 0.04,curve: Curves.fastOutSlowIn);
+    _scrollControllers[y].scrollTo(index: x>0? x:x,duration: Duration(milliseconds: 500),alignment: 0.40,curve: Curves.fastOutSlowIn);
     _scrollController.scrollTo(index: y,duration: Duration(milliseconds: 500),curve: Curves.easeInOutQuart);
   }
 

@@ -109,7 +109,7 @@ class MovieWidget extends StatelessWidget {
             ),
           if( movie!.fromIsWaching!=null &&  movie!.fromIsWaching==true) Padding(
               padding: const EdgeInsets.all(0),
-              child: Center(child: Container(width: MediaQuery.of(context).size.width*0.09,height: 5,child: Center(child: LinearProgressIndicator(value: 0.5,color:  Colors.purple,)))),
+              child: Center(child: Container(width: MediaQuery.of(context).size.width*0.09,height: 5,child: Center(child: LinearProgressIndicator(value: (movie!.resumeAt!)/(movie!.total!),color:  Colors.purple,)))),
             )
           ],
         ),

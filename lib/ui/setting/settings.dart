@@ -81,32 +81,7 @@ class _SettingsState extends State<Settings> {
               _goToPrivacyPolicy();
               _goToContactUs();
               if(pos_y == 6){
-                SharedPreferences.getInstance().then((value) {
-                  value.setBool("auth", false).then((value) async {
-                 // File  fileTV = await apiRest.localFile("mc.json");
-                 try{
-                   File f = await apiRest.localFile("mc.json");
-                   f.delete();
-                 }catch(e){
-
-                 }
-                 try{
-                   File f = await apiRest.localFile("series.json");
-                   f.delete();
-                 }catch(e){
-
-                 }
-                    Navigator.pushReplacement(context,
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation1, animation2) => Splash(),
-                        transitionDuration: Duration(seconds: 0),
-                      ),
-                    );
-
-
-                  });
-
-                });
+                logout();
               }
               break;
             case KEY_UP:
@@ -233,17 +208,18 @@ class _SettingsState extends State<Settings> {
                   child: Container(
                     width: double.infinity,
                     color: Colors.black54,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: ListView(
+                      shrinkWrap: true,
+                     // mainAxisSize: MainAxisSize.max,
+                    //  mainAxisAlignment: MainAxisAlignment.center,
+                    //  crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.black87,
                           ),
                           child: Padding(
-                            padding: const EdgeInsets.only(top: 80.0,left: 10,bottom: 10),
+                            padding:  EdgeInsets.only(top: MediaQuery.of(context).viewPadding.top,left: 10,bottom: 10),
                             child: Row(
                               children: [
                                 Icon(Icons.settings,color: Colors.white70,size: 35),
@@ -286,6 +262,7 @@ class _SettingsState extends State<Settings> {
                                   setState(() {
                                     pos_y = 6;
                                   });
+                                  logout();
 
 
 
@@ -351,5 +328,40 @@ class _SettingsState extends State<Settings> {
 
     });
 
+  }
+
+  void logout() {
+    SharedPreferences.getInstance().then((value) {
+      value.setBool("auth", false).then((value) async {
+        // File  fileTV = await apiRest.localFile("mc.json");
+        try{
+          File f = await apiRest.localFile("mc.json");
+          f.delete();
+        }catch(e){
+
+        }
+        try{
+          File f = await apiRest.localFile("series.json");
+          f.delete();
+        }catch(e){
+
+        }
+        try{
+          File f = await apiRest.localFile("tv.json");
+          f.delete();
+        }catch(e){
+
+        }
+        Navigator.pushReplacement(context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => Splash(),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
+
+
+      });
+
+    });
   }
 }

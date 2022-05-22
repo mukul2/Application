@@ -616,7 +616,7 @@ class _HomeState extends ResumableState<SeriesAsHome> {
                     //  modelS.Source sss2 = Source(size: "",id: 2, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
                     //  modelS.Source sss3 = Source(size: "",id: 3, type: li[k]["container_extension"], title:li[k]["container_extension"], quality: "FHD",  kind: "both", premium: "1", external: false, url:link);
 
-                    Poster poster1 = Poster(id:li[k]["series_id"],
+                    Poster poster1 = Poster(raw_data:li[k] ,id:li[k]["series_id"],
                         title: li[k]["name"],
                         type: "serie",
                         label: null,

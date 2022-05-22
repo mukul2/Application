@@ -198,24 +198,24 @@ class _LoginState extends State<Login> {
                 width: MediaQuery.of(context).size.width/2.5,
                 child: Container(
                   width: double.infinity,
-                  padding: EdgeInsets.all(50),
+                  padding: EdgeInsets.all(MediaQuery.of(context).size.shortestSide*0.05),
                   color: Colors.black54,
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Center(child: Image.asset( "assets/images/logo.png",height: 40,color: Colors.white)),
-                      SizedBox(height: 40),
+                      SizedBox(height: MediaQuery.of(context).size.height*0.005),
                       Text(
                         "Sign in to your account !",
                         style: TextStyle(
                             color: Colors.white,
-                            fontSize: 15,
+                            fontSize: MediaQuery.of(context).size.shortestSide*0.05,
                             fontWeight: FontWeight.w900
                         ),
                       ),
-                      SizedBox(height: 15),
+                      SizedBox(height: MediaQuery.of(context).size.shortestSide*0.05),
                       TextFormField(
                         controller: usernameController,
                         focusNode: username_focus_node,
@@ -233,7 +233,7 @@ class _LoginState extends State<Login> {
                           contentPadding: new EdgeInsets.symmetric(vertical: 4.0, horizontal: 15.0),
                           suffixIcon: Icon(
                             Icons.email,
-                            size: 15,
+                            size: MediaQuery.of(context).size.shortestSide*0.05,
                             color: (emailvalide)?Colors.white70:Colors.red,
                           ),
                         ),
@@ -276,7 +276,7 @@ class _LoginState extends State<Login> {
                           contentPadding: new EdgeInsets.symmetric(vertical: 4.0, horizontal: 15.0),
                           suffixIcon: Icon(
                             Icons.vpn_key_rounded,
-                            size: 15,
+                            size: MediaQuery.of(context).size.shortestSide*0.05,
                             color: (passwordvalide)?Colors.white70:Colors.red,
                           ),
                         ),
@@ -356,7 +356,7 @@ class _LoginState extends State<Login> {
                         },
                         child: Container(
                           margin: EdgeInsets.only(top: 15),
-                          height: 45,
+                          height: MediaQuery.of(context).size.shortestSide*0.1,
                           width: double.infinity,
                           decoration: BoxDecoration(
                             border:Border.all(color: (pos_y == 1)? Colors.white:  Colors.deepPurple,width: 2),
@@ -386,9 +386,9 @@ class _LoginState extends State<Login> {
                                   )
                               )
                                   :
-                              Container(
-                                  height:40,
-                                  width: 40,
+                              Container(margin: EdgeInsets.only(left: MediaQuery.of(context).size.shortestSide*0.02),
+                                  height:MediaQuery.of(context).size.shortestSide*0.05,
+                                  width: MediaQuery.of(context).size.shortestSide*0.05,
                                   decoration: BoxDecoration(
                                       color: Colors.white10,
                                       borderRadius: BorderRadius.only(bottomLeft:  Radius.circular(4),topLeft: Radius.circular(4))
@@ -403,7 +403,7 @@ class _LoginState extends State<Login> {
                                         :
                                     "Sign in to your account !",
                                     style: TextStyle(
-                                        fontSize: 12,
+                                        fontSize: MediaQuery.of(context).size.shortestSide*0.03,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.white
                                     ),
@@ -439,7 +439,7 @@ class _LoginState extends State<Login> {
                                 child: Text(
                                   "Settings",
                                   style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: MediaQuery.of(context).size.shortestSide*0.035,
                                       fontWeight: FontWeight.bold,
                                       color:(pos_y == 2 && pos_x ==0)? Colors.redAccent:Colors.white60
                                   ),
@@ -452,7 +452,7 @@ class _LoginState extends State<Login> {
                             child: Text(
                               "Privacy Policy !",
                               style: TextStyle(
-                                  fontSize: 12,
+                                  fontSize: MediaQuery.of(context).size.shortestSide*0.035,
                                   fontWeight: FontWeight.bold,
                                   color:(pos_y == 2&& pos_x ==1)? Colors.redAccent:Colors.white60
                               ),
