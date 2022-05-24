@@ -210,7 +210,7 @@ class _ContactState extends State<Contact> {
                           keyboardType: TextInputType.text,
                           decoration: InputDecoration(
                             focusColor: Colors.white,
-                            labelText: 'E-mail',
+                            labelText: 'Username',
                             labelStyle: TextStyle(
                                 color: (emailValide)?Colors.white:Colors.red
                             ),
@@ -219,7 +219,7 @@ class _ContactState extends State<Contact> {
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(5.0),borderSide: BorderSide(color: (emailValide)?Colors.white:Colors.red,width: 1)),
                             contentPadding: new EdgeInsets.symmetric(vertical: 4.0, horizontal: 15.0),
                             suffixIcon: Icon(
-                              Icons.mail,
+                              Icons.supervised_user_circle,
                               size: 15,
                               color: (emailValide)?Colors.white70:Colors.red,
                             ),

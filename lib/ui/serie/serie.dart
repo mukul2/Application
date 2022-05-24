@@ -15,6 +15,7 @@ import 'package:flutter_app_tv/model/genre.dart';
 import 'package:flutter_app_tv/model/poster.dart';
 import 'package:flutter_app_tv/model/season.dart';
 import 'package:flutter_app_tv/model/source.dart';
+import 'package:flutter_app_tv/model/subtitle.dart';
 import 'package:flutter_app_tv/ui/actor/actor_detail.dart';
 import 'package:flutter_app_tv/ui/actor/cast_loading_widget.dart';
 import 'package:flutter_app_tv/ui/actor/cast_widget.dart';
@@ -67,6 +68,8 @@ class Serie extends StatefulWidget {
 }
 
 class _SerieState extends State<Serie> {
+  String tmdbId="";
+  int seasonCount = 0;
   String user_id = "";
   dynamic showInfo_tmdb;
   String gg = "";
@@ -137,7 +140,7 @@ class _SerieState extends State<Serie> {
     var responseTMDB = await http.get(Uri.parse(tvSHowTMDB) );
 
     dynamic jsonTMDB = jsonDecode(responseTMDB.body);
-    String tmdbId="";
+
     if(jsonTMDB["total_results"]>0){
 
       tmdbId = jsonTMDB["results"][0]["id"].toString();
@@ -203,8 +206,8 @@ class _SerieState extends State<Serie> {
   fire.DocumentReference? documentReference;
   int postx = 0;
   int posty = 0;
-  int selected_season = 0;
-  int? selected_episode;
+  int selected_season = 1;
+  int? selected_episode = 1;
   FocusNode movie_focus_node = FocusNode();
   ItemScrollController _scrollController = ItemScrollController();
   ItemScrollController _castScrollController = ItemScrollController();
@@ -221,6 +224,7 @@ class _SerieState extends State<Serie> {
 
   int _selected_source= 0;
   int _focused_source= 0;
+  int epi = 0;
 
   List<Actor> actorsList  = [];
   List<Poster> series =[];
@@ -416,6 +420,7 @@ class _SerieState extends State<Serie> {
     });
   }
   void _getSeasons()  async{
+    epi = 0;
     print("seasongs gety");
     seasons.clear();
     setState(() {
@@ -464,9 +469,9 @@ class _SerieState extends State<Serie> {
         List<Episode>allEpisodes = [];
         for(int i = 0 ; i < value.length; i++){
           String  old= SERVER+":$PORT"+"/"+"series"+"/"+EMAIL!+"/"+PASSWORD.toString() +"/"+value[i]["id"].toString()+"."+value[i]["container_extension"];
-
+          epi++;
           Source source = Source(id:  value[i]["episode_num"], type: value[i]["container_extension"], title: value[i]["container_extension"], quality: "HQ", size: "", kind: "", premium: "1", external: true, url: old);
-          allEpisodes.add(Episode(id:int.parse(value[i]["id"]), title: value[i]["title"]??"----", downloadas: "", playas: "", description: "", duration:  value[i]["info"]["duration"], image: value[i]["info"]["movie_image"], sources: [source]));
+          allEpisodes.add(Episode(id:int.parse(value[i]["id"]), title: value[i]["title"]??"----", downloadas: "", playas: "", description: "", duration:  value[i]["info"]["duration"]??"--", image: value[i]["info"]["movie_image"], sources: [source]));
         }
         seasons.add(Season(id: int.parse(key), title: "Season "+key.toString(), episodes: allEpisodes));
 
@@ -525,6 +530,11 @@ class _SerieState extends State<Serie> {
       if(jsonTMDB["total_results"]>0){
 
         tmdbId = jsonTMDB["results"][0]["id"].toString();
+
+
+
+
+
         String tvSHowTMDBFull = "https://api.themoviedb.org/3/tv/$tmdbId?api_key=103096910bbe8842c151f7cce00ab218";
         print(tvSHowTMDBFull);
         TMDB = tmdbId;
@@ -556,11 +566,13 @@ class _SerieState extends State<Serie> {
       show_info = data;
       data["episodes"].forEach((key, value) {
         List<Episode>allEpisodes = [];
+
+
         for(int i = 0 ; i < value.length; i++){
           String  old= SERVER!+":$PORT"+"/"+"series"+"/"+EMAIL!+"/"+PASSWORD.toString() +"/"+value[i]["id"].toString()+"."+value[i]["container_extension"];
-
+          epi++;
           Source source = Source(id:  value[i]["episode_num"], type: value[i]["container_extension"], title: value[i]["container_extension"], quality: "HQ", size: "", kind: "", premium: "1", external: true, url: old);
-          allEpisodes.add(Episode(id:int.parse(value[i]["id"]), title: value[i]["title"]??"----", downloadas: "", playas: "", description: "", duration:  value[i]["info"]["duration"], image: value[i]["info"]["movie_image"], sources: [source]));
+          allEpisodes.add(Episode(id:int.parse(value[i]["id"]), title: value[i]["title"]??"----", downloadas: "", playas: "", description: "", duration:  value[i]["info"]["duration"]??"--", image: value[i]["info"]["movie_image"], sources: [source]));
         }
         seasons.add(Season(id: int.parse(key), title: "Season "+key.toString(), episodes: allEpisodes));
 
@@ -568,7 +580,11 @@ class _SerieState extends State<Serie> {
 
 
 //xtrInfo
-      await  fire.FirebaseFirestore.instance.collection("moreInfoSeries").doc(id).update({"xtrInfo":data});
+      try{
+        await  fire.FirebaseFirestore.instance.collection("moreInfoSeries").doc(id).update({"xtrInfo":data});
+      }catch(e){
+        await  fire.FirebaseFirestore.instance.collection("moreInfoSeries").doc(id).set({"xtrInfo":data});
+      }
 
       // String link = "https://api.themoviedb.org/3/tv/$tmdbId/season/$season/episode/$e?api_key=103096910bbe8842c151f7cce00ab218";
       // print(link);
@@ -833,6 +849,35 @@ class _SerieState extends State<Serie> {
                           itemCount: 5,
                           itemScrollController: _scrollController,
                           itemBuilder: (context, index) {
+
+                            safeYear(){
+                              try{
+                                return   Container(margin: EdgeInsets.only(left: MediaQuery.of(context).size.longestSide*0.01),
+                                  padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.longestSide*0.005,horizontal: MediaQuery.of(context).size.longestSide*0.005),
+                                  decoration: BoxDecoration(
+                                      color: Colors.red,
+                                      borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.0025)
+                                  ),
+                                  child: Row(
+                                    children: [
+
+                                      Icon(Icons.calendar_month,size: MediaQuery.of(context).size.longestSide*0.01,color: Colors.white,),
+                                      Padding(
+                                        padding:  EdgeInsets.only(left: 5),
+                                        child: Text(DateFormat("yyyy").format(DateTime.parse(show_info["info"]["releaseDate"])) , style: TextStyle(
+                                            color: Colors.white,
+                                            fontSize: MediaQuery.of(context).size.longestSide*0.015,
+                                            fontWeight: FontWeight.w800
+                                        ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              }catch(e){
+                                return Container(height: 0,width: 0,);
+                              }
+                            }
                             switch(index){
                               case 0:
                                 return Container(
@@ -852,7 +897,7 @@ class _SerieState extends State<Serie> {
                                             children: [
                                               ClipRRect(
                                                   borderRadius: BorderRadius.circular(5),
-                                                  child: CachedNetworkImage(height:MediaQuery.of(context).size.width*0.15 ,width: MediaQuery.of(context).size.width*0.15,
+                                                  child: CachedNetworkImage(height:MediaQuery.of(context).size.width*0.2 ,width: MediaQuery.of(context).size.width*0.15,
                                                     imageUrl: widget.serie!.image,
                                                     errorWidget: (context, url, error) => Icon(Icons.error),
                                                     fit: BoxFit.cover,
@@ -921,11 +966,11 @@ class _SerieState extends State<Serie> {
                                                       children: [
                                                         Text("IMDb ${showInfo_tmdb["vote_average"].toString()}  ", style: TextStyle(
                                                             color: Colors.white,
-                                                            fontSize:  MediaQuery.of(context).size.longestSide*0.01,
+                                                            fontSize:  MediaQuery.of(context).size.longestSide*0.015,
                                                             fontWeight: FontWeight.w800
                                                         ),
                                                         ),
-                                                        Icon(Icons.star,color: Colors.white,size: MediaQuery.of(context).size.longestSide*0.01,)
+                                                        Icon(Icons.star,color: Colors.white,size: MediaQuery.of(context).size.longestSide*0.02,)
                                                       ],
                                                     ),
 
@@ -941,12 +986,12 @@ class _SerieState extends State<Serie> {
                                                     child: Row(
                                                       children: [
 
-                                                        Icon(Icons.thumb_up,size: MediaQuery.of(context).size.longestSide*0.01,color: Colors.white,),
+                                                        Icon(Icons.thumb_up,size: MediaQuery.of(context).size.longestSide*0.02,color: Colors.white,),
                                                         Padding(
                                                           padding:  EdgeInsets.only(left: MediaQuery.of(context).size.longestSide*0.005,right:  MediaQuery.of(context).size.longestSide*0.005),
                                                           child: Text( showInfo_tmdb["vote_count"].toString(), style: TextStyle(
                                                               color: Colors.white,
-                                                              fontSize: MediaQuery.of(context).size.longestSide*0.01,
+                                                              fontSize: MediaQuery.of(context).size.longestSide*0.015,
                                                               fontWeight: FontWeight.w800
                                                           ),
                                                           ),
@@ -954,41 +999,20 @@ class _SerieState extends State<Serie> {
                                                       ],
                                                     ),
                                                   ),
-                                                  if(show_info!=null && show_info["info"]!=null && show_info["info"]["releaseDate"]!=null)Container(margin: EdgeInsets.only(left: MediaQuery.of(context).size.longestSide*0.01),
-                                                    padding: EdgeInsets.symmetric(vertical: MediaQuery.of(context).size.longestSide*0.005,horizontal: MediaQuery.of(context).size.longestSide*0.005),
-                                                    decoration: BoxDecoration(
-                                                        color: Colors.red,
-                                                        borderRadius: BorderRadius.circular(MediaQuery.of(context).size.longestSide*0.0025)
-                                                    ),
-                                                    child: Row(
-                                                      children: [
-
-                                                        Icon(Icons.calendar_month,size: MediaQuery.of(context).size.longestSide*0.01,color: Colors.white,),
-                                                        Padding(
-                                                          padding:  EdgeInsets.only(left: 5),
-                                                          child: Text(DateFormat("yyyy").format(DateTime.parse(show_info["info"]["releaseDate"])) , style: TextStyle(
-                                                              color: Colors.white,
-                                                              fontSize: MediaQuery.of(context).size.longestSide*0.01,
-                                                              fontWeight: FontWeight.w800
-                                                          ),
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
+                                                  if(show_info!=null && show_info["info"]!=null && show_info["info"]["releaseDate"]!=null)safeYear(),
 
                                                 ],
                                               ),
                                               SizedBox(height: MediaQuery.of(context).size.longestSide*0.01),
 
-                                              Text("${showInfo_tmdb["number_of_seasons"]} Seasons • ${showInfo_tmdb["number_of_episodes"]} Episodes •  ${gg}"
+                                              Text("${seasons.length} Seasons • $epi Episodes •  ${gg}"
                                                 , style: TextStyle(
                                                     color: Colors.white,
                                                     fontSize: MediaQuery.of(context).size.longestSide*0.015,
                                                     fontWeight: FontWeight.w900
                                                 ),),
                                               SizedBox(height: MediaQuery.of(context).size.longestSide*0.01),
-                                              Text(showInfo_tmdb["overview"]
+                                              Text(showInfo_tmdb["overview"],maxLines: 3
                                                 , style: TextStyle(
                                                     color: Colors.white60,
                                                     fontSize: MediaQuery.of(context).size.longestSide*0.015,
@@ -1050,7 +1074,7 @@ class _SerieState extends State<Serie> {
                                                                       seasons[0].title  ,
                                                                       style: TextStyle(
                                                                           color: (postx == 0 && posty == 0)? Colors.black:Colors.white,
-                                                                          fontSize: MediaQuery.of(context).size.longestSide*0.01,
+                                                                          fontSize: MediaQuery.of(context).size.longestSide*0.015,
                                                                           fontWeight: FontWeight.w500
                                                                       )
                                                                   ),
@@ -1093,7 +1117,7 @@ class _SerieState extends State<Serie> {
                                                                   "Watch Trailer" ,
                                                                   style: TextStyle(
                                                                       color: (postx == 1 && posty == 0)? Colors.black:Colors.white,
-                                                                      fontSize: MediaQuery.of(context).size.longestSide*0.01,
+                                                                      fontSize: MediaQuery.of(context).size.longestSide*0.015,
                                                                       fontWeight: FontWeight.w500
                                                                   )
                                                               ),
@@ -1183,7 +1207,7 @@ class _SerieState extends State<Serie> {
                                                                           "Add to Favourites" ,
                                                                           style: TextStyle(
                                                                               color: (postx == 2 && posty == 0)? Colors.black:Colors.white,
-                                                                              fontSize: MediaQuery.of(context).size.longestSide*0.01,
+                                                                              fontSize: MediaQuery.of(context).size.longestSide*0.015,
                                                                               fontWeight: FontWeight.w500
                                                                           )
                                                                       ),
@@ -1377,7 +1401,7 @@ class _SerieState extends State<Serie> {
                                                 posty =2 ;
                                                 postx = index;
                                                 Future.delayed(Duration(milliseconds: 250),(){
-                                                  setState(() {
+                                                  setState(() async {
                                                     selected_episode  =  index;
                                                     _focused_source = 0;
                                                     _selected_source = 0;
@@ -1388,10 +1412,14 @@ class _SerieState extends State<Serie> {
                                                         //visibileSourcesDialog = true;
                                                       });
                                                     }
+
+                                                  List<Subtitle> subtitle = await  apiRest.getSubtitlesSeries(seasonNum: selected_season.toString(), episodeNUm: selected_episode.toString(),imdb:tmdbId ,);
+
+
                                                     Navigator.push(
                                                       context,
                                                       PageRouteBuilder(
-                                                        pageBuilder: (context, animation1, animation2) => VideoPlayer(subtitles: [],sourcesList: sources,selected_source:0,focused_source: 0,poster: widget.serie,episode:selected_episode!,season: selected_season,seasons:seasons ),
+                                                        pageBuilder: (context, animation1, animation2) => VideoPlayer(subtitles: subtitle,sourcesList: sources,selected_source:0,focused_source: 0,poster: widget.serie,episode:selected_episode!,season: selected_season,seasons:seasons ),
                                                         transitionDuration: Duration(seconds: 0),
                                                       ),
                                                     );
@@ -1756,10 +1784,12 @@ class _SerieState extends State<Serie> {
           j++;
         }
       }
+      List<Subtitle> subtitle = await  apiRest.getSubtitlesSeries(seasonNum: selected_season.toString(), episodeNUm: selected_episode.toString(),imdb:tmdbId ,);
+
       Navigator.push(
         context,
         PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => VideoPlayer(subtitles: [],sourcesList: _sources,selected_source:_new_selected_source,focused_source: _new_selected_source,poster: widget.serie,episode:selected_episode!,season: selected_season,seasons:seasons ),
+          pageBuilder: (context, animation1, animation2) => VideoPlayer(subtitles: subtitle,sourcesList: _sources,selected_source:_new_selected_source,focused_source: _new_selected_source,poster: widget.serie,episode:selected_episode!,season: selected_season,seasons:seasons ),
           transitionDuration: Duration(seconds: 0),
         ),
       );

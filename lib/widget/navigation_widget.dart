@@ -16,6 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../SlingTv/sling_scroll_tv.dart';
 import '../SlingTv/sling_tv.dart';
+import '../SlingTv/sling_tv_activity.dart';
 import '../TvGuide/tvguide.dart';
 import '../series_like_home/home.dart';
 import '../ui/channel/channel_as_home.dart';
@@ -259,15 +260,39 @@ class _NavigationWidgetState extends ResumableState<NavigationWidget> {
                             setState(() {
                               widget.postx = 4;
                               widget.posty = -2;
-                              Future.delayed(Duration(milliseconds: 200),(){
+                              Future.delayed(Duration(milliseconds: 200),() async {
                                 if(widget.selectedItem != 4){
-                                  Navigator.pushReplacement(
-                                    context,
-                                    PageRouteBuilder(
-                                      pageBuilder: (context, animation1, animation2) => TvChannelsHome(),
-                                      transitionDuration: Duration(seconds: 0),
-                                    ),
-                                  );
+                                  // Navigator.pushReplacement(
+                                  //   context,
+                                  //   PageRouteBuilder(
+                                  //     pageBuilder: (context, animation1, animation2) => Scaffold(body: Center(child: Text("Another TV",style: TextStyle(color: Colors.white),),),),
+                                  //     transitionDuration: Duration(seconds: 0),
+                                  //   ),
+                                  // );
+
+                                  SharedPreferences s = await SharedPreferences.getInstance();
+                                  int? t = s.getInt("tv_type");
+
+                                 // tv_type
+
+                                  if(t!=null && t==1){
+                                    Navigator.pushReplacement(
+                                      context,
+                                      PageRouteBuilder(
+                                        pageBuilder: (context, animation1, animation2) => TvChannelsHome(),
+                                        transitionDuration: Duration(seconds: 0),
+                                      ),
+                                    );
+                                  }else{
+                                    Navigator.pushReplacement(
+                                      context,
+                                      PageRouteBuilder(
+                                        pageBuilder: (context, animation1, animation2) => SlingTv(),
+                                        transitionDuration: Duration(seconds: 0),
+                                      ),
+                                    );
+                                  }
+
                                 }
                               });
                             });

@@ -35,6 +35,7 @@ import 'dart:convert' as convert;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transparent_image/transparent_image.dart';
 
+import '../../SlingTv/sling_tv_activity.dart';
 import '../../series_like_home/home.dart';
 import '../channel/channel_as_home.dart';
 
@@ -992,15 +993,30 @@ for(int i = 0 ; i < movieContents[genres[_selected_genre].id].length ; i++){
       );
     }
   }
-  void  _goToChannels(){
+  Future<void>  _goToChannels() async {
     if(posty == -2 && postx == 4){
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => TvChannelsHome(),
-          transitionDuration: Duration(seconds: 0),
-        ),
-      );
+      SharedPreferences s = await SharedPreferences.getInstance();
+      int? t = s.getInt("tv_type");
+
+      // tv_type
+
+      if(t!=null && t==1){
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => TvChannelsHome(),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
+      }else{
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => SlingTv(),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
+      }
     }
   }
   void  _goToSettings(){

@@ -38,6 +38,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:transparent_image/transparent_image.dart';
 
 import '../../SlingTv/sling_scroll_tv.dart';
+import '../../SlingTv/sling_tv_activity.dart';
 import '../../TvGuide/tvguide.dart';
 import '../channel/channel_as_home.dart';
 
@@ -574,7 +575,7 @@ class _SeriesState extends ResumableState<Series> {
                   left: 0,
                   right: 0,
                   duration: Duration(milliseconds: 200),
-                  height: MediaQuery.of(context).viewPadding.top ==0?  ((posty < 0)?(MediaQuery.of(context).size.height/1) + 20:(MediaQuery.of(context).size.height/1)+50):(MediaQuery.of(context).size.height/1)+50,
+                  height: MediaQuery.of(context).viewPadding.top ==0?  ((posty < 0)?(MediaQuery.of(context).size.height/1) + 20:(MediaQuery.of(context).size.height/1)+50):(MediaQuery.of(context).size.height/1)+(50+MediaQuery.of(context).viewPadding.top),
                   child: Column(
                     children: [
                       Container(
@@ -1013,15 +1014,30 @@ class _SeriesState extends ResumableState<Series> {
       );
     }
   }
-  void  _goToChannels(){
+  Future<void>  _goToChannels() async {
     if(posty == -2 && postx == 4){
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => TvChannelsHome(),
-          transitionDuration: Duration(seconds: 0),
-        ),
-      );
+      SharedPreferences s = await SharedPreferences.getInstance();
+      int? t = s.getInt("tv_type");
+
+      // tv_type
+
+      if(t!=null && t==1){
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => TvChannelsHome(),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
+      }else{
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => SlingTv(),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
+      }
     }
   }
   void  _goToSettings(){

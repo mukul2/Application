@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter_app_tv/SlingTv/sling_tv_activity.dart';
 import 'package:intl/intl.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -1342,15 +1343,30 @@ Future download() async {
       );
     }
   }
-  void  _goToChannels(){
+  Future<void>  _goToChannels() async {
     if(posty == -2 && postx == 4){
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => TvChannelsHome(),
-          transitionDuration: Duration(seconds: 0),
-        ),
-      );
+      SharedPreferences s = await SharedPreferences.getInstance();
+      int? t = s.getInt("tv_type");
+
+      // tv_type
+
+      if(t!=null && t==1){
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => TvChannelsHome(),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
+      }else{
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => SlingTv(),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
+      }
     }
   }
   void  _goToSettings(){

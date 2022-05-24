@@ -207,12 +207,12 @@ class _MovieState extends State<Movie> {
 
     print("now getting subtitles");
     availableSubtitles =  await apiRest.getSubtitles(imdb:  TMDB);
-    Fluttertoast.showToast(
-      msg: availableSubtitles.length.toString()+" subtitles",
-      gravity: ToastGravity.BOTTOM,
-      backgroundColor: Colors.green,
-      textColor: Colors.white,
-    );
+    // Fluttertoast.showToast(
+    //   msg: availableSubtitles.length.toString()+" subtitles",
+    //   gravity: ToastGravity.BOTTOM,
+    //   backgroundColor: Colors.green,
+    //   textColor: Colors.white,
+    // );
     print(availableSubtitles);
     var videosResponse  = await apiRest.getVidoesFromTMDB(id: TMDB);
 

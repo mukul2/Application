@@ -25,6 +25,7 @@ import 'package:flutter_app_tv/ui/serie/serie.dart';
 import 'package:flutter_app_tv/ui/serie/series.dart';
 import 'package:flutter_app_tv/ui/setting/settings.dart';
 import 'package:flutter_app_tv/ui/pages/splash.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:wakelock/wakelock.dart';
 import 'EPG/epg.dart';
 import 'SlingTv/sling_tv.dart';
@@ -151,6 +152,8 @@ class _MyAppState extends State<MyApp> {
           ): SlingTv(),
         )
     ));
+
+
     return Shortcuts(shortcuts: <LogicalKeySet, Intent>{
       LogicalKeySet(LogicalKeyboardKey.select): ActivateIntent(),
     }, child:  MaterialApp(theme: td,

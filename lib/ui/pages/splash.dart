@@ -360,6 +360,7 @@ class _SplashState extends State<Splash> with TickerProviderStateMixin {
 
   void initSettings()async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setInt("tv_type", 0);
     if(prefs.getInt("subtitle_size") == null){
       prefs.setInt("subtitle_size",33);
     }

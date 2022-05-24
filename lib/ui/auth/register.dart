@@ -269,7 +269,7 @@ class _RegisterState extends State<Register> {
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
                           focusColor: (emailvalide)?Colors.white:Colors.red,
-                          labelText: 'E-mail',
+                          labelText: 'Username',
                           labelStyle: TextStyle(
                               color: (emailvalide)?Colors.white:Colors.red
                           ),

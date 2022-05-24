@@ -107,6 +107,26 @@ class _ActorDetailState extends State<ActorDetail> {
         return Container(width: 0,height: 10,);
       }
     }
+    Widget safeWi4(){
+      try{
+        if(widget.data.containsKey("biography") &&   widget.data["biography"]!=null)
+
+          return  Text(" •  ${widget.data["biography"]} "
+
+            , style: TextStyle(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w800
+            ),
+          );
+
+        else{
+          return Container(width: 0,height: 10,);
+        }
+      }catch(e){
+        return Container(width: 0,height: 10,);
+      }
+    }
     Widget safeWi1(){
       try{
        if(widget.data.containsKey("place_of_birth") &&   widget.data["place_of_birth"]!=null)
@@ -271,14 +291,15 @@ class _ActorDetailState extends State<ActorDetail> {
                                                 ],
                                               ),
                                               SizedBox(height: 10),
-                                              Text(widget.data["biography"]
-                                                , style: TextStyle(
-                                                    color: Colors.white60,
-                                                    fontSize: 11,
-                                                    height: 1.5,
-                                                    fontWeight: FontWeight.normal
-                                                ),
-                                              ),
+                                              safeWi4(),
+                                              // Text(widget.data["biography"]
+                                              //   , style: TextStyle(
+                                              //       color: Colors.white60,
+                                              //       fontSize: 11,
+                                              //       height: 1.5,
+                                              //       fontWeight: FontWeight.normal
+                                              //   ),
+                                              // ),
                                               SizedBox(height: 10),
 
                                             ],

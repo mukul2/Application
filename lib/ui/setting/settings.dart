@@ -61,10 +61,20 @@ class _SettingsState extends State<Settings> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    initSettings();
-    Future.delayed(Duration.zero, () {
-      FocusScope.of(context).requestFocus(main_focus_node);
+
+    SharedPreferences.getInstance().then((value) {
+      try{
+        tv_type = value.getInt("tv_type")!;
+      }catch(e){
+
+      }
+      initSettings();
+      Future.delayed(Duration.zero, () {
+        FocusScope.of(context).requestFocus(main_focus_node);
+      });
+
     });
+
   }
 
   @override

@@ -285,7 +285,52 @@ class apiRest{
       return actors;
     }
   }
+  static getSubtitlesSeries ({required String imdb,required String seasonNum,required String episodeNUm}) async {
+    List subtitleAvailableList = [];
+    List<Subtitle> subtitleAvailableListModel = [];
 
+    try{
+      String castLink = "https://sflix-edc5e.uc.r.appspot.com/subtitleTvSeries?tmdbid=$imdb&season_number=$seasonNum&episode_number=$episodeNUm";
+
+
+      print(castLink);
+
+      try{
+        var responseCast = await http.get(Uri.parse(castLink), );
+
+
+        print("subtitle response");
+        print(responseCast.body);
+
+
+
+
+        subtitleAvailableList = jsonDecode(responseCast.body);
+
+        //  print(subtitleAvailableList[0]["lang"]);
+        // print(subtitleAvailableList[0]["file_name"]);
+
+        if(subtitleAvailableList.length>0){
+          Subtitle? subtitle =new Subtitle(id: -1, type: "", language: "", url: "", image: "");
+          subtitleAvailableListModel.insert(0, subtitle);
+          for(int i = 0 ; i < subtitleAvailableList.length ; i++){
+            subtitleAvailableListModel.add(Subtitle(file_name:subtitleAvailableList[i]["file_name"] ,file_id:subtitleAvailableList[i]["file_id"] ,type: "",id: i,language:subtitleAvailableList[i]["lang"],url: "",image: "https://cdn.britannica.com/44/344-004-494CC2E8/Flag-England.jpg" ));
+          }
+
+        }
+      }catch(e){
+        return subtitleAvailableListModel;
+      }
+
+
+      return subtitleAvailableListModel;
+      // _visibile_cast_loading=false;
+    }catch(e){
+      print(e);
+      print("Empty subtitle");
+      return subtitleAvailableListModel;
+    }
+  }
 
   static getSubtitles ({required String imdb}) async {
     List subtitleAvailableList = [];
@@ -419,12 +464,12 @@ class apiRest{
     }
 
 
-    for(int i = 1900 ; i < 2025; i++){
-      String ye = i.toString();
-      if(name.contains(ye)){
-        name = name.replaceAll(ye, "");
-      }
-    }
+    // for(int i = 1900 ; i < 2060; i++){
+    //   String ye = i.toString();
+    //   if(name.contains(ye)){
+    //     name = name.replaceAll(ye, "");
+    //   }
+    // }
     print("after");
     print(name);
     dynamic MovieDetails;
@@ -853,143 +898,25 @@ class apiRest{
   static registerUser(var data) async{
     return configPost("/user/register/",data) ;
   }
-  static loginUserS({required String email,required String password,}) async{
-    String _deviceMAC = "";
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    bool? firstLoginDone = prefs.getBool("firstLogin");
-
-
-    if(firstLoginDone!=null && firstLoginDone == true){
-
-    }else{
-
-
-      try {
-        DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
-        if(Platform.isAndroid){
-          var  androidInfo = await deviceInfo.androidInfo;
-          _deviceMAC=  androidInfo!.androidId!;
-          print(androidInfo!.toMap().toString());
-        }
-        if(Platform.isIOS){
-          IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-          _deviceMAC=  iosInfo.identifierForVendor!;
-        }
-
-
-      } on PlatformException {
-        _deviceMAC = 'Error getting the MAC address.';
-      }
-
-      var url = Uri.parse('https://www.sflix.digital/api/CheckAppDevice');
-      http.Response response;
-      response = await http.post( url,headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-          body: jsonEncode(<String, String>{
-            'DeviceType': "android-phone",
-            'mac_id': _deviceMAC,
-          }) );
-
-      dynamic res = jsonDecode(response.body);
-
-      prefs.setString("token", res["AppToken"]);
-      print(response.body);
-
-    }
-
-    var url = Uri.parse('https://www.sflix.digital/api/applogin');
-    // var url = Uri.parse('http://revteam1.offshorerev.cc:80/player_api.php?username=4529036487475419&password=160417160718');
-    http.Response response;
-    var body = jsonEncode(<String, String>{
-      'device_type': "android-phone",
-      'macID': _deviceMAC,
-      'AppToken': prefs.getString("token")??"",
-      'username': email,
-      'password': password,
-    });
-    print(body);
-    response = await http.post( url,headers: <String, String>{
-      'Content-Type': 'application/json; charset=UTF-8',
-    },
-        body: body);
-
-    Map<String,dynamic> res = jsonDecode(response.body);
-
-    if(res.containsKey("status") && res["status"]== "success"){
-      String link = res["streaming_url"];
-      var url = Uri.parse('$link/player_api.php?username=$email&password=$password');
-      http.Response response;
-      response = await http.get( url, );
-      print(response.body);
-
-      Map<String,dynamic> r =  jsonDecode(response.body);
-
-      if(r.containsKey("user_info")){
-        Map<String,dynamic> user_info =  r["user_info"];
-        if( user_info.containsKey("status")){
-          if( user_info["status"]=="Active"){
-
-            int timeZoneNow =r["server_info"] ["timestamp_now"];
-
-            // int timeGap = DateTime.now.
-
-            print("success");
-            prefs.setString("SERVER_URL", r["server_info"]["url"]);
-            prefs.setString("USER_ID", email);
-            prefs.setString("PASSWORD", password);
-            prefs.setString("PORT", r["server_info"]["port"]);
-            prefs.setBool("auth", true);
-            return true;
-          }else{
-            prefs.setBool("auth", false);
-            return false;
-            print("fail");
-          }
-        }else{
-          prefs.setBool("auth", false);
-          return false;
-        }
-      }else{
-        prefs.setBool("auth", false);
-        return false;
-      }
-
-
-      print(r);
-    }else{
-      return false;
-
-      //failed
-
-
-
-
-    }
-
-    print(res);
-
-    //  var url = Uri.parse('http://line.liveott.ru/player_api.php?username=$email&password=$password');
-
-    var link = "http://revteam1.offshorerev.cc:80";
-    email = "4529036487475419";
-    password = "160417160718";
-    //  var url = Uri.parse('$link/player_api.php?username=$email&password=$password');
-    // // var url = Uri.parse('http://revteam1.offshorerev.cc:80/player_api.php?username=4529036487475419&password=160417160718');
-    //  http.Response response;
-    //  response = await http.get( url, );
-    //  print(response.body);
-    //
-    //  Map<String,dynamic> r =  jsonDecode(response.body);
-    //
-
-    //return configPost("/user/login/",data) ;
-  }
   static loginUser({required String email,required String password,}) async{
 
 
+    String dType = "ios-phone";
+    if(Platform.isAndroid){
+      dType = "android-phone";
+    }
 
+    try{
+      DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+      AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+      bool isTV = androidInfo.systemFeatures.contains('android.software.leanback_only');
+
+      if(isTV){
+        dType = "android-tv";
+      }
+    }catch(e){
+
+    }
 
 
     String _deviceMAC = "";
@@ -1023,7 +950,7 @@ class apiRest{
       var url = Uri.parse('https://www.sflix.digital/api/CheckAppDevice');
       http.Response response;
       var bbb = jsonEncode(<String, String>{
-        'DeviceType': "android-phone",
+        'DeviceType':dType,
         'mac_id': _deviceMAC,
       });
       print(bbb);
@@ -1083,7 +1010,7 @@ class apiRest{
     // var url = Uri.parse('http://revteam1.offshorerev.cc:80/player_api.php?username=4529036487475419&password=160417160718');
     http.Response response;
     var body = jsonEncode(<String, String>{
-      'device_type': "android-phone",
+      'device_type':dType,
       'macID': _deviceMAC,
       'AppToken': prefs.getString("token")??"",
       'username': email,

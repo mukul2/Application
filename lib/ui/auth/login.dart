@@ -223,7 +223,7 @@ class _LoginState extends State<Login> {
                         keyboardType: TextInputType.emailAddress,
                         decoration: InputDecoration(
                           focusColor: Colors.white,
-                          labelText: 'E-mail',
+                          labelText: 'Username',
                           labelStyle: TextStyle(
                               color: (emailvalide)?Colors.white:Colors.red
                           ),

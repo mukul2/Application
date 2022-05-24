@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_app_tv/SlingTv/sling_small_widget.dart';
+import 'package:flutter_app_tv/SlingTv/sling_tv_activity.dart';
 import 'package:http/http.dart' as http;
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_controller.dart';
@@ -1710,15 +1711,30 @@ class _HomeState extends ResumableState<SLING_TV_S> {
       );
     }
   }
-  void  _goToChannels(){
+  Future<void>  _goToChannels() async {
     if(posty == -2 && postx == 4){
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => TvChannelsHome(),
-          transitionDuration: Duration(seconds: 0),
-        ),
-      );
+      SharedPreferences s = await SharedPreferences.getInstance();
+      int? t = s.getInt("tv_type");
+
+      // tv_type
+
+      if(t!=null && t==1){
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => TvChannelsHome(),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
+      }else{
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => SlingTv(),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
+      }
     }
   }
   void  _goToSettings(){

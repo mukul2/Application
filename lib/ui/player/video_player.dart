@@ -147,15 +147,35 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
 
    @override
   void initState() {
+
+
+
+     // Fluttertoast.showToast(
+     //   msg: widget.subtitles!.length.toString(),
+     //   gravity: ToastGravity.BOTTOM,
+     //   backgroundColor: Colors.green,
+     //   textColor: Colors.white,
+     // );
   if(widget.selected_subtitle!=null)   _selected_subtitle = widget.selected_subtitle!;
   if(widget.selected_subtitle!=null)  _focused_subtitle = widget.selected_subtitle!;
      try{
-       print(widget.channel!.sources.first.url);
+       print("link");
        print(widget.poster!.sources.first.url);
      }catch(e){
 
      }
+  try{
+    print("link channel");
+    print(widget.channel!.sources.first.url);
+  }catch(e){
 
+  }
+  try{
+    print("link");
+    print(widget.poster!.sources.first.url);
+  }catch(e){
+
+  }
      try{
 
      }catch(e){
@@ -936,20 +956,10 @@ class _VideoPlayerState extends State<VideoPlayer>   with SingleTickerProviderSt
      _hideControllers();
      //_subtitle_enabled! == true &&
      if( widget.subtitles!.length>0 && widget.selected_subtitle!>0){
-       Fluttertoast.showToast(
-         msg: "with subtitle",
-         gravity: ToastGravity.BOTTOM,
-         backgroundColor: Colors.green,
-         textColor: Colors.white,
-       );
+
        _applySubtitle();
      }else{
-       Fluttertoast.showToast(
-         msg: "no   subtitle",
-         gravity: ToastGravity.BOTTOM,
-         backgroundColor: Colors.green,
-         textColor: Colors.white,
-       );
+
      }
 
    }

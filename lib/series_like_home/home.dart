@@ -46,6 +46,7 @@ import '../../model/channel.dart';
 import '../../model/country.dart';
 import '../../model/source.dart';
 import '../SlingTv/sling_tv.dart';
+import '../SlingTv/sling_tv_activity.dart';
 import '../ui/channel/channel_as_home.dart';
 import '../ui/home/home.dart';
 
@@ -968,11 +969,17 @@ class _HomeState extends ResumableState<SeriesAsHome> {
               left: 0,
               right: 0,
               duration: Duration(milliseconds: 200),
-              height: MediaQuery.of(context).viewPadding.top ==0?  ((posty < 0)?(MediaQuery.of(context).size.height/2) + 20:(MediaQuery.of(context).size.height/2)+50):(MediaQuery.of(context).size.height/1)-50,
+              height: MediaQuery.of(context).viewPadding.top ==0?  ((posty < 0)?(MediaQuery.of(context).size.height/1) + 20:(MediaQuery.of(context).size.height/1)+50):((MediaQuery.of(context).size.height/1)-(50+MediaQuery.of(context).viewPadding.top)),
+
+             // height: MediaQuery.of(context).viewPadding.top ==0?  ((posty < 0)?(MediaQuery.of(context).size.height/2) + 20:(MediaQuery.of(context).size.height/2)+50):(MediaQuery.of(context).size.height/1)-50,
 
             //  height: (posty < 0)?(MediaQuery.of(context).size.height/2)  -50:(MediaQuery.of(context).size.height/2)+200,
               child: Container(
-                height: (posty < 0)?(MediaQuery.of(context).size.height/2) -50:(MediaQuery.of(context).size.height/2)+200,
+              //  height: MediaQuery.of(context).viewPadding.top ==0?  ((posty < 0)?(MediaQuery.of(context).size.height/1) + 20:(MediaQuery.of(context).size.height/1)+50):(MediaQuery.of(context).size.height/1)+(50+MediaQuery.of(context).viewPadding.top),
+
+               // height: (posty < 0)?(MediaQuery.of(context).size.height/2) -50:(MediaQuery.of(context).size.height/2)+200,
+                height: MediaQuery.of(context).viewPadding.top ==0?  ((posty < 0)?(MediaQuery.of(context).size.height/1) + 20:(MediaQuery.of(context).size.height/1)+50):((MediaQuery.of(context).size.height/1)-(50+MediaQuery.of(context).viewPadding.top)),
+
                 child: ScrollConfiguration(
                   behavior: MyBehavior(),   // From this behaviour you can change the behaviour
                   child: ScrollablePositionedList.builder(
@@ -1093,15 +1100,30 @@ class _HomeState extends ResumableState<SeriesAsHome> {
       );
     }
   }
-  void  _goToChannels(){
+  Future<void>  _goToChannels() async {
     if(posty == -2 && postx == 4){
-      Navigator.pushReplacement(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (context, animation1, animation2) => TvChannelsHome(),
-          transitionDuration: Duration(seconds: 0),
-        ),
-      );
+      SharedPreferences s = await SharedPreferences.getInstance();
+      int? t = s.getInt("tv_type");
+
+      // tv_type
+
+      if(t!=null && t==1){
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => TvChannelsHome(),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
+      }else{
+        Navigator.pushReplacement(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (context, animation1, animation2) => SlingTv(),
+            transitionDuration: Duration(seconds: 0),
+          ),
+        );
+      }
     }
   }
   void  _goToSettings(){

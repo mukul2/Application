@@ -199,10 +199,12 @@ class _SettingChooseTVTypeWidgetState extends State<SettingChooseTVTypeWidget> {
                     child: GestureDetector(
                       onTap: (){
                         setState(() {
-                          if(widget.size > 5)
-                            widget.size --;
+                          if(widget.size == 1)
+                            widget.size = 0;
 
-                          setSize(widget.size);
+                           setTVType(widget.size);
+
+                          //setSize(widget.size);
                         });
                       },
                       child: Icon(
@@ -230,9 +232,10 @@ class _SettingChooseTVTypeWidgetState extends State<SettingChooseTVTypeWidget> {
                     child: GestureDetector(
                       onTap: (){
                         setState(() {
-                          if(widget.size< 45)
-                            widget.size++;
-                          setSize(widget.size);
+                          if(widget.size==0)
+                            widget.size = 1;
+                          setTVType(widget.size);
+                         // setSize(widget.size);
                         });
                       },
                       child: Icon(
@@ -257,5 +260,14 @@ class _SettingChooseTVTypeWidgetState extends State<SettingChooseTVTypeWidget> {
   void setSize(int size) async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setInt("subtitle_size", size);
+  }
+
+  Future<void> setTVType(int size) async {
+
+    SharedPreferences sharedPreferences =await SharedPreferences.getInstance();
+
+    sharedPreferences.setInt("tv_type", size);
+
+
   }
 }
